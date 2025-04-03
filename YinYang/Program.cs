@@ -1,8 +1,17 @@
 ﻿using YinYang;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using StbImageSharp;
 
+static WindowIcon CreateIcon()
+{
+    Stream stream = File.OpenRead("YinYangEngine.png");
+    ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+    var windowIcon = new WindowIcon(new Image(image.Width, image.Height, image.Data));
+
+    return windowIcon;
+}
 
 GameWindowSettings settings = new GameWindowSettings()
 {
@@ -12,8 +21,9 @@ GameWindowSettings settings = new GameWindowSettings()
 NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
 {
     ClientSize = new Vector2i(1920, 1080),
-    Title = "OBJ Viewer",
-    NumberOfSamples = 4
+    Title = "Yin Yang Engine | ",
+    NumberOfSamples = 4,
+    Icon = CreateIcon()
 };
 
 // GLFW.WindowHint(WindowHintInt.Samples, 4);

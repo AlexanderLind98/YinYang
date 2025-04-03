@@ -14,7 +14,7 @@ public class LightTestWorld : World
 
     public LightTestWorld(Game game) : base(game)
     {
-        WorldName = "Light Test World";
+        WorldName = game.Title + " Light Test World";
 
         SkyColor = Color4.CornflowerBlue;
         // SunColor = Vector3.Zero;
@@ -27,9 +27,7 @@ public class LightTestWorld : World
         {
             return Game.DebugMode switch
             {
-                1 => "Ambient",
-                2 => "Diffuse",
-                3 => "Specular",
+                1 => "Shadowmap",
                 _ => "Combined"
             };
         }

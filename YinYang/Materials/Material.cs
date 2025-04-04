@@ -11,6 +11,8 @@ namespace YinYang.Materials
         protected Shader shader;
         protected Dictionary<string, object> uniforms = new Dictionary<string, object>();
         private Dictionary<int, Texture> textures = new Dictionary<int, Texture>();
+        
+        public Shader Shader { get { return shader; } }
 
         public void UpdateUniforms()
         {

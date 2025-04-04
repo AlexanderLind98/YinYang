@@ -63,6 +63,8 @@ public class LightTestWorld : World
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
+
+        new PointLight(this);
     }
 
     public override void HandleInput(KeyboardState input)

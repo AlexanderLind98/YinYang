@@ -33,7 +33,7 @@ public class DirectionalLight : Light
     {
         Visualizer = new GameObjectBuilder(currentWorld.Game)
             .Model("Arrow")
-            .Material(new mat_concrete())
+            .Material(new mat_glow())
             .Position(0, 2, 0)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();

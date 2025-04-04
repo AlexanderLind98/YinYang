@@ -16,7 +16,7 @@ public class PointLight : Light
         
         Visualizer = new GameObjectBuilder(currentWorld.Game)
             .Model("Sphere")
-            .Material(new mat_concrete())
+            .Material(new mat_glow())
             .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();
@@ -35,11 +35,13 @@ public class PointLight : Light
         
         Visualizer = new GameObjectBuilder(currentWorld.Game)
             .Model("Sphere")
-            .Material(new mat_concrete())
+            .Material(new mat_glow())
             .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();
 
         currentWorld.GameObjects.Add(Visualizer);
     }
+    
+    
 }

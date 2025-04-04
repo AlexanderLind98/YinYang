@@ -8,6 +8,8 @@ public class Shader : IDisposable
     public int Handle;
     private readonly string name;
     
+    public string Name => name;
+    
     public Shader(string vertexPath, string fragmentPath)
     {
         name = Path.GetFileNameWithoutExtension(vertexPath) + "+" + Path.GetFileNameWithoutExtension(fragmentPath);

@@ -12,6 +12,8 @@ namespace YinYang
         // Using PascalCase properties for clarity.
         public Transform Transform { get; set; }
         public Renderer Renderer { get; set; }
+        public bool RenderInDepthBuffer { get; set; } = true;
+        
         private GameWindow gameWindow;
         private List<Behaviour> behaviours = new List<Behaviour>();
 
@@ -81,6 +83,10 @@ namespace YinYang
         
         public void RenderDepth(Shader shader)
         {
+            //Do not render unlit / glowing objects in shadow depth pass - A little hacky, but it does work. Maybe change to material flag?
+            if(Renderer != null && Renderer.Material.Shader.Name.Contains("Unlit") )
+                return;
+            
             if (Renderer != null)
             {
                 // Calculate the model matrix.

@@ -33,6 +33,27 @@ public class PointLight : Light
         LightColor = new Vector3(color.R * LightIntensity, color.G* LightIntensity, color.B* LightIntensity);
         DefaultColor = LightColor;
         
+        CreateVisualizer(currentWorld);
+    }
+
+    public PointLight(World currentWorld, Color4 color, Vector3 position, float intensity = 1)
+    {
+        Transform = new Transform
+        {
+            Position = position
+        };
+
+        currentWorld.PointLights.Add(this);
+        
+        LightIntensity = intensity;
+        LightColor = new Vector3(color.R * LightIntensity, color.G* LightIntensity, color.B* LightIntensity);
+        DefaultColor = LightColor;
+        
+        CreateVisualizer(currentWorld);
+    }
+    
+    private void CreateVisualizer(World currentWorld)
+    {
         Visualizer = new GameObjectBuilder(currentWorld.Game)
             .Model("Sphere")
             .Material(new mat_glow())
@@ -42,6 +63,4 @@ public class PointLight : Light
 
         currentWorld.GameObjects.Add(Visualizer);
     }
-    
-    
 }

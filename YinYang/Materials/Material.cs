@@ -79,7 +79,7 @@ namespace YinYang.Materials
             }
             else
             {
-                Console.WriteLine("Unsupported shader uniform type.");
+                Console.WriteLine($"Unsupported shader uniform type: {name}");
                 return;
             }
 

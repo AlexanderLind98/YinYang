@@ -97,7 +97,7 @@ namespace YinYang
             currentWorld.DrawWorld(args, DebugMode);
             
             if(debugQuad)
-                debugRenderer.Draw(currentWorld.depthMap, Size);
+                debugRenderer.Draw(currentWorld.point_depthMap, Size);
 
             
             SwapBuffers();

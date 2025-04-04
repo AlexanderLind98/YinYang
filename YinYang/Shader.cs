@@ -10,28 +10,33 @@ public class Shader : IDisposable
     
     public string Name => name;
     
-    public Shader(string vertexPath, string fragmentPath)
+    public Shader(string vertexPath, string fragmentPath, string? geomPath = null)
     {
         name = Path.GetFileNameWithoutExtension(vertexPath) + "+" + Path.GetFileNameWithoutExtension(fragmentPath);
         
-        // The first step in creating a shader is to load the source code from a file.
+        //Create & compile vertex shader
         string vertexSource = File.ReadAllText(vertexPath);
-        
-        // The source code is then compiled into a shader object.
         int vertexShader = GL.CreateShader(ShaderType.VertexShader);
-        
-        // The source code is then loaded into the shader object.
         GL.ShaderSource(vertexShader, vertexSource);
-        
-        // The shader object is then compiled.
         CompileShader(vertexShader);
         
-        // The same process is then repeated for the fragment shader.
+        //Create & compile fragment shader
         string fragmentSource = File.ReadAllText(fragmentPath);
         int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
         GL.ShaderSource(fragmentShader, fragmentSource);
         CompileShader(fragmentShader);
 
+        int geometryShader = 0;
+        
+        //Optionally, create the geometry shader
+        if (geomPath != null)
+        {
+            string geometrySource = File.ReadAllText(geomPath);
+            geometryShader = GL.CreateShader(ShaderType.GeometryShader);
+            GL.ShaderSource(geometryShader, geometrySource);
+            CompileShader(geometryShader);
+        }
+        
         // These two shaders must then be merged into a shader program, which can then be used by OpenGL.
         // To do this, create a program...
         Handle = GL.CreateProgram();
@@ -39,6 +44,9 @@ public class Shader : IDisposable
         // Attach both shaders...
         GL.AttachShader(Handle, vertexShader);
         GL.AttachShader(Handle, fragmentShader);
+        
+        if(geomPath != null)
+            GL.AttachShader(Handle, geometryShader);
 
         // And then link them together.
         LinkProgram(Handle);
@@ -47,8 +55,15 @@ public class Shader : IDisposable
         // Detach them, and then delete them, to free up memory.
         GL.DetachShader(Handle, vertexShader);
         GL.DetachShader(Handle, fragmentShader);
+        
+        if(geomPath != null)
+            GL.DetachShader(Handle, geometryShader);
+        
         GL.DeleteShader(fragmentShader);
         GL.DeleteShader(vertexShader);
+        
+        if(geomPath != null)
+            GL.DeleteShader(geometryShader);
     }
     
     private void CompileShader(int shader)

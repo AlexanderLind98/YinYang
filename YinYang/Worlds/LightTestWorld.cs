@@ -1,6 +1,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
+using YinYang.Components;
 using YinYang.Lights;
 using YinYang.Materials;
 
@@ -52,7 +53,7 @@ public class LightTestWorld : World
 
         rotatingCube = new GameObjectBuilder(Game)
             .Model("SmoothCube")
-            .Material(new mat_glow())
+            .Material(new mat_chrome())
             .Position(1.5f, 0f, 0f)
             .Behavior<RotateObjectBehavior>(Vector3.UnitX, 1f)
             .Build();
@@ -63,8 +64,8 @@ public class LightTestWorld : World
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
-
-        new PointLight(this);
+        
+        new PointLight(this, Color4.White, new Vector3(-4, 2, 0), 2.0f);
     }
 
     public override void HandleInput(KeyboardState input)

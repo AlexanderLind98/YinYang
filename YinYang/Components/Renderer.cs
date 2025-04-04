@@ -38,7 +38,9 @@ namespace YinYang.Components
             Material.SetUniform("mvp", mvp);
             Material.SetUniform("model", model);
             Material.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
-            Material.SetUniform("shadowMap", currentWorld.depthMap);
+            Material.SetUniform("dirShadowMap", currentWorld.dir_depthMap);
+            Material.SetUniform("pointShadowMap", currentWorld.point_depthMap);
+            Material.SetUniform("far_plane", currentWorld.depthFarPlane);
 
             Matrix4 normalMatrix = Matrix4.Invert(model);
 

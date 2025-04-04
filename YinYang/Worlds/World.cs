@@ -28,12 +28,21 @@ public abstract class World
 
     private Shader dir_depthShader;
     private int dir_depthMapFBO;
-    public Texture depthMap;
+    public Texture dir_depthMap;
     
     public Shader debugShader;
     public QuadMesh quadMesh;
-    private int shadowMap;
-    private int shadowResolution = 4096;
+    private int dirShadowMap;
+    private int dirShadowResolution = 4096;
+    
+    private Shader point_depthShader;
+    private int point_depthMapFBO;
+    public Texture point_depthMap;
+    
+    private int pointShadowMap;
+    private int pointShadowResolution = 2048;
+    private float depthNearPlane = 0.1f;
+    public float depthFarPlane = 50.0f;
 
     protected World(Game game)
     {
@@ -70,15 +79,50 @@ public abstract class World
         GL.Enable(EnableCap.FramebufferSrgb); //Enabling gamma correction - handled by OpenGL
         GL.ClearColor(SkyColor);
 
+        SetupDirDepthMaps();
+
+        point_depthShader = new Shader("Shaders/PointDepth.vert", "Shaders/PointDepth.frag", "Shaders/PointDepth.geom");
+        point_depthMapFBO = GL.GenFramebuffer();
+        
+        pointShadowMap = GL.GenTexture();
+        GL.BindTexture(TextureTarget.TextureCubeMap, pointShadowMap);
+
+        for (int i = 0; i < 6; ++i)
+            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.DepthComponent, pointShadowResolution, pointShadowResolution, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+        GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+        GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+        // attach depth texture as FBO's deph buffer
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, point_depthMapFBO);
+        GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, pointShadowMap, 0);
+        GL.DrawBuffer(DrawBufferMode.None);
+        GL.ReadBuffer(ReadBufferMode.None);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+        point_depthMap = new Texture(pointShadowMap);
+
+        //SetupDebugQuad();
+        
+        GL.Enable(EnableCap.DepthTest);
+        GL.Enable(EnableCap.CullFace);
+        
+        ConstructWorld();
+    }
+
+    private void SetupDirDepthMaps()
+    {
         //Depth shader
         dir_depthShader = new Shader("Shaders/DirDepth.vert", "Shaders/DirDepth.frag");
         dir_depthMapFBO = GL.GenFramebuffer();
         
         // Opret depth texture
-        shadowMap = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, shadowMap);
+        dirShadowMap = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, dirShadowMap);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent,
-            shadowResolution, shadowResolution, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            dirShadowResolution, dirShadowResolution, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
         // Konfigurer texture parametre
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -89,19 +133,12 @@ public abstract class World
 
         // Bind til framebuffer
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, dir_depthMapFBO);
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, shadowMap, 0);
+        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, dirShadowMap, 0);
         GL.DrawBuffer(DrawBufferMode.None);
         GL.ReadBuffer(ReadBufferMode.None);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         
-        depthMap = new Texture(shadowMap);
-        
-        //SetupDebugQuad();
-        
-        GL.Enable(EnableCap.DepthTest);
-        GL.Enable(EnableCap.CullFace);
-        
-        ConstructWorld();
+        dir_depthMap = new Texture(dirShadowMap);
     }
 
     public void UpdateWorld(FrameEventArgs args)
@@ -115,32 +152,42 @@ public abstract class World
     public void DrawWorld(FrameEventArgs args, int debugMode)
     {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        // GL.CullFace(TriangleFace.Front);
         
-        Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10, 10, 0.1f, 50.0f);
-        Matrix4 lightView = Matrix4.LookAt(new Vector3(DirectionalLight.Transform.Position),
-            new Vector3(DirectionalLight.Transform.Position + DirectionalLight.Transform.Rotation),
-            new Vector3(0.0f, 1.0f, 0.0f));
-        Matrix4 lightSpaceMatrix = lightView * lightProjection;
+        Matrix4 lightSpaceMatrix = DirShadowMap();
+
+        PointLight refLight = PointLights[0];
         
-        depthMap.Use();
-        dir_depthShader.Use();
-        dir_depthShader.SetMatrix("lightSpaceMatrix", lightSpaceMatrix);
+        //Create cubemap matrices
+        Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f),
+            pointShadowResolution / pointShadowResolution, depthNearPlane, depthFarPlane);
+
+        List<Matrix4> shadowTransforms = new List<Matrix4>();
+        Vector3 lightPos = refLight.Transform.Position;
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
         
-        GL.Viewport(0, 0, shadowResolution, shadowResolution);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, dir_depthMapFBO);
+        //Render to cubemap texture
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, point_depthMapFBO);
         GL.Clear(ClearBufferMask.DepthBufferBit);
+        point_depthShader.Use();
+        for (int i = 0; i < 6; i++)
+            point_depthShader.SetMatrix($"shadowMatrices[{i}]", shadowTransforms[i]);
+        point_depthShader.SetFloat("far_plane", depthFarPlane);
+        point_depthShader.SetVector3("lightPos", lightPos);
+        GameObjects.ForEach(x => x.RenderDepth(point_depthShader));
         
-        GameObjects.ForEach(x => x.RenderDepth(dir_depthShader));
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        
+
         // reset viewport
         GL.CullFace(TriangleFace.Back);
         GL.Viewport(0, 0, Game.Size.X, Game.Size.Y);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
-        //RenderDebugQuad();
-
+        //Draw scene from Cam perspective
         Matrix4 viewProjection = camera.GetViewProjection();
         
         Vector3 cameraPos = camera.Position;
@@ -148,6 +195,30 @@ public abstract class World
         {
             obj.Draw(viewProjection, lightSpaceMatrix, camera, this, debugMode);
         }
+    }
+
+    private Matrix4 DirShadowMap()
+    {
+        // GL.CullFace(TriangleFace.Front);
+        
+        Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10, 10, depthNearPlane, depthFarPlane);
+        Matrix4 lightView = Matrix4.LookAt(new Vector3(DirectionalLight.Transform.Position),
+            new Vector3(DirectionalLight.Transform.Position + DirectionalLight.Transform.Rotation),
+            new Vector3(0.0f, 1.0f, 0.0f));
+        Matrix4 lightSpaceMatrix = lightView * lightProjection;
+        
+        dir_depthMap.Use();
+        dir_depthShader.Use();
+        dir_depthShader.SetMatrix("lightSpaceMatrix", lightSpaceMatrix);
+        
+        GL.Viewport(0, 0, dirShadowResolution, dirShadowResolution);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, dir_depthMapFBO);
+        GL.Clear(ClearBufferMask.DepthBufferBit);
+        
+        GameObjects.ForEach(x => x.RenderDepth(dir_depthShader));
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        
+        return lightSpaceMatrix;
     }
 
     public void UnloadWorld()
@@ -203,7 +274,7 @@ public abstract class World
 
         debugShader.Use();
         debugShader.SetInt("depthMap", 0);
-        depthMap.Use(); // binder shadowMap til Texture0
+        dir_depthMap.Use(); // binder shadowMap til Texture0
         quadMesh.Draw();
         
         // Console.WriteLine("Rendering debug quad");

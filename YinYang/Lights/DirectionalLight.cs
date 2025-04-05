@@ -9,24 +9,24 @@ public class DirectionalLight : Light
 {
     public Transform Transform;
 
-    public DirectionalLight(World currentWorld)
-    {
-        Transform = new Transform();
-        currentWorld.DirectionalLight = this;
-        
-        CreateVisualizer(currentWorld);
-    }
+    // public DirectionalLight(World currentWorld)
+    // {
+    //     Transform = new Transform();
+    //     currentWorld.DirectionalLight = this;
+    //     
+    //     CreateVisualizer(currentWorld);
+    // }
 
     public DirectionalLight(World currentWorld, Color4 color, float intensity = 1)
     {
         Transform = new Transform();
-        currentWorld.DirectionalLight = this;
+        //currentWorld.DirectionalLight = this;
         
         LightIntensity = intensity;
         LightColor = new Vector3(color.R * LightIntensity, color.G* LightIntensity, color.B* LightIntensity);
         DefaultColor = LightColor;
         
-        //CreateVisualizer(currentWorld);
+        //CreateVisualizer(currentWorld); TODO maybe better to have a visualizer in the world or via lightingmanager
     }
 
     private void CreateVisualizer(World currentWorld)

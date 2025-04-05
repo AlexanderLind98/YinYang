@@ -11,7 +11,7 @@ void main()
     
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
 
-    //hdrColor *= vec3(1.0, 0.5, 0.5); // red tint debug
+    hdrColor *= vec3(1.0, 0.5, 0.5); // red tint debug
 
     // Reinhard tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * 1.0);

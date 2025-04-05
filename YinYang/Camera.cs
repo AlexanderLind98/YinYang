@@ -1,5 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
 
 namespace YinYang
@@ -15,10 +17,16 @@ namespace YinYang
         private float far;
         
         public Vector3 Position => gameObject.Transform.Position;
+        
+        private readonly GameWindow window;
 
+        public int RenderWidth => window.Size.X;
+        public int RenderHeight => window.Size.Y;
 
         public Camera(GameObject gameObject, Game window, float FOV, float aspectX, float aspectY,float near,float far) : base(gameObject, window)
         {
+            this.window = window;
+            
             gameObject.Transform.Position = new Vector3(0.0f, 0.0f, 5.0f);
             gameObject.Transform.Rotation = new Vector3(0.0f, -90.0f, 0.0f);
             this.FOV = FOV;
@@ -32,6 +40,9 @@ namespace YinYang
         { 
             //Movement moved -> CamMoveBehavior.cs
         }
+        
+        public virtual void HandleInput(KeyboardState input) { }
+
         public Matrix4 GetViewProjection()
         {
             Matrix4 view = Matrix4.LookAt(gameObject.Transform.Position, gameObject.Transform.Position + Front, Up);

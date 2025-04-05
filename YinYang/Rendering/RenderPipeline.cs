@@ -1,126 +1,69 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using YinYang.Managers;
+using YinYang.Worlds;
 
 namespace YinYang.Rendering
 {
     /// <summary>
-    /// Coordinates all rendering passes including shadow map generation and preparation for scene rendering.
+    /// Coordinates rendering by managing a sequence of modular render passes.
     /// </summary>
     /// <remarks>
-    /// Currently handles directional shadow rendering and manages the associated depth framebuffer.
+    /// This version of the RenderPipeline supports modular render passes that can be chained and executed in sequence.
     /// </remarks>
     public class RenderPipeline
     {
-        private int shadowFramebufferHandle;
-        private int shadowMapResolution = 4096;
-        private Shader shadowDepthShader;
+        private readonly List<RenderPass> renderPasses = new();
+        
+        /// <summary>
+        /// Temporary passthrough to access shadow depth texture.
+        /// </summary>
+        public Texture ShadowDepthTexture =>
+            renderPasses.OfType<ShadowRenderPass>().FirstOrDefault()?.ShadowDepthTexture;
 
         /// <summary>
-        /// The texture holding the final shadow depth map used for lighting and shading.
+        /// Adds a render pass to the pipeline.
         /// </summary>
-        public Texture ShadowDepthTexture { get; private set; }
-
-        /// <summary>
-        /// Initializes the shadow rendering pipeline by creating the framebuffer and depth texture.
-        /// </summary>
-        public void InitializeShadowPass()
+        /// <param name="pass">The render pass to add.</param>
+        public void AddPass(RenderPass pass)
         {
-            // Load the shader used for rendering the scene from the light's point of view.
-            shadowDepthShader = new Shader("Shaders/DirDepth.vert", "Shaders/DirDepth.frag");
-
-            // Create a framebuffer object specifically for shadow depth rendering.
-            shadowFramebufferHandle = GL.GenFramebuffer();
-
-            // Create the depth texture to store distances from the light source.
-            int shadowDepthTextureHandle = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, shadowDepthTextureHandle);
-            GL.TexImage2D(TextureTarget.Texture2D,
-                0,
-                PixelInternalFormat.DepthComponent,
-                shadowMapResolution,
-                shadowMapResolution,
-                0,
-                PixelFormat.DepthComponent,
-                PixelType.Float,
-                IntPtr.Zero);
-
-            // Set texture sampling and wrapping behavior.
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { 1, 1, 1, 1 });
-
-            // Bind the depth texture to the framebuffer.
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, shadowFramebufferHandle);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                FramebufferAttachment.DepthAttachment,
-                TextureTarget.Texture2D,
-                shadowDepthTextureHandle,
-                0);
-
-            // Disable color rendering to this framebuffer.
-            GL.DrawBuffer(DrawBufferMode.None);
-            GL.ReadBuffer(ReadBufferMode.None);
-
-            // Unbind for now.
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-            // Wrap the OpenGL texture in a reusable Texture class instance.
-            ShadowDepthTexture = new Texture(shadowDepthTextureHandle);
+            renderPasses.Add(pass);
         }
 
         /// <summary>
-        /// Executes the directional shadow rendering pass.
+        /// Executes all render passes in the order they were added.
         /// </summary>
-        /// <param name="lighting">Access to the directional light's transform.</param>
-        /// <param name="objects">Objects to render to the shadow map.</param>
-        /// <returns>The light space matrix used for shadow projection in the scene pass.</returns>
-        /// <remarks>
-        /// The light space matrix transforms world-space coordinates into the light's clip space.
-        /// It's used to sample the shadow depth map during scene rendering to determine occlusion.
-        /// </remarks>
-        public Matrix4 RenderShadowPass(LightingManager lighting, ObjectManager objects)
+        /// <param name="camera">The camera providing view/projection data.</param>
+        /// <param name="lighting">Scene lighting information.</param>
+        /// <param name="objects">Objects to render.</param> // TODO: maybe decouple objectmanger and use list or delegate for objects to render
+        /// <param name="currentWorld">The current world instance.</param>
+        /// <param name="debugMode">The current debug mode.</param>
+        /// <returns>The last computed light-space matrix, if any.</returns>
+        public Matrix4 RenderAll(Camera camera, LightingManager lighting, ObjectManager objects, World currentWorld, int debugMode)
         {
-            // Construct an orthographic projection for the directional light's shadow volume.
-            Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10f, 10f, 0.1f, 50.0f);
+            Matrix4 lightSpaceMatrix = Matrix4.Identity;
 
-            // Create a view matrix that looks from the light's position towards its direction.
-            Matrix4 lightView = Matrix4.LookAt(
-                lighting.Sun.Transform.Position,
-                lighting.Sun.Transform.Position + lighting.Sun.Transform.Rotation,
-                Vector3.UnitY);
+            foreach (var pass in renderPasses)
+            {
+                if (!pass.Enabled)
+                    continue;
 
-            // Combine the projection and view matrices to create the light-space transform.
-            // This matrix converts world-space coordinates into the shadow map's coordinate space.
-            Matrix4 lightSpaceMatrix = lightView * lightProjection;
-
-            // Use the shadow depth shader to render depth from the light's perspective.
-            shadowDepthShader.Use();
-            shadowDepthShader.SetMatrix("lightSpaceMatrix", lightSpaceMatrix);
-
-            // Bind the shadow framebuffer and configure the viewport for shadow resolution.
-            GL.Viewport(0, 0, shadowMapResolution, shadowMapResolution);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, shadowFramebufferHandle);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-
-            // Perform a depth-only rendering pass for all scene objects.
-            objects.RenderDepth(shadowDepthShader);
-
-            // Unbind the framebuffer to return to the default.
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                // Execute each render pass with the valid world instance.
+                lightSpaceMatrix = pass.Execute(camera, lighting, objects, lightSpaceMatrix, currentWorld);
+            }
 
             return lightSpaceMatrix;
         }
 
         /// <summary>
-        /// Dispose of the shadow rendering resources.
+        /// Disposes all render passes in the pipeline.
         /// </summary>
         public void Dispose()
         {
-            shadowDepthShader.Dispose();
-            GL.DeleteFramebuffer(shadowFramebufferHandle);
+            foreach (var pass in renderPasses)
+            {
+                pass.Dispose();
+            }
         }
     }
 }

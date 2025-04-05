@@ -3,6 +3,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using YinYang.Behaviors;
 using YinYang.Components;
+using YinYang.Rendering;
 using YinYang.Worlds;
 
 namespace YinYang
@@ -64,7 +65,7 @@ namespace YinYang
             }
         }
 
-        public void Draw(Matrix4 viewProjection, Matrix4 lightSpaceMatrix,  Camera camera, World currentWorld, int debugMode = 0)
+        public void Draw(Matrix4 viewProjection, Matrix4 lightSpaceMatrix, Camera camera, World currentWorld, int debugMode = 0)
         {
             if (Renderer != null)
             {

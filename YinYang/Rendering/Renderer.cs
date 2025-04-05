@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 using YinYang.Materials;
 using YinYang.Worlds;
 
-namespace YinYang.Components
+namespace YinYang.Rendering
 {
     public class Renderer
     {
@@ -38,11 +38,12 @@ namespace YinYang.Components
             Material.SetUniform("mvp", mvp);
             Material.SetUniform("model", model);
             Material.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
+        
             Material.SetUniform("shadowMap", currentWorld.depthMap);
 
             Matrix4 normalMatrix = Matrix4.Invert(model);
 
-            Material.SetUniform("normalMatrix", normalMatrix); // Correct normal matrix passed to the shader
+            Material.SetUniform("normalMatrix", normalMatrix); 
 
             SetSun(currentWorld);
             SpotLights(camera, currentWorld);

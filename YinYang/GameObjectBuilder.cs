@@ -2,6 +2,7 @@ using OpenTK.Mathematics;
 using YinYang.Behaviors;
 using YinYang.Components;
 using YinYang.Materials;
+using YinYang.Rendering;
 
 namespace YinYang;
 

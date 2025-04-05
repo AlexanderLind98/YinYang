@@ -1,6 +1,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
 
 namespace YinYang.Managers
@@ -45,6 +46,25 @@ namespace YinYang.Managers
             // Lock and focus the cursor inside the game window.
             game.CursorState = CursorState.Grabbed;
         }
+        
+        /// <summary>
+        /// Updates the camera's internal state and any attached behaviors.
+        /// </summary>
+        /// <param name="args">Frame timing information.</param>
+        public void Update(FrameEventArgs args)
+        {
+            Camera?.Update(args);
+        }
+        
+        /// <summary>
+        /// Handles keyboard input for the camera.
+        /// </summary>
+        /// <param name="input">Current keyboard state.</param>
+        public void HandleInput(KeyboardState input)
+        {
+            Camera?.HandleInput(input);
+        }
+
 
         /// <summary>
         /// Returns the view-projection matrix from the active camera.

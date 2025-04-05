@@ -22,7 +22,7 @@ namespace YinYang.Worlds
         public readonly Game Game;
 
         /// <summary>
-        /// A human-readable label shown in debug UI.
+        /// A label shown in debug UI.
         /// </summary>
         public virtual string DebugLabel => "Combined";
 
@@ -59,6 +59,7 @@ namespace YinYang.Worlds
 
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
+
         
         // Temporary access to game objects TODO: refactor to access through objectManager
         public List<GameObject> GameObjects => objectManager.GameObjects;
@@ -78,8 +79,10 @@ namespace YinYang.Worlds
             // Set up lighting system including directional sunlight.
             lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
-            // Prepare the pipeline responsible for directional shadow rendering.
-            renderPipeline.InitializeShadowPass();
+            // Initialize modular render passes
+            var shadowPass = new ShadowRenderPass();
+            renderPipeline.AddPass(shadowPass);
+            renderPipeline.AddPass(new SceneRenderPass());
         }
 
         /// <summary>
@@ -91,7 +94,10 @@ namespace YinYang.Worlds
         /// Optional input handling hook (called every frame).
         /// </summary>
         /// <param name="input">Keyboard state snapshot.</param>
-        public virtual void HandleInput(KeyboardState input) { }
+        public virtual void HandleInput(KeyboardState input)
+        {
+            cameraManager.HandleInput(input); 
+        }
 
         /// <summary>
         /// Returns the sky color vector (used for ambient light calculation).
@@ -125,29 +131,43 @@ namespace YinYang.Worlds
         public void UpdateWorld(FrameEventArgs args)
         {
             objectManager.Update(args);
+            cameraManager.Update(args);
+
         }
 
         /// <summary>
-        /// Called every frame to render the world, including shadow and object passes.
+        /// Called every frame to render the world, including shadows and scene objects.
         /// </summary>
         /// <param name="args">Frame timing arguments.</param>
-        /// <param name="debugMode">Active shader debug mode.</param>
+        /// <param name="debugMode">Active debug mode for shader configuration.</param>
         public void DrawWorld(FrameEventArgs args, int debugMode)
         {
-            // First, render shadows from the directional light's perspective.
-            Matrix4 lightSpaceMatrix = renderPipeline.RenderShadowPass(lightingManager, objectManager);
-
-            // Reset the viewport for standard screen rendering.
-            GL.Viewport(0, 0, Game.Size.X, Game.Size.Y);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            // Compute the camera's view-projection matrix, which transforms world coordinates
-            // into clip space (screen-ready). This combines camera's orientation and lens properties.
-            Matrix4 viewProjection = cameraManager.GetViewProjection();
-
-            // Draw all game objects using lighting, view-projection, and shadow projection matrices.
-            objectManager.Render(viewProjection, lightSpaceMatrix, cameraManager.Camera, this, debugMode);
+            // Execute all render passes configured in the render pipeline using the current world instance.
+            renderPipeline.RenderAll(cameraManager.Camera, lightingManager, objectManager, this, debugMode);
         }
+
+
+        // /// <summary>
+        // /// Called every frame to render the world, including shadow and object passes.
+        // /// </summary>
+        // /// <param name="args">Frame timing arguments.</param>
+        // /// <param name="debugMode">Active shader debug mode.</param>
+        // public void DrawWorld(FrameEventArgs args, int debugMode)
+        // {
+        //     // First, render shadows from the directional light's perspective.
+        //     Matrix4 lightSpaceMatrix = renderPipeline.RenderShadowPass(lightingManager, objectManager);
+        //
+        //     // Reset the viewport for standard screen rendering.
+        //     GL.Viewport(0, 0, Game.Size.X, Game.Size.Y);
+        //     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        //
+        //     // Compute the camera's view-projection matrix, which transforms world coordinates
+        //     // into clip space (screen-ready). This combines camera's orientation and lens properties.
+        //     Matrix4 viewProjection = cameraManager.GetViewProjection();
+        //
+        //     // Draw all game objects using lighting, view-projection, and shadow projection matrices.
+        //     objectManager.Render(viewProjection, lightSpaceMatrix, cameraManager.Camera, this, debugMode);
+        // }
 
         /// <summary>
         /// Called when the world is being disposed or switched.

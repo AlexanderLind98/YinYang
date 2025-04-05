@@ -9,14 +9,24 @@ namespace YinYang.Behaviors;
 /// </summary>
 public class CamMoveBehavior(GameObject gameObject, Game window) : Behaviour(gameObject, window)
 {
+    private Camera cameraComponent;
+    
     private Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
     private Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
     private float speed = 10.0f;
     private float sensitivity = 10.0f;
-    private readonly Camera cameraComponent = gameObject.GetComponent<Camera>();
 
     public override void Update(FrameEventArgs args)
     {
+        if (cameraComponent == null)
+            cameraComponent = gameObject.GetComponent<Camera>();
+
+        if (cameraComponent == null)
+        {
+            Console.WriteLine("CamMoveBehavior: Camera component not found.");
+            return;
+        }
+        
         KeyboardState input = window.KeyboardState;
         MouseState mouse = window.MouseState;
 

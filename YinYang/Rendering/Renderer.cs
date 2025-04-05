@@ -60,18 +60,12 @@ namespace YinYang.Rendering
             Material.SetUniform("viewPos", camera.Position);
             Material.SetUniform("debugMode", currentDebugMode);
 
-<<<<<<< Updated upstream:YinYang/Components/Renderer.cs
-<<<<<<< Updated upstream:YinYang/Components/Renderer.cs
+
             Matrix4 normalMatrix = Matrix4.Invert(model);
 
             Material.SetUniform("normalMatrix", normalMatrix); 
 
-=======
             // set lights
->>>>>>> Stashed changes:YinYang/Rendering/Renderer.cs
-=======
-            // set lights
->>>>>>> Stashed changes:YinYang/Rendering/Renderer.cs
             SetSun(currentWorld);
             SpotLights(camera, currentWorld);
             PointLights(currentWorld);

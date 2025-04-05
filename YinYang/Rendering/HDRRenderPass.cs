@@ -194,21 +194,11 @@ namespace YinYang.Rendering
             // Enable depth testing for scene rendering
             GL.Enable(EnableCap.DepthTest);
 
-            // Bind scene objects and draw them
+            Matrix4 viewProj = camera.GetViewProjection();
             foreach (var obj in objects.GameObjects)
             {
-                if (obj.Renderer == null) continue;
-
-                var model = obj.Transform.CalculateModel();
-                var viewProj = camera.GetViewProjection();
-
-                obj.Renderer.SetSun(currentWorld);
-                obj.Renderer.PointLights(currentWorld);
-                obj.Renderer.SpotLights(camera, currentWorld);
-
-                obj.Renderer.Draw(viewProj, lightSpaceMatrix, model, camera, 0, currentWorld);
+                obj.Draw(viewProj, lightSpaceMatrix, camera, currentWorld, 0);
             }
-
         }
 
         public override void Dispose()

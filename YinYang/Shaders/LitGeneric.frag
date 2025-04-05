@@ -94,7 +94,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular);
 float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal);
 float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
-float PointShadowCalculation(vec3 fragPos, vec3 lightPos);
+//float PointShadowCalculation(vec3 fragPos, vec3 lightPos);
 
 //Methods
 float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
@@ -150,7 +150,7 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     shadow /= float(samples);
 
     // display closestDepth as debug (to visualize depth cubemap)
-//    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
+    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
 
     return shadow;
 }

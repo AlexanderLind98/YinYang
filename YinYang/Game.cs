@@ -17,7 +17,7 @@ namespace YinYang
         
         public World currentWorld;
 
-        private bool debugQuad = false;
+        private bool debugQuad = true;
 
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)

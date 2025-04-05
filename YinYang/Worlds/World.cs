@@ -2,219 +2,160 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using YinYang.Behaviors;
 using YinYang.Lights;
-using YinYang.Shapes;
+using YinYang.Managers;
+using YinYang.Rendering;
 
-namespace YinYang.Worlds;
-
-public abstract class World
+namespace YinYang.Worlds
 {
-    public readonly List<GameObject> GameObjects = [];
-    public readonly Game Game;
-
-    public virtual string DebugLabel => "Combined";
-    public string WorldName { get; set; }
-
-    private Camera camera;
-
-    public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f); //Set default sun direction;
-    public Vector3 SunColor = new Vector3(2f, 2f, 1.8f); //Set default sun direction;
-    public Color4 SkyColor = Color4.CornflowerBlue;
-    
-    public DirectionalLight DirectionalLight;
-    public List<PointLight> PointLights = new();
-    public List<SpotLight> SpotLights = new();
-
-    private Shader dir_depthShader;
-    private int dir_depthMapFBO;
-    public Texture depthMap;
-    
-    public Shader debugShader;
-    public QuadMesh quadMesh;
-    private int shadowMap;
-    private int shadowResolution = 4096;
-
-    protected World(Game game)
-    {
-        Game = game;
-        SetupCamera();
-        
-        //Basic Sun
-        DirectionalLight = new DirectionalLight(this, Color4.LightYellow, 1);
-        DirectionalLight.Transform.Rotation = SunDirection;
-        DirectionalLight.Transform.Position = new Vector3(2, 5, -2);
-        DirectionalLight.UpdateVisualizer(this);
-    }
-
     /// <summary>
-    /// Method used for constructing initial world
+    /// Represents a high-level simulation world that coordinates game object updates and rendering.
     /// </summary>
-    protected virtual void ConstructWorld() { }
-    
-    public virtual void HandleInput(KeyboardState input) { }
-
-    public Vector3 GetSkyColor()
+    /// <remarks>
+    /// Delegates rendering and system logic to manager classes to ensure modular design.
+    /// </remarks>
+    public abstract class World
     {
-        return new Vector3(SkyColor.R, SkyColor.G, SkyColor.B);
-    }
-    
-    public Vector3 GetSkyColor(float intensity)
-    {
-        return new Vector3(SkyColor.R + intensity, SkyColor.G + intensity, SkyColor.B + intensity);
-    }
+        /// <summary>
+        /// Reference to the core game instance.
+        /// </summary>
+        public readonly Game Game;
 
-    public void LoadWorld()
-    {
-        GL.Enable(EnableCap.DepthTest);
-        GL.Enable(EnableCap.FramebufferSrgb); //Enabling gamma correction - handled by OpenGL
-        GL.ClearColor(SkyColor);
+        /// <summary>
+        /// A human-readable label shown in debug UI.
+        /// </summary>
+        public virtual string DebugLabel => "Combined";
 
-        //Depth shader
-        dir_depthShader = new Shader("Shaders/DirDepth.vert", "Shaders/DirDepth.frag");
-        dir_depthMapFBO = GL.GenFramebuffer();
-        
-        // Opret depth texture
-        shadowMap = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, shadowMap);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent,
-            shadowResolution, shadowResolution, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+        /// <summary>
+        /// Identifier name for the world (used when switching scenes).
+        /// </summary>
+        public string WorldName { get; set; }
 
-        // Konfigurer texture parametre
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { 1, 1, 1, 1 });
+        /// <summary>
+        /// The sky color used to clear the screen and influence ambient lighting.
+        /// </summary>
+        public Color4 SkyColor = Color4.CornflowerBlue;
 
-        // Bind til framebuffer
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, dir_depthMapFBO);
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, shadowMap, 0);
-        GL.DrawBuffer(DrawBufferMode.None);
-        GL.ReadBuffer(ReadBufferMode.None);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        
-        depthMap = new Texture(shadowMap);
-        
-        //SetupDebugQuad();
-        
-        GL.Enable(EnableCap.DepthTest);
-        GL.Enable(EnableCap.CullFace);
-        
-        ConstructWorld();
-    }
+        /// <summary>
+        /// Default sun direction vector (used at startup).
+        /// </summary>
+        public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
 
-    public void UpdateWorld(FrameEventArgs args)
-    {
-        foreach (var obj in GameObjects)
+        /// <summary>
+        /// Default sun light color (also represents intensity).
+        /// </summary>
+        public Vector3 SunColor = new Vector3(2f, 2f, 1.8f);
+
+        // Core manager systems for modular responsibilities.
+        protected CameraManager cameraManager = new();
+        protected ObjectManager objectManager = new();
+        protected LightingManager lightingManager = new();
+        protected RenderPipeline renderPipeline = new();
+        
+        // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
+        public DirectionalLight DirectionalLight => lightingManager.Sun;
+        public List<PointLight> PointLights => lightingManager.PointLights;
+        public List<SpotLight> SpotLights => lightingManager.SpotLights;
+
+        // Temporary access to shadow map TODO: refcator to acces through renderpipeline
+        public Texture depthMap => renderPipeline.ShadowDepthTexture;
+        
+        // Temporary access to game objects TODO: refactor to access through objectManager
+        public List<GameObject> GameObjects => objectManager.GameObjects;
+
+
+        /// <summary>
+        /// Constructs a new world, initializing cameras, lights, and the shadow pipeline.
+        /// </summary>
+        /// <param name="game">The game instance owning this world.</param>
+        protected World(Game game)
         {
-            obj.Update(args);
-        }
-    }
+            Game = game;
 
-    public void DrawWorld(FrameEventArgs args, int debugMode)
-    {
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        // GL.CullFace(TriangleFace.Front);
-        
-        Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10, 10, 0.1f, 50.0f);
-        Matrix4 lightView = Matrix4.LookAt(new Vector3(DirectionalLight.Transform.Position),
-            new Vector3(DirectionalLight.Transform.Position + DirectionalLight.Transform.Rotation),
-            new Vector3(0.0f, 1.0f, 0.0f));
-        Matrix4 lightSpaceMatrix = lightView * lightProjection;
-        
-        depthMap.Use();
-        dir_depthShader.Use();
-        dir_depthShader.SetMatrix("lightSpaceMatrix", lightSpaceMatrix);
-        
-        GL.Viewport(0, 0, shadowResolution, shadowResolution);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, dir_depthMapFBO);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
-        
-        GameObjects.ForEach(x => x.RenderDepth(dir_depthShader));
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        
-        // reset viewport
-        GL.CullFace(TriangleFace.Back);
-        GL.Viewport(0, 0, Game.Size.X, Game.Size.Y);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        
-        //RenderDebugQuad();
+            // Initialize the camera as a game object and grab the cursor.
+            cameraManager.Setup(Game, objectManager.GameObjects);
 
-        Matrix4 viewProjection = camera.GetViewProjection();
-        
-        Vector3 cameraPos = camera.Position;
-        foreach (var obj in GameObjects)
-        {
-            obj.Draw(viewProjection, lightSpaceMatrix, camera, this, debugMode);
-        }
-    }
+            // Set up lighting system including directional sunlight.
+            lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
-    public void UnloadWorld()
-    {
-        foreach (var obj in GameObjects)
-        {
-            if (obj.Renderer != null)
-            {
-                obj.Renderer.Mesh?.Dispose();
-
-                if (obj.Renderer.Material is IDisposable disposableMat)
-                {
-                    disposableMat.Dispose();
-                }
-            }
+            // Prepare the pipeline responsible for directional shadow rendering.
+            renderPipeline.InitializeShadowPass();
         }
 
-        foreach (var obj in GameObjects)
+        /// <summary>
+        /// Constructs the contents of the world (models, lights, etc).
+        /// </summary>
+        protected virtual void ConstructWorld() { }
+
+        /// <summary>
+        /// Optional input handling hook (called every frame).
+        /// </summary>
+        /// <param name="input">Keyboard state snapshot.</param>
+        public virtual void HandleInput(KeyboardState input) { }
+
+        /// <summary>
+        /// Returns the sky color vector (used for ambient light calculation).
+        /// </summary>
+        public Vector3 GetSkyColor() => new(SkyColor.R, SkyColor.G, SkyColor.B);
+
+        /// <summary>
+        /// Returns the sky color with an added intensity (for ambient variation).
+        /// </summary>
+        public Vector3 GetSkyColor(float intensity)
         {
-            obj.Dispose();
+            return new Vector3(SkyColor.R + intensity, SkyColor.G + intensity, SkyColor.B + intensity);
         }
-        
-        // todo: visualizer dispose
-        
-        dir_depthShader.Dispose();
 
-        GameObjects.Clear();
-    }
-    
-    /// <summary>
-    /// Sets up the main camera.
-    /// </summary>
-    private void SetupCamera()
-    {
-        GameObject cameraObject = new GameObject(Game);
-        cameraObject.AddComponent<Camera>(60.0f, (float)Game.Size.X, (float)Game.Size.Y, 0.3f, 1000.0f);
-        cameraObject.AddComponent<CamMoveBehavior>();
-        camera = cameraObject.GetComponent<Camera>();
-        GameObjects.Add(cameraObject);
+        /// <summary>
+        /// Called once to prepare all OpenGL state and build world contents.
+        /// </summary>
+        public void LoadWorld()
+        {
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.FramebufferSrgb);
+            GL.ClearColor(SkyColor);
 
-        //Grab focus for cursor, locking it to window
-        Game.CursorState = CursorState.Grabbed;
-    }
-    
-    private void RenderDebugQuad()
-    {
-        // Gem eksisterende viewport
-        int[] fullViewport = new int[4];
-        GL.GetInteger(GetPName.Viewport, fullViewport);
+            ConstructWorld();
+        }
 
-        // Sæt viewport til 1/4 skærmstørrelse (nederste venstre hjørne)
-        GL.Viewport(0, 0, Game.Size.X / 4, Game.Size.Y / 4);
+        /// <summary>
+        /// Called every frame to update object behavior.
+        /// </summary>
+        /// <param name="args">Frame timing arguments.</param>
+        public void UpdateWorld(FrameEventArgs args)
+        {
+            objectManager.Update(args);
+        }
 
-        debugShader.Use();
-        debugShader.SetInt("depthMap", 0);
-        depthMap.Use(); // binder shadowMap til Texture0
-        quadMesh.Draw();
-        
-        // Console.WriteLine("Rendering debug quad");
+        /// <summary>
+        /// Called every frame to render the world, including shadow and object passes.
+        /// </summary>
+        /// <param name="args">Frame timing arguments.</param>
+        /// <param name="debugMode">Active shader debug mode.</param>
+        public void DrawWorld(FrameEventArgs args, int debugMode)
+        {
+            // First, render shadows from the directional light's perspective.
+            Matrix4 lightSpaceMatrix = renderPipeline.RenderShadowPass(lightingManager, objectManager);
 
-        // Gendan viewport til fuld skærm
-        GL.Viewport(fullViewport[0], fullViewport[1], fullViewport[2], fullViewport[3]);
-    }
-    
-    private void SetupDebugQuad()
-    {
-        debugShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/shadowDebugQuad.frag");
-        quadMesh = new QuadMesh();
+            // Reset the viewport for standard screen rendering.
+            GL.Viewport(0, 0, Game.Size.X, Game.Size.Y);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            // Compute the camera's view-projection matrix, which transforms world coordinates
+            // into clip space (screen-ready). This combines camera's orientation and lens properties.
+            Matrix4 viewProjection = cameraManager.GetViewProjection();
+
+            // Draw all game objects using lighting, view-projection, and shadow projection matrices.
+            objectManager.Render(viewProjection, lightSpaceMatrix, cameraManager.Camera, this, debugMode);
+        }
+
+        /// <summary>
+        /// Called when the world is being disposed or switched.
+        /// </summary>
+        public void UnloadWorld()
+        {
+            objectManager.Dispose();
+            renderPipeline.Dispose();
+        }
     }
 }

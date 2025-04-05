@@ -26,7 +26,8 @@ namespace YinYang
             GL.ClearColor(Color4.Black);
             
             //currentWorld = new TestWorld(this);
-            currentWorld = new LightTestWorld(this);
+            //currentWorld = new LightTestWorld(this);
+            currentWorld = new HDRTestWorld(this);
         }
         
         protected override void OnLoad()

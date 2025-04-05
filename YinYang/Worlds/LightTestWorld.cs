@@ -54,7 +54,7 @@ public class LightTestWorld : World
             .Model("SmoothCube")
             .Material(new mat_glow())
             .Position(1.5f, 0f, 0f)
-            .Behavior<RotateObjectBehavior>(Vector3.UnitX, 1f)
+            .Behavior<RotateObjectBehavior>(Vector3.UnitZ, 10f)
             .Build();
 
         GameObjects.Add(room);

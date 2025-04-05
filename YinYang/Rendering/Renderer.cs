@@ -33,29 +33,54 @@ namespace YinYang.Rendering
 
         public void Draw(Matrix4 mvp, Matrix4 lightSpaceMatrix, Matrix4 model, Camera camera, int currentDebugMode, World currentWorld)
         {
+            // var context = new RenderContext
+            // {
+            //     Camera = camera,
+            //     Lighting = null, // optional if unused
+            //     World = world,
+            //     ViewProjection = mvp, // or recomputed
+            //     LightSpaceMatrix = lightSpaceMatrix,
+            //     DebugMode = debugMode
+            // };
+            // Material.SetUniform("debugMode", context.DebugMode);
+            // Material.SetUniform("shadowMap", context.World.depthMap);
+
+            
+            // Set the shader program and update uniforms
             Material.UseShader();
             Material.UpdateUniforms();
+            
+            // Set the uniforms for the shader
             Material.SetUniform("mvp", mvp);
             Material.SetUniform("model", model);
             Material.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
         
             Material.SetUniform("shadowMap", currentWorld.depthMap);
+            Material.SetUniform("normalMatrix", Matrix4.Invert(model)); 
+            Material.SetUniform("viewPos", camera.Position);
+            Material.SetUniform("debugMode", currentDebugMode);
 
+<<<<<<< Updated upstream:YinYang/Components/Renderer.cs
+<<<<<<< Updated upstream:YinYang/Components/Renderer.cs
             Matrix4 normalMatrix = Matrix4.Invert(model);
 
             Material.SetUniform("normalMatrix", normalMatrix); 
 
+=======
+            // set lights
+>>>>>>> Stashed changes:YinYang/Rendering/Renderer.cs
+=======
+            // set lights
+>>>>>>> Stashed changes:YinYang/Rendering/Renderer.cs
             SetSun(currentWorld);
             SpotLights(camera, currentWorld);
             PointLights(currentWorld);
 
-            Material.SetUniform("viewPos", (Vector3)camera.Position);
-            Material.SetUniform("debugMode", currentDebugMode);
-            
+            // Draw the mesh
             Mesh.Draw();
         }
 
-        private void PointLights(World currentWorld)
+        public void PointLights(World currentWorld)
         {
             int numPointLights = currentWorld.PointLights.Count;
             
@@ -78,7 +103,7 @@ namespace YinYang.Rendering
             }
         }
 
-        private void SpotLights(Camera camera, World currentWorld)
+        public void SpotLights(Camera camera, World currentWorld)
         {
             int numSpotLights = currentWorld.SpotLights.Count;
             Material.SetUniform("numSpotLights", numSpotLights);
@@ -116,7 +141,7 @@ namespace YinYang.Rendering
             }
         }
 
-        private void SetSun(World currentWorld)
+        public void SetSun(World currentWorld)
         {
             Material.SetUniform("dirLight.direction", currentWorld.DirectionalLight.Transform.Rotation);
             Material.SetUniform("dirLight.ambient", currentWorld.GetSkyColor() / 2);

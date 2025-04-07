@@ -154,11 +154,6 @@ namespace YinYang.Worlds
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode
             };
-
-            // Get updated light-space matrix from render passes
-            var updatedLightSpace = renderPipeline.RenderAll(context, objectManager);
-
-            //LightSpaceMatrix = updatedLightSpace;
         }
 
     

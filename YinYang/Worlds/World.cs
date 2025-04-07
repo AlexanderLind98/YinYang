@@ -83,11 +83,11 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(new ShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             
-            // post-processing pass 
             // renderPipeline.HdrPass = new HDRRenderPass();
             // renderPipeline.HdrPass.Exposure = 1f; // TODO: make this adjustable as a var
             // renderPipeline.AddPass(renderPipeline.HdrPass);
             
+            // post-processing pass 
             renderPipeline.BloomPass = new BloomRenderPass();
             renderPipeline.BloomPass.Exposure = 1f; // TODO: make this adjustable as a var
             renderPipeline.AddPass(renderPipeline.BloomPass);
@@ -127,7 +127,7 @@ namespace YinYang.Worlds
         public void LoadWorld()
         {
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.FramebufferSrgb);
+            GL.Enable(EnableCap.FramebufferSrgb); // TODO: check if this is needed
             GL.ClearColor(SkyColor);
 
             ConstructWorld();

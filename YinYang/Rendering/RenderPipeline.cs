@@ -37,11 +37,8 @@ namespace YinYang.Rendering
         /// <summary>
         /// Executes all render passes in the order they were added.
         /// </summary>
-        /// <param name="camera">The camera providing view/projection data.</param>
-        /// <param name="lighting">Scene lighting information.</param>
+        /// 
         /// <param name="objects">Objects to render.</param> // TODO: maybe decouple objectmanger and use list or delegate for objects to render
-        /// <param name="currentWorld">The current world instance.</param>
-        /// <param name="debugMode">The current debug mode.</param>
         /// <returns>The last computed light-space matrix, if any.</returns>
         public Matrix4 RenderAll(RenderContext context, ObjectManager objects)
         {

@@ -23,7 +23,7 @@ public class DebugRenderer
         GL.Viewport(0, 0, screenSize.X / 4, screenSize.Y / 4);
 
         debugShader.Use();
-        debugShader.SetInt("depthMap", 0);
+        debugShader.SetInt("depthCubeMap", 0);
         depthMap.Use(); // binder shadowMap til Texture0
         quad.Draw();
 

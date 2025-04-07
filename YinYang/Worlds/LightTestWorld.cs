@@ -39,22 +39,23 @@ public class LightTestWorld : World
         base.ConstructWorld();
         
         room = new GameObjectBuilder(Game)
-            .Model("Ground")
+            .Model("SmoothCube")
             .Material(new  mat_concrete())
             .Position(0f, -2f, 0f)
-            .Scale(2, 2 ,2)
+            .Scale(1, 1, 1)
             .Build();
 
         staticCube = new GameObjectBuilder(Game)
-            .Model("SmoothCube")
+            .Model("Monkey")
             .Material(new mat_concrete())
-            .Position(-1.5f, 0f, 0f)
+            .Position(-2f, 0f, 0f)
             .Build();
 
         rotatingCube = new GameObjectBuilder(Game)
-            .Model("SmoothCube")
+            .Model("Sphere")
             .Material(new mat_chrome())
-            .Position(1.5f, 0f, 0f)
+            .Position(4f, 0f, 0f)
+            .Scale(3,3,3)
             .Behavior<RotateObjectBehavior>(Vector3.UnitX, 1f)
             .Build();
 

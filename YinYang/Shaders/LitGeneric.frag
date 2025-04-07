@@ -122,7 +122,7 @@ float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     shadow /= 9.0;
 
     if(projCoords.z > 1.0)
-    shadow = 0.0;
+        shadow = 0.0;
     
     return shadow;
 }
@@ -235,8 +235,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 //    return BlinnPhongResult(ambient, diffuse, specular);
     float shadow = PointShadowCalculation(fragPos, light.position);
     
-    return (ambient + (1.0 - shadow) * (diffuse + specular));
-//    return BlinnPhongResult(ambient, diffuse, specular);
+    if(debugMode == 1)
+        return (ambient + (1.0 - shadow) * (diffuse + specular));
+    else  
+        return BlinnPhongResult(ambient, diffuse, specular);
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)

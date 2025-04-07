@@ -39,33 +39,34 @@ namespace YinYang.Rendering
             toneMappingShader = new Shader("shaders/tonemap.vert", "shaders/tonemap.frag");
         }
 
-        public override Matrix4 Execute(Camera camera, LightingManager lighting, ObjectManager objects, Matrix4 lightSpaceMatrix, World currentWorld)
+        /// <summary>
+        /// Executes the HDR render pass by rendering to a floating-point framebuffer
+        /// and then applying tone mapping and gamma correction to display the final image.
+        /// </summary>
+        /// <param name="context">Rendering context containing camera, lighting, matrices, etc.</param>
+        /// <param name="objects">Scene object manager containing renderable objects.</param>
+        /// <returns>The current frame’s light-space matrix (used for shadow mapping).</returns>
+        public override Matrix4 Execute(RenderContext context, ObjectManager objects)
         {
             if (!HDR_Enabled)
             {
-                // Bypass HDR: render directly to screen
+                // Bypass HDR, draw directly to screen
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-                // Render normally
-                Matrix4 viewProj = camera.GetViewProjection();
-                foreach (var obj in objects.GameObjects)
-                {
-                    obj.Draw(viewProj, lightSpaceMatrix, camera, currentWorld, 0);
-                }
-
-                return lightSpaceMatrix;
+                objects.Render(context);
+                return context.LightSpaceMatrix;
             }
 
-            // HDR enabled: render to HDR FBO
             if (!framebufferInitialized)
             {
                 InitFrameBuffer();
                 framebufferInitialized = true;
             }
 
-            RenderSceneWithHDRFBO(camera, lighting, objects, lightSpaceMatrix, currentWorld);
+            // Step 1: Render to HDR framebuffer
+            RenderSceneToHDRFramebuffer(context, objects);
 
+            // Step 2: Apply tone mapping to default framebuffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -76,44 +77,27 @@ namespace YinYang.Rendering
 
             screenQuad.Draw();
 
-            return lightSpaceMatrix;
+            return context.LightSpaceMatrix;
         }
 
-        
-        // /// <summary>
-        // /// Executes the HDR render pass: renders to floating-point buffer,
-        // /// then applies tone mapping to the screen.
-        // /// Tone mapping convert back to standard color range (0-1) for display.
-        // /// </summary>
-        // public override Matrix4 Execute(Camera camera, LightingManager lighting, ObjectManager objects, Matrix4 lightSpaceMatrix, World currentWorld)
-        // {
-        //     // lazy initialization of framebuffer
-        //     if (!framebufferInitialized)
-        //     {
-        //         InitFrameBuffer();
-        //         framebufferInitialized = true;
-        //     }
-        //     
-        //     // Step 1: Bind HDR FBO and render scene
-        //     RenderSceneWithHDRFBO(camera, lighting, objects, lightSpaceMatrix, currentWorld);
-        //
-        //     // Bind default framebuffer
-        //     GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        //     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        //
-        //     // Tone mapping compresses HDR brightness values into the 0-1 range for display on SDR monitors.
-        //     // Typically combined with gamma correction to maintain perceived brightness.
-        //     toneMappingShader.Use();
-        //     GL.ActiveTexture(TextureUnit.Texture0);
-        //     GL.BindTexture(TextureTarget.Texture2D, colorTexture);
-        //     toneMappingShader.SetInt("hdrBuffer", 0);
-        //     
-        //     // Draw fullscreen quad
-        //     screenQuad.Draw();
-        //
-        //     return lightSpaceMatrix;
-        // }
-        
+        /// <summary>
+        /// Renders the scene to the HDR framebuffer using the current frame context.
+        /// </summary>
+        /// <param name="context">The frame-wide render context containing camera, matrices, lighting, etc.</param>
+        /// <param name="objects">The object manager containing all renderable entities.</param>
+        private void RenderSceneToHDRFramebuffer(RenderContext context, ObjectManager objects)
+        {
+            // Step 1: Bind HDR framebuffer and clear it
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, hdrFBO);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            // Enable depth testing while rendering the 3D scene
+            GL.Enable(EnableCap.DepthTest);
+
+            // Draw all scene objects into the HDR framebuffer
+            objects.Render(context);
+        }
+       
 
         /// <summary>
         /// Initializes the HDR framebuffer and its attachments.
@@ -175,30 +159,6 @@ namespace YinYang.Rendering
 
             // Unbind the framebuffer and renderbuffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        }
-
-        /// <summary>
-        /// Renders the scene to the HDR framebuffer.
-        /// </summary>
-        /// <param name="camera"></param>
-        /// <param name="lighting"></param>
-        /// <param name="objects"></param>
-        /// <param name="lightSpaceMatrix"></param>
-        /// <param name="currentWorld"></param>
-        private void RenderSceneWithHDRFBO(Camera camera, LightingManager lighting, ObjectManager objects, Matrix4 lightSpaceMatrix, World currentWorld)
-        {
-            // Render scene to HDR framebuffer
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, hdrFBO);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            // Enable depth testing for scene rendering
-            GL.Enable(EnableCap.DepthTest);
-
-            Matrix4 viewProj = camera.GetViewProjection();
-            foreach (var obj in objects.GameObjects)
-            {
-                obj.Draw(viewProj, lightSpaceMatrix, camera, currentWorld, 0);
-            }
         }
 
         public override void Dispose()

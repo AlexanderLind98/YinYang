@@ -22,23 +22,19 @@ namespace YinYang.Rendering
         /// <param name="lightSpaceMatrix">Matrix used to transform world space into light space for shadows.</param>
         /// <param name="currentWorld">The current world instance.</param>
         /// <returns>Returns the input light-space matrix unmodified.</returns>
-        public override Matrix4 Execute(Camera camera, LightingManager lighting, ObjectManager objects, Matrix4 lightSpaceMatrix, World currentWorld)
+        public override Matrix4 Execute(RenderContext context, ObjectManager objects)
         {
             // Set OpenGL viewport dimensions to match window size
-            GL.Viewport(0, 0, camera.RenderWidth, camera.RenderHeight);
+            GL.Viewport(0, 0, context.Camera.RenderWidth, context.Camera.RenderHeight);
 
             // Clear the color and depth buffers before drawing
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            // Compute the view-projection matrix for this frame
-            // This transforms world space into clip space from the camera's point of view
-            Matrix4 viewProjection = camera.GetViewProjection();
-
             // Render all objects using lighting and transformation data
-            objects.Render(viewProjection, lightSpaceMatrix, camera, currentWorld, 0); // TODO: replace currentWorld and 0 with render context and debug mode as needed
+            objects.Render(context);
 
             // Return the same light-space matrix to pass along to any subsequent render passes
-            return lightSpaceMatrix;
+            return context.LightSpaceMatrix;
         }
 
         /// <summary>

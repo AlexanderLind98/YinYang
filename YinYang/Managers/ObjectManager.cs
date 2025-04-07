@@ -1,5 +1,6 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using YinYang.Rendering;
 using YinYang.Worlds;
 
 namespace YinYang.Managers
@@ -42,7 +43,7 @@ namespace YinYang.Managers
         /// The view-projection matrix combines camera view and perspective.
         /// The light-space matrix is used for projecting fragments into shadow map space.
         /// </remarks>
-        public void Render(Matrix4 viewProjection, Matrix4 lightSpaceMatrix, Camera camera, World currentWorld, int debugMode)
+        public void Render(RenderContext context)
         {
             // Iterate through and draw each GameObject with appropriate matrices and lighting context.
             foreach (var obj in GameObjects)
@@ -54,7 +55,7 @@ namespace YinYang.Managers
                     continue;
                 }
                 
-                obj.Draw(viewProjection, lightSpaceMatrix, camera, currentWorld, debugMode);
+                obj.Draw(context);
             }
         }
 

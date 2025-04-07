@@ -42,21 +42,22 @@ namespace YinYang.Rendering
         /// <param name="currentWorld">The current world instance.</param>
         /// <param name="debugMode">The current debug mode.</param>
         /// <returns>The last computed light-space matrix, if any.</returns>
-        public Matrix4 RenderAll(Camera camera, LightingManager lighting, ObjectManager objects, World currentWorld, int debugMode)
+        public Matrix4 RenderAll(RenderContext context, ObjectManager objects)
         {
             Matrix4 lightSpaceMatrix = Matrix4.Identity;
 
             foreach (var pass in renderPasses)
             {
-                if (!pass.Enabled)
-                    continue;
+                if (!pass.Enabled) continue;
+                
+                lightSpaceMatrix = pass.Execute(context, objects);
+                context.LightSpaceMatrix = lightSpaceMatrix;
 
-                // Execute each render pass with the valid world instance.
-                lightSpaceMatrix = pass.Execute(camera, lighting, objects, lightSpaceMatrix, currentWorld);
             }
 
             return lightSpaceMatrix;
         }
+
 
         /// <summary>
         /// Disposes all render passes in the pipeline.

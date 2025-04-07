@@ -145,8 +145,15 @@ namespace YinYang.Worlds
         /// <param name="debugMode">Active debug mode for shader configuration.</param>
         public void DrawWorld(FrameEventArgs args, int debugMode)
         {
-            // Execute all render passes configured in the render pipeline using the current world instance.
-            renderPipeline.RenderAll(cameraManager.Camera, lightingManager, objectManager, this, debugMode);
+            var context = new RenderContext
+            {
+                Camera = cameraManager.Camera,
+                Lighting = lightingManager,
+                World = this,
+                ViewProjection = cameraManager.GetViewProjection(),
+                LightSpaceMatrix = Matrix4.Identity, // placeholder to start
+                DebugMode = debugMode
+            };
         }
 
     

@@ -65,20 +65,21 @@ namespace YinYang
             }
         }
 
-        public void Draw(Matrix4 viewProjection, Matrix4 lightSpaceMatrix, Camera camera, World currentWorld, int debugMode = 0)
+        public void Draw(RenderContext context)
         {
             if (Renderer != null)
             {
                 // Calculate the model matrix.
                 Matrix4 model = Transform.CalculateModel();
                 
-                // Calculate the Model-View-Projection matrix.
-                Matrix4 mvp = model * viewProjection;
-                
-                // Draw the object.
-                Renderer.Draw(mvp, lightSpaceMatrix, model, camera, debugMode, currentWorld);
+                // Calculate the model-view-projection matrix.
+                Matrix4 mvp = model * context.ViewProjection;
+        
+                // Draw the object using the renderer.
+                Renderer.Draw(context, mvp, model);
             }
         }
+
         
         public void RenderDepth(Shader shader)
         {

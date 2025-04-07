@@ -31,50 +31,71 @@ namespace YinYang.Rendering
             Mesh = mesh;
         }
 
-        public void Draw(Matrix4 mvp, Matrix4 lightSpaceMatrix, Matrix4 model, Camera camera, int currentDebugMode, World currentWorld)
+        public void Draw(RenderContext context, Matrix4 mvp, Matrix4 model)
         {
-            // var context = new RenderContext
-            // {
-            //     Camera = camera,
-            //     Lighting = null, // optional if unused
-            //     World = world,
-            //     ViewProjection = mvp, // or recomputed
-            //     LightSpaceMatrix = lightSpaceMatrix,
-            //     DebugMode = debugMode
-            // };
-            // Material.SetUniform("debugMode", context.DebugMode);
-            // Material.SetUniform("shadowMap", context.World.depthMap);
-
-            
-            // Set the shader program and update uniforms
+            // Bind shader and update global material data
             Material.UseShader();
             Material.UpdateUniforms();
+
+            // Transformation Uniforms
+            Material.SetUniform("mvp", mvp);                         // Combined Model-View-Projection matrix
+            Material.SetUniform("model", model);                     // Object's model matrix
             
-            // Set the uniforms for the shader
-            Material.SetUniform("mvp", mvp);
-            Material.SetUniform("model", model);
-            Material.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
-        
-            Material.SetUniform("shadowMap", currentWorld.depthMap);
-            Material.SetUniform("normalMatrix", Matrix4.Invert(model)); 
-            Material.SetUniform("viewPos", camera.Position);
-            Material.SetUniform("debugMode", currentDebugMode);
+            // Lighting Uniforms
+            Material.SetUniform("normalMatrix", Matrix4.Invert(model)); // Used for transforming normals in lighting
+            Material.SetUniform("lightSpaceMatrix", context.LightSpaceMatrix); // Used for shadow projection
+            Material.SetUniform("viewPos", context.Camera.Position);         // Camera position for specular lighting
+            Material.SetUniform("shadowMap", context.World.depthMap);       // Shadow depth texture
 
+            // Other Uniforms
+            Material.SetUniform("debugMode", context.DebugMode);            // Debug rendering toggle/switch
 
-            Matrix4 normalMatrix = Matrix4.Invert(model);
-
-            Material.SetUniform("normalMatrix", normalMatrix); 
-
-
-            // set lights
-
-            SetSun(currentWorld);
-            SpotLights(camera, currentWorld);
-            PointLights(currentWorld);
+            // Setup Light
+            SetSun(context.World);
+            SpotLights(context.Camera, context.World);
+            PointLights(context.World);
 
             // Draw the mesh
             Mesh.Draw();
         }
+
+
+
+
+        // public void Draw(Matrix4 mvp, Matrix4 lightSpaceMatrix, Matrix4 model, Camera camera, int currentDebugMode, World currentWorld)
+        // {
+
+        //
+        //     
+        //     // Set the shader program and update uniforms
+        //     Material.UseShader();
+        //     Material.UpdateUniforms();
+        //     
+        //     // Set the uniforms for the shader
+        //     Material.SetUniform("mvp", mvp);
+        //     Material.SetUniform("model", model);
+        //     Material.SetUniform("lightSpaceMatrix", lightSpaceMatrix);
+        //
+        //     Material.SetUniform("shadowMap", currentWorld.depthMap);
+        //     Material.SetUniform("normalMatrix", Matrix4.Invert(model)); 
+        //     Material.SetUniform("viewPos", camera.Position);
+        //     Material.SetUniform("debugMode", currentDebugMode);
+        //
+        //
+        //     Matrix4 normalMatrix = Matrix4.Invert(model);
+        //
+        //     Material.SetUniform("normalMatrix", normalMatrix); 
+        //
+        //
+        //     // set lights
+        //
+        //     SetSun(currentWorld);
+        //     SpotLights(camera, currentWorld);
+        //     PointLights(currentWorld);
+        //
+        //     // Draw the mesh
+        //     Mesh.Draw();
+        // }
 
         public void PointLights(World currentWorld)
         {

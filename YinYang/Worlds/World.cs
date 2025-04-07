@@ -154,6 +154,8 @@ namespace YinYang.Worlds
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode
             };
+            
+            renderPipeline.RenderAll(context, objectManager);
         }
 
     

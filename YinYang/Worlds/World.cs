@@ -16,6 +16,9 @@ namespace YinYang.Worlds
     /// </remarks>
     public abstract class World
     {
+        private bool debugOverlayEnabled = false;
+        private DebugOverlay _debugOverlay;
+        
         /// <summary>
         /// Reference to the core game instance.
         /// </summary>
@@ -72,6 +75,7 @@ namespace YinYang.Worlds
         protected World(Game game)
         {
             Game = game;
+            _debugOverlay = new DebugOverlay();
 
             // Initialize the camera as a game object and grab the cursor.
             cameraManager.Setup(Game, objectManager.GameObjects);
@@ -82,11 +86,10 @@ namespace YinYang.Worlds
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
-            
-            // Add a post-processing pass for HDR rendering.
             renderPipeline.HdrPass = new HDRRenderPass();
             renderPipeline.AddPass(renderPipeline.HdrPass);
-            //renderPipeline.AddPass(new HDRRenderPass());
+            
+            // post-processing.
         }
 
         /// <summary>
@@ -152,13 +155,16 @@ namespace YinYang.Worlds
                 World = this,
                 ViewProjection = cameraManager.GetViewProjection(),
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
-                DebugMode = debugMode
+                DebugMode = debugMode,
             };
             
             renderPipeline.RenderAll(context, objectManager);
+            
+            if (debugOverlayEnabled)
+            {
+                _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
+            }
         }
-
-    
 
         /// <summary>
         /// Called when the world is being disposed or switched.
@@ -167,6 +173,12 @@ namespace YinYang.Worlds
         {
             objectManager.Dispose();
             renderPipeline.Dispose();
+            _debugOverlay.Dispose();
+        }
+        
+        public void ToggleDebugOverlay()
+        {
+            debugOverlayEnabled = !debugOverlayEnabled;
         }
     }
 }

@@ -11,13 +11,9 @@ namespace YinYang
 {
     public class Game : GameWindow
     {
+        public readonly World currentWorld;
         public int DebugMode { get; set; } = 0;
         
-        private DebugRenderer debugRenderer;
-        
-        public World currentWorld;
-
-        private bool debugQuad = false;
 
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
@@ -33,8 +29,6 @@ namespace YinYang
         protected override void OnLoad()
         {
             base.OnLoad();
-            
-            debugRenderer = new DebugRenderer();
             
             currentWorld.LoadWorld();
         }
@@ -82,10 +76,26 @@ namespace YinYang
 
             if (input.IsKeyPressed(Keys.R))
             {
-                debugQuad = !debugQuad;
+                currentWorld.ToggleDebugOverlay();
             }
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs args)
+        {
+            base.OnRenderFrame(args);
+            
+            currentWorld.DrawWorld(args, DebugMode);
+            
+            SwapBuffers();
+        }
+
+        protected override void OnUnload()
+        {
+            currentWorld.UnloadWorld();
+            
+            base.OnUnload();
         }
         
         private void SwitchWorld(int index)
@@ -103,25 +113,6 @@ namespace YinYang
             };*/
 
             currentWorld.LoadWorld();
-        }
-
-        protected override void OnRenderFrame(FrameEventArgs args)
-        {
-            base.OnRenderFrame(args);
-            
-            currentWorld.DrawWorld(args, DebugMode);
-            
-            if(debugQuad)
-                debugRenderer.Draw(currentWorld.depthMap, Size);
-            
-            SwapBuffers();
-        }
-
-        protected override void OnUnload()
-        {
-            currentWorld.UnloadWorld();
-            
-            base.OnUnload();
         }
     }
 }

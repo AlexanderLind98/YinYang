@@ -44,7 +44,7 @@ namespace YinYang.Worlds
         /// <summary>
         /// Default sun light color (also represents intensity).
         /// </summary>
-        public Vector3 SunColor = new Vector3(2f, 2f, 1.8f);
+        public Vector3 SunColor = new Vector3(1f, 1f, 1f);
 
         // Core manager systems for modular responsibilities.
         protected CameraManager cameraManager = new();

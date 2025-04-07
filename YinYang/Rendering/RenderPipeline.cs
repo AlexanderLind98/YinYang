@@ -24,6 +24,9 @@ namespace YinYang.Rendering
         public Texture ShadowDepthTexture =>
             renderPasses.OfType<ShadowRenderPass>().FirstOrDefault()?.ShadowDepthTexture;
 
+        public Texture ShadowDepthCubeTexture =>
+            renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTexture;
+        
         /// <summary>
         /// Adds a render pass to the pipeline.
         /// </summary>

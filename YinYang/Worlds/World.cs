@@ -59,6 +59,7 @@ namespace YinYang.Worlds
 
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
+        public Texture depthCubeMap => renderPipeline.ShadowDepthCubeTexture;
 
         
         // Temporary access to game objects TODO: refactor to access through objectManager
@@ -81,12 +82,12 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
+            renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             
             // Add a post-processing pass for HDR rendering.
-            renderPipeline.HdrPass = new HDRRenderPass();
-            renderPipeline.AddPass(renderPipeline.HdrPass);
-            //renderPipeline.AddPass(new HDRRenderPass());
+            // renderPipeline.HdrPass = new HDRRenderPass();
+            // renderPipeline.AddPass(renderPipeline.HdrPass);
         }
 
         /// <summary>

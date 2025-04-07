@@ -45,20 +45,21 @@ namespace YinYang.Rendering
         /// <param name="currentWorld">The current world instance.</param>
         /// <param name="debugMode">The current debug mode.</param>
         /// <returns>The last computed light-space matrix, if any.</returns>
-        public Matrix4 RenderAll(RenderContext context, ObjectManager objects)
+        public void RenderAll(RenderContext context, ObjectManager objects)
         {
-            Matrix4 lightSpaceMatrix = Matrix4.Identity;
+            Matrix4? lightSpaceMatrix = null;
 
             foreach (var pass in renderPasses)
             {
                 if (!pass.Enabled) continue;
                 
-                lightSpaceMatrix = pass.Execute(context, objects);
-                context.LightSpaceMatrix = lightSpaceMatrix;
-
+                lightSpaceMatrix = pass.Execute(context, objects)!;
+                
+                if(lightSpaceMatrix != null)
+                    context.LightSpaceMatrix = (Matrix4)lightSpaceMatrix;
             }
 
-            return lightSpaceMatrix;
+            // return lightSpaceMatrix;
         }
 
 

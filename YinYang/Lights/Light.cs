@@ -1,4 +1,5 @@
 using OpenTK.Mathematics;
+using YinYang.Components;
 
 namespace YinYang.Lights;
 
@@ -50,6 +51,11 @@ public class Light
 
         // Return the Euler angles in radians.
         return new Vector3(pitch, yaw, roll);
+    }
+
+    public virtual Vector3 SetPosition(float x, float y, float z)
+    {
+        return new Vector3(x, y, z);
     }
 
     

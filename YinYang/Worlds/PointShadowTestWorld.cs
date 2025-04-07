@@ -37,6 +37,13 @@ public class PointShadowTestWorld : World
     {
         base.ConstructWorld();
         
+        GameObjects.Add(new GameObjectBuilder(Game)
+            .Model("Ground")
+            .Material(new  mat_concrete())
+            .Position(0f, -3f, 0f)
+            .Scale(2, 2, 2)
+            .Build());
+        
         room = new GameObjectBuilder(Game)
             .Model("SmoothCube")
             .Material(new  mat_concrete())
@@ -62,6 +69,9 @@ public class PointShadowTestWorld : World
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
+        
+        new PointLight(this);
+        PointLights[0].SetPosition(0, 0, 3);
     }
 
     public override void HandleInput(KeyboardState input)
@@ -85,5 +95,11 @@ public class PointShadowTestWorld : World
         {
             Game.DebugMode = 0; // Full lighting
         }
+        
+        /*if (input.IsKeyPressed(Keys.H))
+        {
+            renderPipeline.HdrPass.HDR_Enabled = !renderPipeline.HdrPass.HDR_Enabled;
+            Console.WriteLine("HDR toggled: " + renderPipeline.HdrPass.HDR_Enabled);
+        }*/
     }
 }

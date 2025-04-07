@@ -22,8 +22,10 @@ namespace YinYang.Rendering
         /// <param name="lightSpaceMatrix">Matrix used to transform world space into light space for shadows.</param>
         /// <param name="currentWorld">The current world instance.</param>
         /// <returns>Returns the input light-space matrix unmodified.</returns>
-        public override Matrix4 Execute(RenderContext context, ObjectManager objects)
+        public override Matrix4? Execute(RenderContext context, ObjectManager objects)
         {
+            GL.CullFace(TriangleFace.Back);
+            
             // Set OpenGL viewport dimensions to match window size
             GL.Viewport(0, 0, context.Camera.RenderWidth, context.Camera.RenderHeight);
 

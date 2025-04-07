@@ -80,8 +80,10 @@ namespace YinYang.Rendering
     /// <param name="lightSpaceInput">Input light-space matrix (typically identity).</param>
     /// <param name="currentWorld">The current world instance. (Not used in this pass but required by the signature.)</param>
     /// <returns>The computed light-space transformation matrix.</returns>
-    public override Matrix4 Execute(RenderContext context, ObjectManager objects)
+    public override Matrix4? Execute(RenderContext context, ObjectManager objects)
     {
+        // GL.CullFace(TriangleFace.Front);
+        
         // Orthographic projection to simulate infinite directional light projection.
         Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10f, 10f, 0.1f, 50.0f);
 

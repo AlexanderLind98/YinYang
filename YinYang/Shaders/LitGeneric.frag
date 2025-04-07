@@ -77,6 +77,8 @@ uniform sampler2D shadowMap;
 uniform samplerCube cubeMap;
 uniform float far_plane;
 
+float closestDepth;
+
 //Prototypes / definitions
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -94,13 +96,12 @@ float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     projCoords = projCoords * 0.5 + 0.5;
 
     // Check if in shadow
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float dir_closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
     //float bias = 0.005;
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
 
 //    float shadow = currentDepth > closestDepth + bias ? 1.0 : 0.0;
-//
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -142,7 +143,6 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     int samples = 20;
     float viewDistance = length(viewPos - fragPos);
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
-    float closestDepth;
     for(int i = 0; i < samples; ++i)
     {
         closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
@@ -153,7 +153,7 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     shadow /= float(samples);
 
     // display closestDepth as debug (to visualize depth cubemap)
-    // FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
+//     FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
 
     return shadow;
 }
@@ -227,9 +227,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 texColor = texture(material.diffTex, texCoord).rgb;
     
     // combine results
-    vec3 ambient = light.ambient  * material.diffuse * texColor;
-    vec3 diffuse = light.diffuse * (diff * material.diffuse) * texColor;
-    vec3 specular = light.specular * SpecResult(lightDir, viewDir, normal) * vec3(texture(material.specTex, texCoord)) * texColor;
+    vec3 ambient = light.ambient * texColor;
+    vec3 diffuse = light.diffuse * diff * texColor;
+    vec3 specular = light.specular * SpecResult(lightDir, viewDir, normal) * texColor;
     
     ambient  *= attenuation;
     diffuse  *= attenuation;
@@ -315,4 +315,5 @@ void main()
     result += CalcDirLight(dirLight, norm, viewDir);
     
     FragColor = vec4(result, 1.0f);
+//    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);
 }

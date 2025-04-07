@@ -47,12 +47,12 @@ namespace YinYang
 
             currentWorld.UpdateWorld(args);
 
-            if (input.IsKeyPressed(Keys.F1)) SwitchWorld(1);
+            /*if (input.IsKeyPressed(Keys.F1)) SwitchWorld(1);
             if (input.IsKeyPressed(Keys.F2)) SwitchWorld(2);
             if (input.IsKeyPressed(Keys.F3)) SwitchWorld(3);
             if (input.IsKeyPressed(Keys.F4)) SwitchWorld(4);
             if (input.IsKeyPressed(Keys.F5)) SwitchWorld(5);
-            if (input.IsKeyPressed(Keys.F6)) SwitchWorld(6);
+            if (input.IsKeyPressed(Keys.F6)) SwitchWorld(6);*/
 
 
             // Shader Debug mode switch
@@ -63,7 +63,21 @@ namespace YinYang
 
             if (input.IsKeyPressed(Keys.Escape))
             {
-                Close();
+                if(CursorState == CursorState.Grabbed)
+                {
+                    CursorState = CursorState.Normal;
+                    return;
+                }
+                
+                if(CursorState == CursorState.Normal)
+                {
+                    Close();
+                }
+            }
+
+            if (MouseState.IsButtonDown(MouseButton.Left))
+            {
+                CursorState = CursorState.Grabbed;
             }
 
             if (input.IsKeyPressed(Keys.R))
@@ -99,7 +113,6 @@ namespace YinYang
             
             if(debugQuad)
                 debugRenderer.Draw(currentWorld.depthMap, Size);
-
             
             SwapBuffers();
         }

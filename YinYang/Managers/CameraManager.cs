@@ -44,7 +44,7 @@ namespace YinYang.Managers
             gameObjects.Add(cameraObject);
 
             // Lock and focus the cursor inside the game window.
-            game.CursorState = CursorState.Grabbed;
+            // game.CursorState = CursorState.Grabbed;
         }
         
         /// <summary>

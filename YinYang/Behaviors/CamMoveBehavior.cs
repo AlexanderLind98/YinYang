@@ -36,7 +36,7 @@ public class CamMoveBehavior(GameObject gameObject, Game window) : Behaviour(gam
         float deltaX = mouse.Delta.X * sensitivity * (float)args.Time;
         float deltaY = mouse.Delta.Y * sensitivity * (float)args.Time;
         
-        if (deltaX != 0 || deltaY != 0)
+        if (window.CursorState == CursorState.Grabbed && (deltaX != 0 || deltaY != 0))
         {
             Vector3 rotation = gameObject.Transform.Rotation;
             

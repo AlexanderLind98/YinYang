@@ -65,7 +65,9 @@ namespace YinYang.Rendering
 
             Material.SetUniform("normalMatrix", normalMatrix); 
 
+
             // set lights
+
             SetSun(currentWorld);
             SpotLights(camera, currentWorld);
             PointLights(currentWorld);

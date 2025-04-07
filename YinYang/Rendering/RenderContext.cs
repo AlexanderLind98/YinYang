@@ -27,7 +27,7 @@ namespace YinYang.Rendering
         public Matrix4 ViewProjection { get; init; }
 
         /// <summary>The light-space matrix from the latest shadow pass.</summary>
-        public Matrix4 LightSpaceMatrix { get; init; }
+        public Matrix4 LightSpaceMatrix { get; set; }
 
         /// <summary>Debug drawing mode, if enabled.</summary>
         public int DebugMode { get; init; }

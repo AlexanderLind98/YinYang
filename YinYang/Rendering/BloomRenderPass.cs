@@ -1,5 +1,5 @@
-// HDR implemented using LearnOpenGL Giuide
-// https://learnopengl.com/Advanced-Lighting/HDR
+// Bloom implemented using LearnOpenGL Guide
+// https://learnopengl.com/Advanced-Lighting/bloom
 
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -7,18 +7,11 @@ using YinYang.Managers;
 using YinYang.Shapes;
 using YinYang.Worlds;
 
-namespace YinYang.Rendering
+namespace YinYang.Rendering;
+
+public class BloomRenderPass : RenderPass
 {
-    /// <summary>
-    /// Render pass that draws the scene to a floating-point framebuffer (HDR),
-    /// then performs tone mapping and gamma correction to output to screen.
-    /// </summary>
-    /// <remarks>
-    /// HDR rendering allows for a wider range of colors and brightness levels, then LDR(Low Dynamic Range(0-1).
-    /// </remarks>
-    public class HDRRenderPass : RenderPass
-    {
-        private int hdrFBO;
+    private int hdrFBO;
         private int colorTexture;
         private int depthRBO;
         private bool framebufferInitialized = false;
@@ -34,7 +27,7 @@ namespace YinYang.Rendering
         /// <summary>
         /// Initializes the HDR framebuffer and tone mapping shader.
         /// </summary>
-        public HDRRenderPass()
+        public BloomRenderPass()
         {
             // Load tone mapping shader
             toneMappingShader = new Shader("shaders/tonemap.vert", "shaders/tonemap.frag");
@@ -171,4 +164,3 @@ namespace YinYang.Rendering
             toneMappingShader.Dispose();
         }
     }
-}

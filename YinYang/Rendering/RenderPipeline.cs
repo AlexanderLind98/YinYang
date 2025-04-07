@@ -16,6 +16,7 @@ namespace YinYang.Rendering
         private readonly List<RenderPass> renderPasses = new();
         
         public HDRRenderPass HdrPass { get; set; }
+        public BloomRenderPass BloomPass { get; set; }
 
         
         /// <summary>

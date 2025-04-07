@@ -71,7 +71,7 @@ public class PointShadowTestWorld : World
         SpotLights[0].ToggleLight();
         
         new PointLight(this);
-        PointLights[0].SetPosition(0, 0, 3);
+        PointLights[0].SetPosition(0, -2, 3);
     }
 
     public override void HandleInput(KeyboardState input)

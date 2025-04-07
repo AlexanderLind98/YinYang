@@ -148,7 +148,7 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
         closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
         closestDepth *= far_plane;   // undo mapping [0;1]
         if(currentDepth - bias > closestDepth)
-        shadow += 1.0;
+            shadow += 1.0;
     }
     shadow /= float(samples);
 
@@ -294,16 +294,14 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
     
-    vec3 result;
-    
-//    result = CalcDirLight(dirLight, norm, viewDir);
-    
+    vec3 result = vec3(0);
+
     if(numPointLights != 0) //Only calc lights if lights exist!
     {
-         for (int i = 0; i < numPointLights; i++)
-         {
-             result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
-         }
+        for (int i = 0; i < numPointLights; i++)
+        {
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+        }
     }
 
     if(numSpotLights != 0) //Only calc lights if lights exist!
@@ -313,6 +311,8 @@ void main()
             result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
         }
     }
+
+    result += CalcDirLight(dirLight, norm, viewDir);
     
     FragColor = vec4(result, 1.0f);
 }

@@ -51,7 +51,7 @@ namespace YinYang.Managers
                 if (obj.Renderer == null) //TODO: maybe seperate lists for renderers and non-renderers
                 {
                     // If the object has no renderer, skip it.
-                    //Console.WriteLine($"ObjectManager.Render: Object at {obj.Transform.Position} has no Renderer.");
+                    Console.WriteLine($"ObjectManager.Render: Object at {obj.Transform.Position} has no Renderer.");
                     continue;
                 }
                 

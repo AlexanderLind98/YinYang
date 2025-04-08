@@ -5,7 +5,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using YinYang.Managers;
 using YinYang.Shapes;
-using YinYang.Worlds;
 
 namespace YinYang.Rendering
 {
@@ -74,8 +73,12 @@ namespace YinYang.Rendering
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, colorTexture);
             toneMappingShader.SetInt("hdrBuffer", 0);
-
+            
             screenQuad.Draw();
+       
+            var err = GL.GetError();
+            if (err != ErrorCode.NoError)
+                Console.WriteLine($"[GL ERROR] after {nameof(HDRRenderPass)}: {err}");
 
             return context.LightSpaceMatrix;
         }
@@ -110,8 +113,6 @@ namespace YinYang.Rendering
             GL.GetInteger(GetPName.Viewport, viewport);
             int width = viewport[2];
             int height = viewport[3];
-
-            //Console.WriteLine($"[HDR] Initializing framebuffer at {width}x{height}");
             
             // Create the HDR framebuffer object
             hdrFBO = GL.GenFramebuffer();

@@ -6,6 +6,7 @@ namespace YinYang
     public class Texture
     {
         protected int handle;
+        public int Handle => handle;
 
         public Texture(string path)
         {

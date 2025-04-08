@@ -311,7 +311,7 @@ void main()
         }
     }
 
-//    result += CalcDirLight(dirLight, norm, viewDir);
+    result += CalcDirLight(dirLight, norm, viewDir);
     
     FragColor = vec4(result, 1.0f);
 

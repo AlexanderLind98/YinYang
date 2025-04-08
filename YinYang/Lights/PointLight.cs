@@ -34,7 +34,7 @@ public class PointLight : Light
         DefaultColor = LightColor;
         
         Visualizer = new GameObjectBuilder(currentWorld.Game)
-            .Model("Sphere")
+            .Model("Cube")
             .Material(new mat_concrete())
             .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
             .Scale(0.1f, 0.1f, 0.1f)

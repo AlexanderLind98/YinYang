@@ -35,23 +35,23 @@ public class HDRTestWorld : World
 
         staticCube = new GameObjectBuilder(Game)
             .Model("SmoothCube")
-            .Material(new mat_concrete())
+            .Material(new mat_chrome())
             .Position(-3f, 0f, 0f)
-            .Behavior<RotateObjectBehavior>(Vector3.UnitX, 10f)
+            //.Behavior<RotateObjectBehavior>(Vector3.UnitX, 10f)
             .Build();
         
         Cube = new GameObjectBuilder(Game)
             .Model("SmoothCube")
             .Material(new mat_concrete())
             .Position(0f, 0f, 0f)
-            .Behavior<RotateObjectBehavior>(Vector3.UnitY, 10f)
+            //.Behavior<RotateObjectBehavior>(Vector3.UnitY, 10f)
             .Build();
 
         rotatingCube = new GameObjectBuilder(Game)
             .Model("SmoothCube")
             .Material(new mat_chrome())
             .Position(3f, 0f, 0f)
-            .Behavior<RotateObjectBehavior>(Vector3.UnitZ, 10f)
+            //.Behavior<RotateObjectBehavior>(Vector3.UnitZ, 10f)
             .Build();
 
         GameObjects.Add(room);
@@ -59,16 +59,26 @@ public class HDRTestWorld : World
         GameObjects.Add(Cube);
         GameObjects.Add(rotatingCube);
         
-        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
-        SpotLights[0].ToggleLight();
+        // new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
+        // SpotLights[0].ToggleLight();
+        
+        // Colored bloom lights
+        var red = new PointLight(this, Color4.Red, 30f);
+        red.Transform.Position = new Vector3(-3f, 2f, 0f);
+
+        var green = new PointLight(this, Color4.Green, 30f);
+        green.Transform.Position = new Vector3(0f, 2f, 0f);
+
+        var blue = new PointLight(this, Color4.Blue, 30f);
+        blue.Transform.Position = new Vector3(3f, 2f, 0f);
     }
 
     public override void HandleInput(KeyboardState input)
     {
         if (input.IsKeyPressed(Keys.H))
         {
-            renderPipeline.HdrPass.HDR_Enabled = !renderPipeline.HdrPass.HDR_Enabled;
-            Console.WriteLine("HDR toggled: " + renderPipeline.HdrPass.HDR_Enabled);
+            renderPipeline.BloomPass.HDR_Enabled = !renderPipeline.BloomPass.HDR_Enabled;
+            Console.WriteLine("BloomPass toggled: " + renderPipeline.BloomPass.HDR_Enabled);
         }
     }
 }

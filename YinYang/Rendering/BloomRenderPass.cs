@@ -10,8 +10,22 @@ namespace YinYang.Rendering;
 
 public class BloomRenderPass : RenderPass
 {
+    private Shader textureDebugShader;
+
+    // Textures for HDR framebuffer
     private int colorTexture;
     private int brightTexture;
+
+    // Ping-pong framebuffer for bloom effect
+    private int[] pingpongFBO = new int[2];
+    private int[] pingpongBuffer = new int[2];
+    private Shader blurShader;
+    private int finalBlurredTexture;
+
+
+    // Shader for blending the bloom effect with the scene
+    private Shader blendShader;
+
     
     private int hdrFBO;
     private int depthRBO;
@@ -33,9 +47,55 @@ public class BloomRenderPass : RenderPass
     /// </summary>
     public BloomRenderPass()
     {
-        // Load tone mapping shader
-        toneMappingShader = new Shader("shaders/tonemap.vert", "shaders/tonemap.frag");
+        textureDebugShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/texturedebug.frag");
+
+        blurShader = new Shader("shaders/bloomblur.vert", "shaders/bloomblur.frag");
+        blendShader = new Shader("shaders/blending.vert", "shaders/blending.frag");
     }
+    
+    private int Blur()
+    {
+        bool horizontal = true;
+        bool firstIteration = true;
+        int amount = 20; // Number of blur passes
+
+        blurShader.Use();
+
+        for (int i = 0; i < amount; i++)
+        {
+            // Bind the framebuffer to write to
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, pingpongFBO[horizontal ? 1 : 0]);
+
+            blurShader.SetInt("horizontal", horizontal ? 1 : 0);
+
+            // Bind the texture to read from
+            GL.ActiveTexture(TextureUnit.Texture0);
+            if (firstIteration)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, brightTexture); // first input: bright color
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.Texture2D, pingpongBuffer[horizontal ? 0 : 1]);
+            }
+
+            // Render full screen quad
+            screenQuad.Draw();
+
+            horizontal = !horizontal;
+            if (firstIteration)
+                firstIteration = false;
+        }
+
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0); // back to screen
+        //
+        // horizontal = !horizontal; // this flips AFTER last pass
+        // finalBlurredTexture = pingpongBuffer[horizontal ? 0 : 1]; // ← last written-to texture
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        horizontal = !horizontal;
+        return pingpongBuffer[horizontal ? 0 : 1];
+    }
+
 
     /// <summary>
     /// Executes the HDR render pass by rendering to a floating-point framebuffer
@@ -61,20 +121,60 @@ public class BloomRenderPass : RenderPass
             framebufferInitialized = true;
         }
 
-        // Step 1: Render to HDR framebuffer
+        // Step 1: Render scene to HDR framebuffer
         RenderSceneToHDRFramebuffer(context, objects);
 
-        // Step 2: Apply tone mapping to default framebuffer
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        // Step 2: Blur bright areas
+        Blur(); 
+        
+        // int blurredBloomTexture = Blur();
+        //
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        // GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        //
+        // textureDebugShader.Use();
+        // GL.ActiveTexture(TextureUnit.Texture0);
+        // GL.BindTexture(TextureTarget.Texture2D, blurredBloomTexture); 
+        // textureDebugShader.SetInt("tex", 0);
+        // screenQuad.Draw();
+        //
+        // return context.LightSpaceMatrix; // Skip blend for now
 
-        toneMappingShader.Use();
+
+        // Step 3: Final composition (HDR scene + blurred bloom)
+        blendShader.Use();
+
+        // Scene color (MRT color attachment 0)
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, colorTexture);
-        toneMappingShader.SetInt("hdrBuffer", 0);
-        toneMappingShader.SetFloat("exposure", Exposure);
+        blendShader.SetInt("scene", 0);
+
+        // Bloom texture (result of blur)
+        GL.ActiveTexture(TextureUnit.Texture1);
+        GL.BindTexture(TextureTarget.Texture2D, pingpongBuffer[1]); 
+        blendShader.SetInt("bloomBlur", 1);
+
+        blendShader.SetFloat("exposure", Exposure);
+
+        // Draw final composite
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        screenQuad.Draw();
+
+        
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        // GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        //
+        // textureDebugShader.Use(); // just samples a 2D texture
+        // GL.ActiveTexture(TextureUnit.Texture0);
+        // GL.BindTexture(TextureTarget.Texture2D, brightTexture);
+        // textureDebugShader.SetInt("tex", 0);
+        //
+        // screenQuad.Draw();
+
 
         screenQuad.Draw();
+
 
         return context.LightSpaceMatrix;
     }
@@ -187,13 +287,48 @@ public class BloomRenderPass : RenderPass
 
         // Unbind the framebuffer and renderbuffer
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        
+        InitPingPongBuffers();
+
     }
+    
+    private void InitPingPongBuffers()
+    {
+        int[] viewport = new int[4];
+        GL.GetInteger(GetPName.Viewport, viewport);
+        int width = viewport[2];
+        int height = viewport[3];
+
+        GL.GenFramebuffers(2, pingpongFBO);
+        GL.GenTextures(2, pingpongBuffer);
+
+        for (int i = 0; i < 2; i++)
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, pingpongFBO[i]);
+
+            GL.BindTexture(TextureTarget.Texture2D, pingpongBuffer[i]);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, pingpongBuffer[i], 0);
+
+            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (status != FramebufferErrorCode.FramebufferComplete)
+                throw new Exception($"Pingpong FBO {i} is incomplete: {status}");
+        }
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    }
+
 
     public override void Dispose()
     {
         GL.DeleteFramebuffer(hdrFBO);
         GL.DeleteTexture(colorTexture);
         GL.DeleteRenderbuffer(depthRBO);
-        toneMappingShader.Dispose();
+        //toneMappingShader.Dispose();
     }
 }

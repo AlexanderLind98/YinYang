@@ -51,8 +51,8 @@ namespace YinYang.Rendering
             Material.SetUniform("lightSpaceMatrix", context.LightSpaceMatrix); // Used for shadow projection
             Material.SetUniform("viewPos", context.Camera.Position);         // Camera position for specular lighting
             Material.SetUniform("shadowMap", context.World.depthMap);       // Shadow depth texture
-            Material.SetUniform("cubeMap", context.World.depthCubeMap);
             Material.SetUniform("far_plane", 50.0f);
+            Material.SetUniform("cubeMap", context.World.depthCubeMap);
 
             // Other Uniforms
             Material.SetUniform("debugMode", context.DebugMode);            // Debug rendering toggle/switch

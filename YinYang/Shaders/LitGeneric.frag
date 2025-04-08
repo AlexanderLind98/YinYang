@@ -77,8 +77,6 @@ uniform sampler2D shadowMap;
 uniform samplerCube cubeMap;
 uniform float far_plane;
 
-float closestDepth;
-
 //Prototypes / definitions
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -91,7 +89,6 @@ float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
 float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
     // Shadow mapping
-//    vec4 fragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
@@ -100,8 +97,6 @@ float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     float currentDepth = projCoords.z;
     //float bias = 0.005;
     float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
-
-//    float shadow = currentDepth > closestDepth + bias ? 1.0 : 0.0;
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -141,19 +136,23 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     float shadow = 0.0;
     float bias = 0.15;
     int samples = 20;
+    float closestDepth = 0.0f;
     float viewDistance = length(viewPos - fragPos);
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+//    float diskRadius = 25.0;
     for(int i = 0; i < samples; ++i)
     {
-        closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-        closestDepth *= far_plane;   // undo mapping [0;1]
+        closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r * far_plane;   // undo mapping [0;1]
         if(currentDepth - bias > closestDepth)
             shadow += 1.0;
+//        shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+//        shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
     }
     shadow /= float(samples);
 
     // display closestDepth as debug (to visualize depth cubemap)
-//     FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
+//     FragColor = vec4(vec3(closestDepth / far_plane), 1.0);
+//    FragColor = vec4(vec3(currentDepth / far_plane), 1.0); // see what frag thinks its distance is
 
     return shadow;
 }
@@ -312,8 +311,11 @@ void main()
         }
     }
 
-    result += CalcDirLight(dirLight, norm, viewDir);
+//    result += CalcDirLight(dirLight, norm, viewDir);
     
     FragColor = vec4(result, 1.0f);
+
+    /**float shadow = PointShadowCalculation(FragPos, pointLights[0].position);
+    FragColor = vec4(vec3(1.0 - shadow), 1.0); // White = lit, Black = shadow*/
 //    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);
 }

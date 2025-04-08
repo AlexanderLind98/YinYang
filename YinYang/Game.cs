@@ -13,7 +13,7 @@ namespace YinYang
     {
         public int DebugMode { get; set; } = 0;
         
-        private DebugRenderer debugRenderer;
+      
         
         public World currentWorld;
 
@@ -31,8 +31,6 @@ namespace YinYang
         protected override void OnLoad()
         {
             base.OnLoad();
-            
-            debugRenderer = new DebugRenderer();
             
             currentWorld.LoadWorld();
         }
@@ -80,7 +78,7 @@ namespace YinYang
 
             if (input.IsKeyPressed(Keys.R))
             {
-                debugQuad = !debugQuad;
+                currentWorld.ToggleDebugOverlay();
             }
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";
@@ -108,9 +106,6 @@ namespace YinYang
             base.OnRenderFrame(args);
             
             currentWorld.DrawWorld(args, DebugMode);
-            
-            if(debugQuad)
-                debugRenderer.Draw(currentWorld.depthCubeMap, Size);
             
             SwapBuffers();
         }

@@ -1,3 +1,4 @@
+// LitGeneric.frag
 #version 460 core
 
 // debug mode input 

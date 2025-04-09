@@ -86,13 +86,13 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
-            //renderPipeline.AddPass(new PointShadowRenderPass());
+            renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             
             // // post-processing pass 
             // renderPipeline.BloomPass = new BloomRenderPass();
             // renderPipeline.BloomPass.HDR_Enabled = true;
-            // renderPipeline.BloomPass.Exposure = 10; // TODO: make this adjustable as a var
+            // renderPipeline.BloomPass.Exposure = 0.1f; // TODO: make this adjustable as a var
             // renderPipeline.AddPass(renderPipeline.BloomPass);
             
         }

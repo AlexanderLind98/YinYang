@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using YinYang.Rendering;
 
 namespace YinYang.Materials
 {
@@ -9,14 +10,22 @@ namespace YinYang.Materials
     public class Material : IDisposable
     {
         protected Shader shader;
-        protected Dictionary<string, object> uniforms = new Dictionary<string, object>();
-        private Dictionary<int, Texture> textures = new Dictionary<int, Texture>();
+        protected Dictionary<string, object> uniforms = new();
+        private Dictionary<int, Texture> textures = new();
 
-        /// <summary>
-        /// Enables debug logging for GL errors and invalid states.
-        /// </summary>
+        /// <summary>Enables GL error debug output during SetUniform().</summary>
         public static bool MaterialDebug = false;
 
+        /// <summary>Indicates whether this material uses scene lighting.</summary>
+        public virtual bool UsesLighting => true;
+
+        /// <summary>
+        /// Called only if <c>UsesLighting</c> is true.
+        /// Materials can override to push lighting-specific uniforms.
+        /// </summary>
+        public virtual void PrepareLighting(RenderContext context) { }
+
+        
         public void UpdateUniforms()
         {
             foreach (KeyValuePair<string, object> uniform in uniforms)

@@ -5,7 +5,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using YinYang.Managers;
 using YinYang.Shapes;
-using YinYang.Worlds;
 
 namespace YinYang.Rendering
 {

@@ -32,17 +32,4 @@ namespace YinYang.Rendering
         /// <summary>Debug drawing mode, if enabled.</summary>
         public int DebugMode { get; init; }
     }
-    
-    /// <summary>
-    /// TODO: Integrate RenderContext into the following classes and methods:
-    /// </summary>
-    /// <remarks>
-    /// - Renderer.cs:          Refactor Draw(...) to accept RenderContext
-    /// - GameObject.cs:        Refactor Draw(...) to forward RenderContext
-    /// - ObjectManager.cs:     Refactor Render(...) and RenderDepth(...) to use RenderContext
-    /// - SceneRenderPass.cs:   Refactor Execute(...) to accept RenderContext
-    /// - RenderPass.cs:        Update Execute(...) signature to use RenderContext
-    /// - RenderPipeline.cs:    Construct and pass RenderContext to all render passes
-    /// - World.cs:             Build the RenderContext in DrawWorld(...)
-    /// </remarks>
 }

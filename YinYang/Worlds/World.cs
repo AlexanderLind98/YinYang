@@ -16,6 +16,9 @@ namespace YinYang.Worlds
     /// </remarks>
     public abstract class World
     {
+        private bool debugOverlayEnabled = false;
+        private DebugOverlay _debugOverlay;
+        
         /// <summary>
         /// Reference to the core game instance.
         /// </summary>
@@ -72,6 +75,7 @@ namespace YinYang.Worlds
         protected World(Game game)
         {
             Game = game;
+            _debugOverlay = new DebugOverlay();
 
             // Initialize the camera as a game object and grab the cursor.
             cameraManager.Setup(Game, objectManager.GameObjects);
@@ -158,15 +162,16 @@ namespace YinYang.Worlds
                 World = this,
                 ViewProjection = cameraManager.GetViewProjection(),
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
-                DebugMode = debugMode
+                DebugMode = debugMode,
             };
             
             renderPipeline.RenderAll(context, objectManager);
             
-          
+            if (debugOverlayEnabled)
+            {
+                _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
+            }
         }
-
-    
 
         /// <summary>
         /// Called when the world is being disposed or switched.
@@ -175,6 +180,40 @@ namespace YinYang.Worlds
         {
             objectManager.Dispose();
             renderPipeline.Dispose();
+            _debugOverlay.Dispose();
+        }
+        
+        /// <summary>
+        /// Renders a 2D texture (such as color, brightness, or intermediate buffers) to the screen
+        /// using a screen-space debug overlay. This is intended for visual debugging of render targets
+        /// within any modular render pass.
+        /// </summary>
+        /// <param name="textureHandle">
+        /// Name of the texture to be displayed. 
+        /// </param>
+        /// <param name="viewportPos">
+        /// The normalized screen-space coordinates (X, Y) where the texture should appear.
+        /// Values are in the range [0, 1], where (0,0) is bottom-left and (1,1) is top-right of the screen.
+        /// </param>
+        /// <param name="scale">
+        /// The relative size of the displayed texture, as a fraction of the screen resolution.
+        /// </param>
+        /// <remarks>
+        /// This method should typically be called from within a render pass, gated by a condition like:
+        /// <code>
+        /// if (context.DebugMode == 3)
+        ///     context.World.DrawDebugTexture(myTextureID, new Vector2(0.75f, 0.0f));
+        /// </code>
+        /// Only color textures are supported by this method. For depth maps, use <c>Draw(Texture depthMap, Vector2i screenSize)</c>.
+        /// </remarks>
+        public void DrawDebugTexture(int textureHandle, Vector2 viewportPos, float scale = 0.25f)
+        {
+            _debugOverlay.DrawTexture(textureHandle, new Vector2i(Game.Size.X, Game.Size.Y), viewportPos, scale);
+        }
+        
+        public void ToggleDebugOverlay()
+        {
+            debugOverlayEnabled = !debugOverlayEnabled;
         }
     }
 }

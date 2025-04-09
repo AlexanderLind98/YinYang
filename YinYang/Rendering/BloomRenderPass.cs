@@ -104,7 +104,7 @@ public class BloomRenderPass : RenderPass
     /// <param name="context">Rendering context containing camera, lighting, matrices, etc.</param>
     /// <param name="objects">Scene object manager containing renderable objects.</param>
     /// <returns>The current frame’s light-space matrix (used for shadow mapping).</returns>
-    public override Matrix4 Execute(RenderContext context, ObjectManager objects)
+    public override Matrix4? Execute(RenderContext context, ObjectManager objects)
     {
         if (!HDR_Enabled)
         {

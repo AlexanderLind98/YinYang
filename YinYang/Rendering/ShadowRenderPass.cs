@@ -85,28 +85,13 @@ namespace YinYang.Rendering
     /// <returns>The computed light-space transformation matrix.</returns>
     public override Matrix4? Execute(RenderContext context, ObjectManager objects)
     {
-        Matrix4? m = RenderShadows(context, objects);
-        
-        /*switch (context.Lighting.Sun.shadowType)
-        {
-            case Light.ShadowType.None:
-                return Matrix4.Identity;
-            case Light.ShadowType.Static:
-                //TODO
-                break;
-            case Light.ShadowType.Dynamic:
-                m = RenderShadows(context, objects);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }*/
-
-        return m;
-    }
-
-    private Matrix4? RenderShadows(RenderContext context, ObjectManager objects)
-    {
         // GL.CullFace(TriangleFace.Front);
+        
+        //As light projection is still needed, we capture it once, and then only return identity to save on resource usage
+        if (hasRenderedShadow && context.Lighting.Sun.shadowType == Light.ShadowType.None)
+        {
+            return Matrix4.Identity;
+        }
         
         // Orthographic projection to simulate infinite directional light projection.
         Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-10.0f, 10.0f, -10f, 10f, 0.1f, 50.0f);

@@ -145,11 +145,10 @@ namespace YinYang.Rendering
         var err = GL.GetError();
         if (err != ErrorCode.NoError)
             Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");
-        
-        // Return the transformation matrix for use in the main lighting pass.
-        
+
         hasRenderedShadow = true;
-        
+
+        // Return the transformation matrix for use in the main lighting pass.
         return lightSpaceMatrix;
     }
 

@@ -142,9 +142,9 @@ namespace YinYang.Rendering
         // Unbind the framebuffer to return to the default target.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        var err = GL.GetError();
-        if (err != ErrorCode.NoError)
-            Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");
+        // var err = GL.GetError();
+        // if (err != ErrorCode.NoError)
+        //     Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");
 
         hasRenderedShadow = true;
 

@@ -142,10 +142,9 @@ namespace YinYang.Rendering
         // Unbind the framebuffer to return to the default target.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        //TODO: FIXME
-        /*var err = GL.GetError();
+        var err = GL.GetError();
         if (err != ErrorCode.NoError)
-            Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");*/
+            Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");
         
         // Return the transformation matrix for use in the main lighting pass.
         

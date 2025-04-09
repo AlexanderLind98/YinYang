@@ -86,7 +86,7 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
-            renderPipeline.AddPass(new PointShadowRenderPass());
+            //renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             
             // // post-processing pass 

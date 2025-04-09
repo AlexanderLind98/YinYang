@@ -86,15 +86,15 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
-            renderPipeline.AddPass(new PointShadowRenderPass());
+            //renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             
-            // Add a post-processing pass for HDR rendering.
-            renderPipeline.HdrPass = new HDRRenderPass();
-            renderPipeline.AddPass(renderPipeline.HdrPass);
+            // // post-processing pass 
+            // renderPipeline.BloomPass = new BloomRenderPass();
+            // renderPipeline.BloomPass.HDR_Enabled = true;
+            // renderPipeline.BloomPass.Exposure = 10; // TODO: make this adjustable as a var
+            // renderPipeline.AddPass(renderPipeline.BloomPass);
             
-            // post-processing.
-
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace YinYang.Worlds
         public void LoadWorld()
         {
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.FramebufferSrgb);
+            GL.Enable(EnableCap.FramebufferSrgb); // TODO: check if this is needed
             GL.ClearColor(SkyColor);
 
             ConstructWorld();

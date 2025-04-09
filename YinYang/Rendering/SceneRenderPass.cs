@@ -15,11 +15,8 @@ namespace YinYang.Rendering
         /// <summary>
         /// Executes the scene render pass from the camera's viewpoint.
         /// </summary>
-        /// <param name="camera">The active camera for view/projection transforms.</param>
-        /// <param name="lighting">Lighting manager providing light data.</param>
-        /// <param name="objects">Scene objects to render.</param>
-        /// <param name="lightSpaceMatrix">Matrix used to transform world space into light space for shadows.</param>
-        /// <param name="currentWorld">The current world instance.</param>
+        /// <param name="context">The frame-wide render context containing camera, matrices, lighting, etc.</param>
+        /// <param name="objects">The object manager containing all renderable entities.</param>
         /// <returns>Returns the input light-space matrix unmodified.</returns>
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)
         {

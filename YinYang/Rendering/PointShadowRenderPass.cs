@@ -67,53 +67,50 @@ namespace YinYang.Rendering
             shadowDepthCubeTexture = new Texture(textureHandle);
         }
 
-         /// <summary>
-    /// Executes the shadow pass by rendering the scene from the directional light's perspective.
-    /// </summary>
-    /// <remarks>
-    /// Produces a light-space transformation matrix which is used in subsequent passes
-    /// to compare fragment depth against shadow depth for shadow testing.
-    /// </remarks>
-    /// <param name="camera">The active camera.</param>
-    /// <param name="lighting">The lighting manager containing sun and light data.</param>
-    /// <param name="objects">The object manager with all scene objects.</param>
-    /// <param name="lightSpaceInput">Input light-space matrix (typically identity).</param>
-    /// <param name="currentWorld">The current world instance. (Not used in this pass but required by the signature.)</param>
-    /// <returns>The computed light-space transformation matrix.</returns>
-    public override Matrix4? Execute(RenderContext context, ObjectManager objects)
-    {
-        // GL.CullFace(TriangleFace.Front);
+        /// <summary>
+        /// Executes the shadow pass by rendering the scene from the directional light's perspective.
+        /// </summary>
+        /// <remarks>
+        /// Produces a light-space transformation matrix which is used in subsequent passes
+        /// to compare fragment depth against shadow depth for shadow testing.
+        /// </remarks>
+        /// <param name="context">The frame-wide render context containing camera, matrices, lighting, etc.</param>
+        /// <param name="objects">The object manager containing all renderable entities.</param>
+        /// <returns>The computed light-space transformation matrix.</returns>
+        public override Matrix4? Execute(RenderContext context, ObjectManager objects)
+        {
+            // GL.CullFace(TriangleFace.Front);
         
-        // 0. create depth cubemap transformation matrices
-        Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), shadowResolution / shadowResolution, nearPlane, farPlane);
-        List<Matrix4> shadowTransforms = new List<Matrix4>();
-        Vector3 lightPos = context.Lighting.PointLights[0].Transform.Position;                        
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
+            // 0. create depth cubemap transformation matrices
+            Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), shadowResolution / shadowResolution, nearPlane, farPlane);
+            List<Matrix4> shadowTransforms = new List<Matrix4>();
+            Vector3 lightPos = context.Lighting.PointLights[0].Transform.Position;                        
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
+            shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
 
-        shadowShader.Use();
-        for (int i = 0; i < 6; i++)
-            shadowShader.SetMatrix($"shadowMatrices[{i}]", shadowTransforms[i]);
-        shadowShader.SetFloat("far_plane", farPlane);
-        shadowShader.SetVector3("lightPos", lightPos);
+            shadowShader.Use();
+            for (int i = 0; i < 6; i++)
+                shadowShader.SetMatrix($"shadowMatrices[{i}]", shadowTransforms[i]);
+            shadowShader.SetFloat("far_plane", farPlane);
+            shadowShader.SetVector3("lightPos", lightPos);
         
-        // Configure the viewport to match the shadow resolution.
-        GL.Viewport(0, 0, shadowResolution, shadowResolution);
+            // Configure the viewport to match the shadow resolution.
+            GL.Viewport(0, 0, shadowResolution, shadowResolution);
         
-        // 1. Render scene to depth cubemap
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
+            // 1. Render scene to depth cubemap
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
         
-        objects.RenderDepth(shadowShader);
+            objects.RenderDepth(shadowShader);
         
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        return null;
-    }
+            return null;
+        }
 
         /// <summary>
         /// Releases GPU resources used by this render pass.

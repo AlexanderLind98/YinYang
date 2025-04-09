@@ -74,11 +74,8 @@ namespace YinYang.Rendering
     /// Produces a light-space transformation matrix which is used in subsequent passes
     /// to compare fragment depth against shadow depth for shadow testing.
     /// </remarks>
-    /// <param name="camera">The active camera.</param>
-    /// <param name="lighting">The lighting manager containing sun and light data.</param>
-    /// <param name="objects">The object manager with all scene objects.</param>
-    /// <param name="lightSpaceInput">Input light-space matrix (typically identity).</param>
-    /// <param name="currentWorld">The current world instance. (Not used in this pass but required by the signature.)</param>
+    /// <param name="context">The frame-wide render context containing camera, matrices, lighting, etc.</param>
+    /// <param name="objects">The object manager containing all renderable entities.</param>
     /// <returns>The computed light-space transformation matrix.</returns>
     public override Matrix4? Execute(RenderContext context, ObjectManager objects)
     {

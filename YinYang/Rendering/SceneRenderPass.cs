@@ -34,10 +34,9 @@ namespace YinYang.Rendering
             // Render all objects using lighting and transformation data
             objects.Render(context);
             
-            //TODO: FIXME
-            /*var err = GL.GetError();
+            var err = GL.GetError();
             if (err != ErrorCode.NoError)
-                Console.WriteLine($"[GL ERROR - SCENE RENDER PASS] after {nameof(SceneRenderPass)}: {err}");*/
+                Console.WriteLine($"[GL ERROR - SCENE RENDER PASS] after {nameof(SceneRenderPass)}: {err}");
 
             // Return the same light-space matrix to pass along to any subsequent render passes
             return context.LightSpaceMatrix;

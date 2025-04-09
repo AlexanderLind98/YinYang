@@ -14,7 +14,7 @@ namespace YinYang.Materials
         private Dictionary<int, Texture> textures = new();
 
         /// <summary>Enables GL error debug output during SetUniform().</summary>
-        public static bool MaterialDebug = false;
+        public static bool MaterialDebug = true;
 
         /// <summary>Indicates whether this material uses scene lighting.</summary>
         public virtual bool UsesLighting => true;
@@ -86,24 +86,31 @@ namespace YinYang.Materials
             }
             else if (uniform is Texture tex)
             {
-                // int textureUnit = GetTextureUnitFor(name); //BUG: Denne linje ødelægger også alle shaders
-                int textureUnit = textures.Count;
+                int textureUnit = GetTextureUnitFor(name); 
 
-                //BUG: begge af de her returns får alt til at forsvinde, siden alle teksturer tilsyneladende falder i den fælde
-                /*if (textureUnit < 0 || textureUnit > 31)
+                if (textureUnit < 0 || textureUnit > 31)
                 {
                     Console.WriteLine($"[Material ERROR] Invalid texture unit for '{name}'. Skipped.");
                     return;
-                }*/
-
-                /*if (tex?.Handle == 0)
+                }
+                
+                if (tex?.Handle == 0)
                 {
                     Console.WriteLine($"[Material WARNING] Texture for '{name}' is null or uninitialized.");
                     return;
-                }*/
+                }
 
-                shader.SetInt(name, textureUnit);
-                textures.Add(textureUnit, tex);
+                if (!textures.ContainsKey(textureUnit))
+                {
+                    shader.SetInt(name, textureUnit);
+                    textures.Add(textureUnit, tex);
+                }
+                else
+                {
+                    // Already exists — just update the uniform binding
+                    shader.SetInt(name, textureUnit);
+                    textures[textureUnit] = tex;
+                }
             }
             else
             {
@@ -113,13 +120,8 @@ namespace YinYang.Materials
 
             uniforms[name] = uniform;
 
-            //TODO: FIXME
             if (MaterialDebug)
             {
-                //BUG: Alle teksture køre ind i denne fejl... Men ting kan godt renderes...
-                //Ser ud til at alt virker, men den er sur over alle værdierne... Tror vi det her faktisk virker???
-                //Ah, måske er det fordi vi sætter nogle uniforms på alle materialer, om de altså har dem eller ej?
-                //For eksempel, Unlit har ikke mere end color, men renderer sætter dem alligevel...
                 var err = GL.GetError();
                 if (err != ErrorCode.NoError)
                     Console.WriteLine($"[GL ERROR] after SetUniform('{name}') → {err}");
@@ -159,6 +161,7 @@ namespace YinYang.Materials
                 "material.diffTex" => 0,
                 "material.specTex" => 1,
                 "shadowMap"        => 2,
+                "cubeMap"          => 3,
                 _ => -1 // unknown name → error
             };
         }

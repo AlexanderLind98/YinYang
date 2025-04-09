@@ -47,7 +47,7 @@ namespace YinYang.Worlds
         /// <summary>
         /// Default sun light color (also represents intensity).
         /// </summary>
-        public Vector3 SunColor = new Vector3(2f, 2f, 1.8f);
+        public Vector3 SunColor = new Vector3(1f, 1f, 1f);
 
         // Core manager systems for modular responsibilities.
         protected CameraManager cameraManager = new();
@@ -62,6 +62,7 @@ namespace YinYang.Worlds
 
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
+        public Texture depthCubeMap => renderPipeline.ShadowDepthCubeTexture;
 
         
         // Temporary access to game objects TODO: refactor to access through objectManager
@@ -85,11 +86,15 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
+            renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
-            renderPipeline.HdrPass = new HDRRenderPass();
-            renderPipeline.AddPass(renderPipeline.HdrPass);
             
-            // post-processing.
+            // // post-processing pass 
+            // renderPipeline.BloomPass = new BloomRenderPass();
+            // renderPipeline.BloomPass.HDR_Enabled = true;
+            // renderPipeline.BloomPass.Exposure = 0.1f; // TODO: make this adjustable as a var
+            // renderPipeline.AddPass(renderPipeline.BloomPass);
+            
         }
 
         /// <summary>
@@ -125,7 +130,7 @@ namespace YinYang.Worlds
         public void LoadWorld()
         {
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.FramebufferSrgb);
+            GL.Enable(EnableCap.FramebufferSrgb); // TODO: check if this is needed
             GL.ClearColor(SkyColor);
 
             ConstructWorld();
@@ -163,6 +168,7 @@ namespace YinYang.Worlds
             if (debugOverlayEnabled)
             {
                 _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
+                DrawDebugTexture(depthMap.Handle, Game.Size);
             }
         }
 
@@ -174,6 +180,34 @@ namespace YinYang.Worlds
             objectManager.Dispose();
             renderPipeline.Dispose();
             _debugOverlay.Dispose();
+        }
+        
+        /// <summary>
+        /// Renders a 2D texture (such as color, brightness, or intermediate buffers) to the screen
+        /// using a screen-space debug overlay. This is intended for visual debugging of render targets
+        /// within any modular render pass.
+        /// </summary>
+        /// <param name="textureHandle">
+        /// Name of the texture to be displayed. 
+        /// </param>
+        /// <param name="viewportPos">
+        /// The normalized screen-space coordinates (X, Y) where the texture should appear.
+        /// Values are in the range [0, 1], where (0,0) is bottom-left and (1,1) is top-right of the screen.
+        /// </param>
+        /// <param name="scale">
+        /// The relative size of the displayed texture, as a fraction of the screen resolution.
+        /// </param>
+        /// <remarks>
+        /// This method should typically be called from within a render pass, gated by a condition like:
+        /// <code>
+        /// if (context.DebugMode == 3)
+        ///     context.World.DrawDebugTexture(myTextureID, new Vector2(0.75f, 0.0f));
+        /// </code>
+        /// Only color textures are supported by this method. For depth maps, use <c>Draw(Texture depthMap, Vector2i screenSize)</c>.
+        /// </remarks>
+        public void DrawDebugTexture(int textureHandle, Vector2 viewportPos, float scale = 0.25f)
+        {
+            _debugOverlay.DrawTexture(textureHandle, new Vector2i(Game.Size.X, Game.Size.Y), viewportPos, scale);
         }
         
         public void ToggleDebugOverlay()

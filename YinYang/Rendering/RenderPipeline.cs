@@ -16,6 +16,7 @@ namespace YinYang.Rendering
         private readonly List<RenderPass> renderPasses = new();
         
         public HDRRenderPass HdrPass { get; set; }
+        public BloomRenderPass BloomPass { get; set; }
 
         
         /// <summary>
@@ -24,6 +25,9 @@ namespace YinYang.Rendering
         public Texture ShadowDepthTexture =>
             renderPasses.OfType<ShadowRenderPass>().FirstOrDefault()?.ShadowDepthTexture;
 
+        public Texture ShadowDepthCubeTexture =>
+            renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTexture;
+        
         /// <summary>
         /// Adds a render pass to the pipeline.
         /// </summary>
@@ -36,26 +40,24 @@ namespace YinYang.Rendering
         /// <summary>
         /// Executes all render passes in the order they were added.
         /// </summary>
-        /// <param name="camera">The camera providing view/projection data.</param>
-        /// <param name="lighting">Scene lighting information.</param>
+        /// 
         /// <param name="objects">Objects to render.</param> // TODO: maybe decouple objectmanger and use list or delegate for objects to render
-        /// <param name="currentWorld">The current world instance.</param>
-        /// <param name="debugMode">The current debug mode.</param>
         /// <returns>The last computed light-space matrix, if any.</returns>
-        public Matrix4 RenderAll(RenderContext context, ObjectManager objects)
+        public void RenderAll(RenderContext context, ObjectManager objects)
         {
-            Matrix4 lightSpaceMatrix = Matrix4.Identity;
+            Matrix4? lightSpaceMatrix = null;
 
             foreach (var pass in renderPasses)
             {
                 if (!pass.Enabled) continue;
                 
-                lightSpaceMatrix = pass.Execute(context, objects);
-                context.LightSpaceMatrix = lightSpaceMatrix;
-
+                lightSpaceMatrix = pass.Execute(context, objects)!;
+                
+                if(lightSpaceMatrix != null)
+                    context.LightSpaceMatrix = (Matrix4)lightSpaceMatrix;
             }
 
-            return lightSpaceMatrix;
+            // return lightSpaceMatrix;
         }
 
 

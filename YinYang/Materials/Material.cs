@@ -15,7 +15,7 @@ namespace YinYang.Materials
         /// <summary>
         /// Enables debug logging for GL errors and invalid states.
         /// </summary>
-        public static bool MaterialDebug = true;
+        public static bool MaterialDebug = false;
 
         public void UpdateUniforms()
         {
@@ -77,22 +77,24 @@ namespace YinYang.Materials
             }
             else if (uniform is Texture tex)
             {
-                int textureUnit = GetTextureUnitFor(name);
+                // int textureUnit = GetTextureUnitFor(name); //BUG: Denne linje ødelægger også alle shaders
+                int textureUnit = textures.Count;
 
-                if (textureUnit < 0 || textureUnit > 31)
+                //BUG: begge af de her returns får alt til at forsvinde, siden alle teksturer tilsyneladende falder i den fælde
+                /*if (textureUnit < 0 || textureUnit > 31)
                 {
                     Console.WriteLine($"[Material ERROR] Invalid texture unit for '{name}'. Skipped.");
                     return;
-                }
+                }*/
 
-                if (tex?.Handle == 0)
+                /*if (tex?.Handle == 0)
                 {
                     Console.WriteLine($"[Material WARNING] Texture for '{name}' is null or uninitialized.");
                     return;
-                }
+                }*/
 
                 shader.SetInt(name, textureUnit);
-                textures[textureUnit] = tex; // overwrite if it already exists
+                textures.Add(textureUnit, tex);
             }
             else
             {
@@ -102,8 +104,13 @@ namespace YinYang.Materials
 
             uniforms[name] = uniform;
 
+            //TODO: FIXME
             if (MaterialDebug)
             {
+                //BUG: Alle teksture køre ind i denne fejl... Men ting kan godt renderes...
+                //Ser ud til at alt virker, men den er sur over alle værdierne... Tror vi det her faktisk virker???
+                //Ah, måske er det fordi vi sætter nogle uniforms på alle materialer, om de altså har dem eller ej?
+                //For eksempel, Unlit har ikke mere end color, men renderer sætter dem alligevel...
                 var err = GL.GetError();
                 if (err != ErrorCode.NoError)
                     Console.WriteLine($"[GL ERROR] after SetUniform('{name}') → {err}");

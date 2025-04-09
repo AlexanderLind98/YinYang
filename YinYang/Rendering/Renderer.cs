@@ -36,6 +36,11 @@ namespace YinYang.Rendering
             // Bind shader and update global material data
             Material.UseShader();
             Material.UpdateUniforms();
+            
+            // Setup Light
+            SetSun(context.World);
+            SpotLights(context.Camera, context.World);
+            PointLights(context.World);
 
             // Transformation Uniforms
             Material.SetUniform("mvp", mvp);                         // Combined Model-View-Projection matrix
@@ -46,14 +51,11 @@ namespace YinYang.Rendering
             Material.SetUniform("lightSpaceMatrix", context.LightSpaceMatrix); // Used for shadow projection
             Material.SetUniform("viewPos", context.Camera.Position);         // Camera position for specular lighting
             Material.SetUniform("shadowMap", context.World.depthMap);       // Shadow depth texture
+            Material.SetUniform("far_plane", 50.0f);
+            Material.SetUniform("cubeMap", context.World.depthCubeMap);
 
             // Other Uniforms
             Material.SetUniform("debugMode", context.DebugMode);            // Debug rendering toggle/switch
-
-            // Setup Light
-            SetSun(context.World);
-            SpotLights(context.Camera, context.World);
-            PointLights(context.World);
 
             // Draw the mesh
             Mesh.Draw();

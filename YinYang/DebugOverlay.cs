@@ -11,6 +11,7 @@ namespace YinYang;
 public class DebugOverlay : IDisposable
 {
     private Shader debugShader;
+    private readonly Shader textureShader;
     private Mesh quad;
 
     /// <summary>
@@ -19,6 +20,7 @@ public class DebugOverlay : IDisposable
     public DebugOverlay()
     {
         debugShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/shadowDebugQuad.frag");
+        textureShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/texturedebug.frag");
         quad = new QuadMesh();
     }
 
@@ -43,6 +45,32 @@ public class DebugOverlay : IDisposable
             quad.Draw();
         }
     }
+    
+    /// <summary>
+    /// Draws a color texture at a specified screen location and scale.
+    /// </summary>
+    public void DrawTexture(int textureHandle, Vector2i screenSize, Vector2 viewportPos, float scale = 0.25f)
+    {
+        using (new GLStateScope())
+        {
+            int vpWidth = (int)(screenSize.X * scale);
+            int vpHeight = (int)(screenSize.Y * scale);
+            int vpX = (int)(viewportPos.X * screenSize.X);
+            int vpY = (int)(viewportPos.Y * screenSize.Y);
+
+            GL.Disable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.CullFace);
+            GL.Viewport(vpX, vpY, vpWidth, vpHeight);
+
+            textureShader.Use();
+            textureShader.SetInt("tex", 0);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureHandle);
+
+            quad.Draw();
+        }
+    }
 
     /// <summary>
     /// Disposes the debug renderer and releases GPU resources.
@@ -50,6 +78,7 @@ public class DebugOverlay : IDisposable
     public void Dispose()
     {
         debugShader.Dispose();
+        textureShader.Dispose();
     }
 
     /// <summary>

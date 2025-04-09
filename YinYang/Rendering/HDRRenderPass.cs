@@ -45,7 +45,7 @@ namespace YinYang.Rendering
         /// <param name="context">Rendering context containing camera, lighting, matrices, etc.</param>
         /// <param name="objects">Scene object manager containing renderable objects.</param>
         /// <returns>The current frame’s light-space matrix (used for shadow mapping).</returns>
-        public override Matrix4 Execute(RenderContext context, ObjectManager objects)
+        public override Matrix4? Execute(RenderContext context, ObjectManager objects)
         {
             if (!HDR_Enabled)
             {
@@ -76,9 +76,10 @@ namespace YinYang.Rendering
             
             screenQuad.Draw();
        
-            var err = GL.GetError();
+            //TODO: FIXME
+            /*var err = GL.GetError();
             if (err != ErrorCode.NoError)
-                Console.WriteLine($"[GL ERROR] after {nameof(HDRRenderPass)}: {err}");
+                Console.WriteLine($"[GL ERROR] after {nameof(HDRRenderPass)}: {err}");*/
 
             return context.LightSpaceMatrix;
         }

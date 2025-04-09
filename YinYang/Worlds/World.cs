@@ -52,9 +52,9 @@ namespace YinYang.Worlds
         // Core manager systems for modular responsibilities.
         protected CameraManager cameraManager = new();
         protected ObjectManager objectManager = new();
-        protected LightingManager lightingManager = new();
         protected RenderPipeline renderPipeline = new();
-        
+        public LightingManager lightingManager = new();
+
         // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;
@@ -63,6 +63,8 @@ namespace YinYang.Worlds
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
         public Texture depthCubeMap => renderPipeline.ShadowDepthCubeTexture;
+
+        public List<Texture> depthCubeMaps => renderPipeline.ShadowDepthCubeTextures;
 
         
         // Temporary access to game objects TODO: refactor to access through objectManager
@@ -86,7 +88,10 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
-            renderPipeline.AddPass(new PointShadowRenderPass());
+            
+            renderPipeline.PointShadowPass = new PointShadowRenderPass(lightingManager);
+            renderPipeline.AddPass(renderPipeline.PointShadowPass);
+            
             renderPipeline.AddPass(new SceneRenderPass());
             
             // // post-processing pass 
@@ -134,6 +139,8 @@ namespace YinYang.Worlds
             GL.ClearColor(SkyColor);
 
             ConstructWorld();
+
+            renderPipeline.PointShadowPass.RegisterCubeMaps(lightingManager);
         }
 
         /// <summary>

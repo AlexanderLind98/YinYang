@@ -90,7 +90,7 @@ namespace YinYang.Materials
 
                 if (textureUnit < 0 || textureUnit > 31)
                 {
-                    Console.WriteLine($"[Material ERROR] Invalid texture unit for '{name}'. Skipped.");
+                    Console.WriteLine($"[Material ERROR] Invalid texture unit for '{name}'. Value '{textureUnit}'. Skipped.");
                     return;
                 }
                 
@@ -156,12 +156,16 @@ namespace YinYang.Materials
 
         private int GetTextureUnitFor(string name)
         {
+            if(name.Contains("pointCubeMaps"))
+                return 4;
+            
             return name switch
             {
                 "material.diffTex" => 0,
                 "material.specTex" => 1,
                 "shadowMap"        => 2,
                 "cubeMap"          => 3,
+                /*"pointCubeMaps"    => 4,*/
                 _ => -1 // unknown name → error
             };
         }

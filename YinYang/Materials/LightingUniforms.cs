@@ -22,11 +22,24 @@ public static class LightingUniforms
         mat.SetUniform("shadowMap", world.depthMap);
         
         // if there is a cube map, set the cube map and far plane
-        if (context.World.depthCubeMap != null)
+        /*if (context.World.depthCubeMap != null)
         {
             mat.SetUniform("cubeMap", context.World.depthCubeMap);
             mat.SetUniform("far_plane", 50.0f);
+        }*/
+
+        mat.SetUniform("far_plane", 50.0f);
+        
+        for (int i = 0; i < context.World.depthCubeMaps.Count; i++)
+        {
+            mat.SetUniform($"pointCubeMaps[{i}]", context.World.depthCubeMaps[i]);
         }
+
+        /*foreach (var cubeMaps in context.World.depthCubeMaps)
+        {
+            mat.SetUniform("pointCubeMaps", context.World.depthCubeMaps);
+            mat.SetUniform("far_plane", 50.0f);
+        }*/
 
 
         mat.SetUniform("dirLight.direction", world.DirectionalLight.Transform.Rotation);

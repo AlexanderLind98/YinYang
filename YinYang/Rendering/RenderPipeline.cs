@@ -17,6 +17,8 @@ namespace YinYang.Rendering
         
         public HDRRenderPass HdrPass { get; set; }
         public BloomRenderPass BloomPass { get; set; }
+        
+        public PointShadowRenderPass PointShadowPass { get; set; }
 
         
         /// <summary>
@@ -27,6 +29,9 @@ namespace YinYang.Rendering
 
         public Texture ShadowDepthCubeTexture =>
             renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTexture;
+        
+        public List<Texture> ShadowDepthCubeTextures =>
+            renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTextures;
         
         /// <summary>
         /// Adds a render pass to the pipeline.

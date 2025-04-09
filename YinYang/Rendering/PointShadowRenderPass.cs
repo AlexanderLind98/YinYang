@@ -19,6 +19,7 @@ namespace YinYang.Rendering
         private int shadowResolution = 2048;
         private Shader shadowShader;
         private Texture shadowDepthCubeTexture;
+        private List<Texture> shadowDepthTextures = new List<Texture>();
         private float nearPlane = 0.1f;
         private float farPlane = 50.0f;
         
@@ -28,49 +29,63 @@ namespace YinYang.Rendering
         /// The depth texture produced by this shadow pass.
         /// </summary>
         public Texture ShadowDepthCubeTexture => shadowDepthCubeTexture;
+        
+        public List<Texture> ShadowDepthCubeTextures => shadowDepthTextures;
 
         /// <summary>
         /// Initializes the framebuffer, depth texture, and shader required for shadow rendering.
         /// </summary>
-        public PointShadowRenderPass()
+        public PointShadowRenderPass(LightingManager lightingManager)
         {
-            //Create shader and framebuffer
-            shadowShader = new Shader("Shaders/PointDepth.vert", "Shaders/PointDepth.frag", "Shaders/PointDepth.geom");
-            framebufferHandle = GL.GenFramebuffer();
-            
-            //Assign handle
-            int textureHandle = GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureCubeMap, textureHandle);
-            
-            //Same as generating direct shadow map, but 6x for each face in cubemap
-            for (int i = 0; i < 6; ++i)
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i,
-                    0,
-                    PixelInternalFormat.DepthComponent,
-                    shadowResolution,
-                    shadowResolution,
-                    0,
-                    PixelFormat.DepthComponent,
-                    PixelType.Float,
-                    IntPtr.Zero);
-            //Texture wrap & filtering params
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-
-            // attach depth texture as FBO's deph buffer
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
-            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, textureHandle, 0);
-            GL.DrawBuffer(DrawBufferMode.None);
-            GL.ReadBuffer(ReadBufferMode.None);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            
-            shadowDepthCubeTexture = new CubeTexture(textureHandle);
+            RegisterCubeMaps(lightingManager);
         }
 
-         /// <summary>
+        public void RegisterCubeMaps(LightingManager lightingManager)
+        {
+            shadowDepthTextures.Clear();
+            
+            for (int lightIndex = 0; lightIndex < lightingManager.PointLights.Count; lightIndex++)
+            {
+                //Create shader and framebuffer
+                shadowShader = new Shader("Shaders/PointDepth.vert", "Shaders/PointDepth.frag", "Shaders/PointDepth.geom");
+                framebufferHandle = GL.GenFramebuffer();
+                
+                //Assign handle
+                int textureHandle = GL.GenTexture();
+                GL.BindTexture(TextureTarget.TextureCubeMap, textureHandle);
+                
+                //Same as generating direct shadow map, but 6x for each face in cubemap
+                for (int faceIndex = 0; faceIndex < 6; ++faceIndex)
+                    GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + faceIndex,
+                        0,
+                        PixelInternalFormat.DepthComponent,
+                        shadowResolution,
+                        shadowResolution,
+                        0,
+                        PixelFormat.DepthComponent,
+                        PixelType.Float,
+                        IntPtr.Zero);
+                //Texture wrap & filtering params
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+                // attach depth texture as FBO's deph buffer
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
+                GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, textureHandle, 0);
+                GL.DrawBuffer(DrawBufferMode.None);
+                GL.ReadBuffer(ReadBufferMode.None);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                
+                // shadowDepthCubeTexture = new CubeTexture(textureHandle);
+                shadowDepthTextures.Add(new CubeTexture(textureHandle));
+                Console.WriteLine("Added shadow depth texture");
+            }
+        }
+
+    /// <summary>
     /// Executes the shadow pass by rendering the scene from the directional light's perspective.
     /// </summary>
     /// <remarks>
@@ -127,9 +142,9 @@ namespace YinYang.Rendering
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
         
         //Do not clear the depth buffer if we are static
-        if(context.Lighting.Sun.shadowType == Light.ShadowType.Static && !hasRenderedShadow)
+        if(context.Lighting.PointLights[lightIndex].shadowType == Light.ShadowType.Static && !hasRenderedShadow)
             GL.Clear(ClearBufferMask.DepthBufferBit);
-        else if(context.Lighting.Sun.shadowType != Light.ShadowType.Static)
+        else if(context.Lighting.PointLights[lightIndex].shadowType != Light.ShadowType.Static)
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
         switch (context.Lighting.PointLights[lightIndex].shadowType)

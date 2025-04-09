@@ -62,8 +62,8 @@ in vec4 FragPosLightSpace;
 out vec4 FragColor;
 
 //Defines
-#define MAX_POINTLIGHTS 16
-#define MAX_SPOTLIGHTS 16
+#define MAX_POINTLIGHTS 4
+#define MAX_SPOTLIGHTS 4
 
 //Uniforms
 uniform vec3 viewPos;
@@ -75,6 +75,7 @@ uniform PointLight pointLights[MAX_POINTLIGHTS];
 uniform SpotLight spotLights[MAX_SPOTLIGHTS];
 uniform sampler2D shadowMap;
 uniform samplerCube cubeMap;
+uniform samplerCube[MAX_POINTLIGHTS] pointCubeMaps;
 uniform float far_plane;
 
 //Prototypes / definitions
@@ -126,7 +127,7 @@ vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
 vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
 
-float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
+float PointShadowCalculation(vec3 fragPos, vec3 lightPos, int lightIndex)
 {
     // get vector between fragment position and light position
     vec3 fragToLight = fragPos - lightPos;
@@ -142,7 +143,7 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
 //    float diskRadius = 25.0;
     for(int i = 0; i < samples; ++i)
     {
-        closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r * far_plane;   // undo mapping [0;1]
+        closestDepth = texture(pointCubeMaps[lightIndex], fragToLight + gridSamplingDisk[i] * diskRadius).r * far_plane;   // undo mapping [0;1]
         if(currentDepth - bias > closestDepth)
             shadow += 1.0;
 //        shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
@@ -212,7 +213,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 //    ambient += (1.0 - shadow);
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, int lightIndex)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     
@@ -234,7 +235,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     diffuse  *= attenuation;
     specular *= attenuation;
     
-    float shadow = PointShadowCalculation(fragPos, light.position);
+    float shadow = PointShadowCalculation(fragPos, light.position, lightIndex);
     
     return (ambient + (1.0 - shadow) * (diffuse + specular));
 
@@ -301,7 +302,7 @@ void main()
     {
         for (int i = 0; i < numPointLights; i++)
         {
-            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir, i);
         }
     }
 

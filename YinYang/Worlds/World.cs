@@ -85,7 +85,7 @@ namespace YinYang.Worlds
             lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
             // Initialize modular render passes
-            renderPipeline.AddPass(new ShadowRenderPass());
+            renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
             renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
             

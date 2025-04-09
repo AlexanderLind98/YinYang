@@ -55,6 +55,7 @@ public class PointShadowTestWorld : World
             .Model("Monkey")
             .Material(new mat_concrete())
             .Position(2f, 0f, 0f)
+            .Behavior<RotateObjectBehavior>(Vector3.UnitZ, 10f)
             .Build();
 
         rotatingCube = new GameObjectBuilder(Game)
@@ -70,7 +71,7 @@ public class PointShadowTestWorld : World
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
         
-        new PointLight(this);
+        new PointLight(this, Color4.White, 1.0f);
         PointLights[0].SetPosition(0, 0, 3);
     }
 

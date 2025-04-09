@@ -1,5 +1,6 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Worlds;
 
@@ -18,6 +19,8 @@ namespace YinYang.Rendering
         private int shadowResolution = 4096;
         private Shader shadowShader;
         private Texture shadowDepthTexture;
+        private Matrix4 lightSpaceMatrix;
+        private bool hasRenderedShadow = false;
 
         /// <summary>
         /// The depth texture produced by this shadow pass.
@@ -27,7 +30,7 @@ namespace YinYang.Rendering
         /// <summary>
         /// Initializes the framebuffer, depth texture, and shader required for shadow rendering.
         /// </summary>
-        public ShadowRenderPass()
+        public ShadowRenderPass(LightingManager lightingManager)
         {
             // Load the shader responsible for writing depth values only
             shadowShader = new Shader("Shaders/DirDepth.vert", "Shaders/DirDepth.frag");
@@ -82,6 +85,27 @@ namespace YinYang.Rendering
     /// <returns>The computed light-space transformation matrix.</returns>
     public override Matrix4? Execute(RenderContext context, ObjectManager objects)
     {
+        Matrix4? m = RenderShadows(context, objects);
+        
+        /*switch (context.Lighting.Sun.shadowType)
+        {
+            case Light.ShadowType.None:
+                return Matrix4.Identity;
+            case Light.ShadowType.Static:
+                //TODO
+                break;
+            case Light.ShadowType.Dynamic:
+                m = RenderShadows(context, objects);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }*/
+
+        return m;
+    }
+
+    private Matrix4? RenderShadows(RenderContext context, ObjectManager objects)
+    {
         // GL.CullFace(TriangleFace.Front);
         
         // Orthographic projection to simulate infinite directional light projection.
@@ -94,7 +118,7 @@ namespace YinYang.Rendering
             Vector3.UnitY);
 
         // Combine projection and view to form the light-space matrix.
-        Matrix4 lightSpaceMatrix = lightView * lightProjection;
+        lightSpaceMatrix = lightView * lightProjection;
 
         // Activate the shader and set the light-space matrix.
         shadowShader.Use();
@@ -105,10 +129,30 @@ namespace YinYang.Rendering
 
         // Bind the depth-only framebuffer and clear it.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
+        
+        //Do not clear the depth buffer if we are static
+        if(context.Lighting.Sun.shadowType == Light.ShadowType.Static && !hasRenderedShadow)
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+        else if(context.Lighting.Sun.shadowType != Light.ShadowType.Static)
+            GL.Clear(ClearBufferMask.DepthBufferBit);
 
-        // Render all scene geometry from the light's point of view.
-        objects.RenderDepth(shadowShader);
+        // Handle shadow type and render all scene geometry from the light's point of view
+        switch (context.Lighting.Sun.shadowType)
+        {
+            case Light.ShadowType.None: break; //Do not render shadows
+            case Light.ShadowType.Static: //Render shadows, but just once
+            {
+                if (!hasRenderedShadow)
+                    objects.RenderDepth(shadowShader);
+                break;
+            }
+            case Light.ShadowType.Dynamic: //No conditions, render shadows every frame
+            {
+                objects.RenderDepth(shadowShader);
+                break;
+            }
+            default: throw new ArgumentOutOfRangeException();
+        }
 
         // Unbind the framebuffer to return to the default target.
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -119,10 +163,13 @@ namespace YinYang.Rendering
             Console.WriteLine($"[GL ERROR] after {nameof(ShadowRenderPass)}: {err}");*/
         
         // Return the transformation matrix for use in the main lighting pass.
+        
+        hasRenderedShadow = true;
+        
         return lightSpaceMatrix;
     }
 
-        /// <summary>
+    /// <summary>
         /// Releases GPU resources used by this render pass.
         /// </summary>
         public override void Dispose()

@@ -295,6 +295,8 @@ void main()
     
     vec3 result = vec3(0);
 
+    result += CalcDirLight(dirLight, norm, viewDir);
+
     if(numPointLights != 0) //Only calc lights if lights exist!
     {
         for (int i = 0; i < numPointLights; i++)
@@ -310,12 +312,6 @@ void main()
             result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
         }
     }
-
-//    result += CalcDirLight(dirLight, norm, viewDir);
     
     FragColor = vec4(result, 1.0f);
-
-    /**float shadow = PointShadowCalculation(FragPos, pointLights[0].position);
-    FragColor = vec4(vec3(1.0 - shadow), 1.0); // White = lit, Black = shadow*/
-//    FragColor = vec4(vec3(closestDepth / far_plane), 1.0);
 }

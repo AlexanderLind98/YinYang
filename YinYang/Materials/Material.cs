@@ -109,6 +109,8 @@ namespace YinYang.Materials
             {
                 //BUG: Alle teksture køre ind i denne fejl... Men ting kan godt renderes...
                 //Ser ud til at alt virker, men den er sur over alle værdierne... Tror vi det her faktisk virker???
+                //Ah, måske er det fordi vi sætter nogle uniforms på alle materialer, om de altså har dem eller ej?
+                //For eksempel, Unlit har ikke mere end color, men renderer sætter dem alligevel...
                 var err = GL.GetError();
                 if (err != ErrorCode.NoError)
                     Console.WriteLine($"[GL ERROR] after SetUniform('{name}') → {err}");

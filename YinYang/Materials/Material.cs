@@ -15,7 +15,7 @@ namespace YinYang.Materials
         /// <summary>
         /// Enables debug logging for GL errors and invalid states.
         /// </summary>
-        public static bool MaterialDebug = true;
+        public static bool MaterialDebug = false;
 
         public void UpdateUniforms()
         {
@@ -104,7 +104,7 @@ namespace YinYang.Materials
 
             uniforms[name] = uniform;
 
-            //
+            //TODO: FIXME
             if (MaterialDebug)
             {
                 //BUG: Alle teksture køre ind i denne fejl... Men ting kan godt renderes...

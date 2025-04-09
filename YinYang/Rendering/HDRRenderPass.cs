@@ -76,9 +76,10 @@ namespace YinYang.Rendering
             
             screenQuad.Draw();
        
-            var err = GL.GetError();
+            //TODO: FIXME
+            /*var err = GL.GetError();
             if (err != ErrorCode.NoError)
-                Console.WriteLine($"[GL ERROR] after {nameof(HDRRenderPass)}: {err}");
+                Console.WriteLine($"[GL ERROR] after {nameof(HDRRenderPass)}: {err}");*/
 
             return context.LightSpaceMatrix;
         }

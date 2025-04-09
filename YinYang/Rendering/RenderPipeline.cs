@@ -25,6 +25,9 @@ namespace YinYang.Rendering
         public Texture ShadowDepthTexture =>
             renderPasses.OfType<ShadowRenderPass>().FirstOrDefault()?.ShadowDepthTexture;
 
+        public Texture ShadowDepthCubeTexture =>
+            renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTexture;
+        
         /// <summary>
         /// Adds a render pass to the pipeline.
         /// </summary>
@@ -40,20 +43,21 @@ namespace YinYang.Rendering
         /// 
         /// <param name="objects">Objects to render.</param> // TODO: maybe decouple objectmanger and use list or delegate for objects to render
         /// <returns>The last computed light-space matrix, if any.</returns>
-        public Matrix4 RenderAll(RenderContext context, ObjectManager objects)
+        public void RenderAll(RenderContext context, ObjectManager objects)
         {
-            Matrix4 lightSpaceMatrix = Matrix4.Identity;
+            Matrix4? lightSpaceMatrix = null;
 
             foreach (var pass in renderPasses)
             {
                 if (!pass.Enabled) continue;
                 
-                lightSpaceMatrix = pass.Execute(context, objects);
-                context.LightSpaceMatrix = lightSpaceMatrix;
-
+                lightSpaceMatrix = pass.Execute(context, objects)!;
+                
+                if(lightSpaceMatrix != null)
+                    context.LightSpaceMatrix = (Matrix4)lightSpaceMatrix;
             }
 
-            return lightSpaceMatrix;
+            // return lightSpaceMatrix;
         }
 
 

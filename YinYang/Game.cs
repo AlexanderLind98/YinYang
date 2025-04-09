@@ -21,9 +21,7 @@ namespace YinYang
             CenterWindow();
             GL.ClearColor(Color4.Black);
             
-            //currentWorld = new TestWorld(this);
-            //currentWorld = new LightTestWorld(this);
-            currentWorld = new HDRTestWorld(this);
+            currentWorld = new PointShadowTestWorld(this);
         }
         
         protected override void OnLoad()

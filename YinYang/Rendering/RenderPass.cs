@@ -29,7 +29,7 @@ namespace YinYang.Rendering
         /// <param name="context">Per Frame render context data.</param>
         /// <param name="objects">Scene objects to render.</param> //TODO: maybe decouple objectmanger and use list or delegate for objects to render
         /// <returns>The updated light-space matrix.</returns>
-        public abstract Matrix4 Execute(RenderContext context, ObjectManager objects);
+        public abstract Matrix4? Execute(RenderContext context, ObjectManager objects);
 
 
         /// <summary>

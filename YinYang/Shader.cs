@@ -8,9 +8,12 @@ public class Shader : IDisposable
     public int Handle;
     private readonly string name;
     
-    public Shader(string vertexPath, string fragmentPath)
+    public Shader(string vertexPath, string fragmentPath, string? geometryPath = null)
     {
         name = Path.GetFileNameWithoutExtension(vertexPath) + "+" + Path.GetFileNameWithoutExtension(fragmentPath);
+        
+        if(geometryPath != null)
+            name = name + "+" + Path.GetFileNameWithoutExtension(geometryPath);
         
         // The first step in creating a shader is to load the source code from a file.
         string vertexSource = File.ReadAllText(vertexPath);
@@ -30,6 +33,17 @@ public class Shader : IDisposable
         GL.ShaderSource(fragmentShader, fragmentSource);
         CompileShader(fragmentShader);
 
+        int geometryShader = 0;
+        
+        //Geom shader, if specified
+        if(geometryPath != null)
+        {
+            string geometrySource = File.ReadAllText(geometryPath);
+            geometryShader = GL.CreateShader(ShaderType.GeometryShader);
+            GL.ShaderSource(geometryShader, geometrySource);
+            CompileShader(geometryShader);
+        }
+
         // These two shaders must then be merged into a shader program, which can then be used by OpenGL.
         // To do this, create a program...
         Handle = GL.CreateProgram();
@@ -37,6 +51,8 @@ public class Shader : IDisposable
         // Attach both shaders...
         GL.AttachShader(Handle, vertexShader);
         GL.AttachShader(Handle, fragmentShader);
+        if(geometryPath != null)
+            GL.AttachShader(Handle, geometryShader);
 
         // And then link them together.
         LinkProgram(Handle);
@@ -45,8 +61,12 @@ public class Shader : IDisposable
         // Detach them, and then delete them, to free up memory.
         GL.DetachShader(Handle, vertexShader);
         GL.DetachShader(Handle, fragmentShader);
+        if(geometryPath != null)
+            GL.DetachShader(Handle, geometryShader);
         GL.DeleteShader(fragmentShader);
         GL.DeleteShader(vertexShader);
+        if(geometryPath != null)
+            GL.DeleteShader(geometryShader);
     }
     
     private void CompileShader(int shader)

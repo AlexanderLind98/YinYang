@@ -47,7 +47,7 @@ namespace YinYang.Worlds
         /// <summary>
         /// Default sun light color (also represents intensity).
         /// </summary>
-        public Vector3 SunColor = new Vector3(2f, 2f, 1.8f);
+        public Vector3 SunColor = new Vector3(1f, 1f, 1f);
 
         // Core manager systems for modular responsibilities.
         protected CameraManager cameraManager = new();
@@ -62,6 +62,7 @@ namespace YinYang.Worlds
 
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
+        public Texture depthCubeMap => renderPipeline.ShadowDepthCubeTexture;
 
         
         // Temporary access to game objects TODO: refactor to access through objectManager
@@ -85,11 +86,10 @@ namespace YinYang.Worlds
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());
+            renderPipeline.AddPass(new PointShadowRenderPass());
             renderPipeline.AddPass(new SceneRenderPass());
-            
-            // renderPipeline.HdrPass = new HDRRenderPass();
-            // renderPipeline.HdrPass.Exposure = 1f; // TODO: make this adjustable as a var
-            // renderPipeline.AddPass(renderPipeline.HdrPass);
+            renderPipeline.HdrPass = new HDRRenderPass();
+            renderPipeline.AddPass(renderPipeline.HdrPass);
             
             // post-processing pass 
             renderPipeline.BloomPass = new BloomRenderPass();
@@ -170,6 +170,7 @@ namespace YinYang.Worlds
             if (debugOverlayEnabled)
             {
                 _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
+                DrawDebugTexture(depthMap.Handle, Game.Size);
             }
         }
 

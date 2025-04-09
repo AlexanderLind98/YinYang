@@ -83,6 +83,8 @@ namespace YinYang
         
         public void RenderDepth(Shader shader)
         {
+            // if (Renderer != null ) //TODO: remove from render depth
+            
             if (Renderer != null)
             {
                 // Calculate the model matrix.

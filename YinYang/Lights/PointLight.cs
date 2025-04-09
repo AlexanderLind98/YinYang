@@ -14,16 +14,9 @@ public class PointLight : Light
         Transform = new Transform();
         currentWorld.PointLights.Add(this);
         
-        Visualizer = new GameObjectBuilder(currentWorld.Game)
-            .Model("Sphere")
-            .Material(new mat_concrete())
-            .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
-            .Scale(0.1f, 0.1f, 0.1f)
-            .Build();
-
-        currentWorld.GameObjects.Add(Visualizer);
+        CreateVisualizer(currentWorld);
     }
-    
+
     public PointLight(World currentWorld, Color4 color, float intensity = 1)
     {
         Transform = new Transform();
@@ -33,9 +26,21 @@ public class PointLight : Light
         LightColor = new Vector3(color.R * LightIntensity, color.G* LightIntensity, color.B* LightIntensity);
         DefaultColor = LightColor;
         
+        CreateVisualizer(currentWorld);
+    }
+    
+    public override Vector3 SetPosition(float x, float y, float z)
+    {
+        Transform.Position = new Vector3(x, y, z);
+        if (Visualizer != null) Visualizer.Transform.Position = Transform.Position;
+        return new Vector3(x, y, z);
+    }
+
+    private void CreateVisualizer(World currentWorld)
+    {
         Visualizer = new GameObjectBuilder(currentWorld.Game)
-            .Model("Cube")
-            .Material(new mat_concrete())
+            .Model("Sphere")
+            .Material(new mat_glow())
             .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();

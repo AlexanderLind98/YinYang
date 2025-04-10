@@ -93,4 +93,9 @@ public class SpotLight : Light
             Visualizer.Transform.Rotation = Transform.Rotation;
         }
     }
+    
+    public override void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees)
+    {
+        Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);
+    }
 }

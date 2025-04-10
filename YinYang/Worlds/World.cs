@@ -168,7 +168,7 @@ namespace YinYang.Worlds
             if (debugOverlayEnabled)
             {
                 _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
-                DrawDebugTexture(depthMap.Handle, Game.Size);
+                // DrawDebugTexture(depthMap.Handle, Game.Size);
             }
         }
 

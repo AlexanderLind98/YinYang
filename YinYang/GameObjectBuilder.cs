@@ -56,6 +56,18 @@ public class GameObjectBuilder
         _gameObject.Transform.Position = new Vector3(x, y, z);
         return this;
     }
+    
+    /// <summary>
+    /// Sets the initial rotation of the GameObject in degrees.
+    /// </summary>
+    /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+    /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+    /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
+    public GameObjectBuilder RotationDegrees(float pitchDegrees, float yawDegrees, float rollDegrees)
+    {
+        _gameObject.Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);
+        return this;
+    }
 
     /// <summary>
     /// Sets the initial scale of the GameObject.

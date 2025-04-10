@@ -1,6 +1,6 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using YinYang.Behaviors;
+using YinYang.Behaviors.Motion;
 using YinYang.Lights;
 using YinYang.Materials;
 
@@ -9,7 +9,7 @@ namespace YinYang.Worlds;
 public class PointShadowTestWorld : World
 {
     private GameObject room;
-    private GameObject staticCube;
+    private GameObject monkey;
     private GameObject rotatingCube;
 
     public PointShadowTestWorld(Game game) : base(game)
@@ -51,12 +51,23 @@ public class PointShadowTestWorld : World
             .Scale(1, 1, 1)
             .Build();
 
-        staticCube = new GameObjectBuilder(Game)
+        monkey = new GameObjectBuilder(Game)
             .Model("Monkey")
             .Material(new mat_concrete())
             .Position(2f, 0f, 0f)
-            .Behavior<RotateObjectBehavior>(Vector3.UnitZ, 10f)
+            .RotationDegrees(45,25,0)
             .Build();
+
+        monkey.AddComponent<ParallelBehavior>
+        (
+            new IAutoMotion[] 
+            {
+                new UpDown(0.1f, 1f),
+                new SidetoSide(0.2f, 0.5f),
+                new FowardBackward(0.1f, 0.1f),
+            }
+        );
+
 
         rotatingCube = new GameObjectBuilder(Game)
             .Model("Sphere")
@@ -65,7 +76,7 @@ public class PointShadowTestWorld : World
             .Build();
 
         GameObjects.Add(room);
-        GameObjects.Add(staticCube);
+        GameObjects.Add(monkey);
         GameObjects.Add(rotatingCube);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);

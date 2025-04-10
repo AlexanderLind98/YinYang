@@ -36,5 +36,33 @@ namespace YinYang.Components
 
             return scale * rotationX * rotationY * rotationZ * translation;
         }
+        
+        /// <summary>
+        /// Sets the rotation of the light's transform in degrees.
+        /// </summary>
+        /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+        /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+        /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
+        public virtual void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees) 
+        {
+            Rotation = new Vector3(
+                MathHelper.DegreesToRadians(-pitchDegrees),
+                MathHelper.DegreesToRadians(yawDegrees),
+                MathHelper.DegreesToRadians(rollDegrees)
+            );
+        }
+        
+        /// <summary>
+        /// Gets the rotation of this transform in degrees.
+        /// </summary>
+        /// <returns>Euler angles in degrees.</returns>
+        public Vector3 GetRotationInDegrees()
+        {
+            return new Vector3(
+                MathHelper.RadiansToDegrees(Rotation.X),
+                MathHelper.RadiansToDegrees(Rotation.Y),
+                MathHelper.RadiansToDegrees(Rotation.Z)
+            );
+        }
     }
 }

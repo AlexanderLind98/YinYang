@@ -54,6 +54,7 @@ namespace YinYang
                 if (component is T found)
                     return found;
             }
+            
             return null;
         }
 
@@ -99,6 +100,27 @@ namespace YinYang
             Renderer?.Mesh?.Dispose();
             if (Renderer?.Material is IDisposable dMat)
                 dMat.Dispose();
+        }
+        
+        /// <summary>
+        /// Sets the object's rotation using degrees on all axes.
+        /// Internally converts to radians.
+        /// </summary>
+        /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+        /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+        /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
+        public void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees)
+        {
+            Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);
+        }
+
+        /// <summary>
+        /// Gets the object's current rotation in degrees.
+        /// </summary>
+        /// <returns>Euler angles in degrees.</returns>
+        public Vector3 GetRotationInDegrees()
+        {
+            return Transform.GetRotationInDegrees();
         }
     }
 }

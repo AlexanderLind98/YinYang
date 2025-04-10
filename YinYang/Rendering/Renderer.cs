@@ -28,6 +28,7 @@ namespace YinYang.Rendering
         }
 
         public Mesh Mesh { get; set; }
+        public bool RenderInDepthPass { get; set; } = true;
 
         public Renderer(Material material, Mesh mesh)
         {
@@ -64,6 +65,10 @@ namespace YinYang.Rendering
         /// </summary>
         public void RenderDepth(Shader shader, Matrix4 model)
         {
+            //Ability to remove objects from appearing in depth pass, to remove shadows
+            if(!RenderInDepthPass)
+                return;
+            
             shader.SetMatrix("model", model);
             GL.DepthMask(DepthTest);
             Mesh.Draw();

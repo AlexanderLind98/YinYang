@@ -77,7 +77,8 @@ public class SpotLight : Light
             .Position(0, 0, 0)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();
-
+        
+        Visualizer.Renderer.RenderInDepthPass = false;
         currentWorld.GameObjects.Add(Visualizer);
 
         // Apply the direction to the visualizer arrow (convert direction to Euler angles)

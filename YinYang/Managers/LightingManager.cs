@@ -37,6 +37,7 @@ namespace YinYang.Managers
         {
             // Create a directional light representing the sun, with the given color and default intensity.
             Sun = new DirectionalLight(world, new Color4(initialColor.X, initialColor.Y, initialColor.Z, 1.0f), 1.0f);
+            Sun.shadowType = Light.ShadowType.Static;
 
             // Set the sun's direction using Euler angles (pitch, yaw, roll).
             // This determines the direction from which the sunlight is cast.

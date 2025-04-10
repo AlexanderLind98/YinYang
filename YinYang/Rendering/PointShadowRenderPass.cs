@@ -1,5 +1,6 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Worlds;
 
@@ -20,6 +21,8 @@ namespace YinYang.Rendering
         private Texture shadowDepthCubeTexture;
         private float nearPlane = 0.1f;
         private float farPlane = 50.0f;
+        
+        private bool hasRenderedShadow = false;
 
         /// <summary>
         /// The depth texture produced by this shadow pass.
@@ -84,17 +87,26 @@ namespace YinYang.Rendering
     {
         // GL.CullFace(TriangleFace.Front);
         
+        for (int i = 0; i < context.Lighting.PointLights.Count; i++)
+        {
+            //Skip none shadowing lights
+            if (hasRenderedShadow && context.Lighting.PointLights[i].shadowType == Light.ShadowType.None)
+            {
+                continue;
+            }
+            
+            RenderShadow(context, objects, i);   
+        }
+
+        return null;
+    }
+
+    private void RenderShadow(RenderContext context, ObjectManager objects, int lightIndex)
+    {
         // 0. create depth cubemap transformation matrices
         Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), shadowResolution / shadowResolution, nearPlane, farPlane);
         List<Matrix4> shadowTransforms = new List<Matrix4>();
-        Vector3 lightPos = context.Lighting.PointLights[0].Transform.Position;                        
-        /*shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);
-        shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f,  1.0f, 0.0f)) * shadowProj);*/
-        
+        Vector3 lightPos = context.Lighting.PointLights[lightIndex].Transform.Position;                        
         shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
         shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
         shadowTransforms.Add(Matrix4.LookAt(lightPos, lightPos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
@@ -113,16 +125,36 @@ namespace YinYang.Rendering
         
         // 1. Render scene to depth cubemap
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
         
-        objects.RenderDepth(shadowShader);
+        //Do not clear the depth buffer if we are static
+        if(context.Lighting.Sun.shadowType == Light.ShadowType.Static && !hasRenderedShadow)
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+        else if(context.Lighting.Sun.shadowType != Light.ShadowType.Static)
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+        switch (context.Lighting.PointLights[lightIndex].shadowType)
+        {
+            case Light.ShadowType.None: break;
+            case Light.ShadowType.Static:
+            {
+                if (!hasRenderedShadow)
+                    objects.RenderDepth(shadowShader);
+                break;
+            }
+            case Light.ShadowType.Dynamic:
+            {
+                objects.RenderDepth(shadowShader);
+                break;
+            }
+            default: throw new ArgumentOutOfRangeException();
+        }
         
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        return null;
+        hasRenderedShadow = true;
     }
 
-        /// <summary>
+    /// <summary>
         /// Releases GPU resources used by this render pass.
         /// </summary>
         public override void Dispose()

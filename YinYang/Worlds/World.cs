@@ -83,7 +83,7 @@ namespace YinYang.Worlds
             cameraManager.Setup(Game, objectManager.GameObjects);
 
             // Set up lighting system including directional sunlight.
-            lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
+            lightingManager.InitializeDirectionalLightInDegrees(this, -45,0,0, SunColor);
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass());

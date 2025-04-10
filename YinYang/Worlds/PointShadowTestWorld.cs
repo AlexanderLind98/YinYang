@@ -55,12 +55,12 @@ public class PointShadowTestWorld : World
             .Model("Monkey")
             .Material(new mat_concrete())
             .Position(2f, 0f, 0f)
-            //.RotationDegrees(45,25,0)//45op,25venstre,0??
-            // testing...
-            .RotationDegrees(45, 25, 0)    // udgangspunkt
-            .RotationDegrees(-45, 25, 0)   // vender op/ned
-            .RotationDegrees(45, -25, 0)   // vender venstre/højre
-            .RotationDegrees(-45, -25, 0)  // komplet spejling
+            .RotationDegrees(45,25,0)//45op,25venstre,0??
+            // // testing...
+            // .RotationDegrees(45, 25, 0)    // udgangspunkt
+            // .RotationDegrees(-45, 25, 0)   // vender op/ned
+            // .RotationDegrees(45, -25, 0)   // vender venstre/højre
+            // .RotationDegrees(-45, -25, 0)  // komplet spejling
 
             .Build();
 

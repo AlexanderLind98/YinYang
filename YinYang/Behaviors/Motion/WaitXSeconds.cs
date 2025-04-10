@@ -3,7 +3,7 @@ namespace YinYang.Behaviors.Motion
     /// <summary>
     /// Behavior step that pauses for a specified duration.
     /// </summary>
-    public class WaitXSeconds : IAutoMotion
+    public class WaitXSeconds : IFiniteMotion, IResetMotion
     {
         private readonly float duration;
         private float elapsed;
@@ -39,5 +39,10 @@ namespace YinYang.Behaviors.Motion
         /// Indicates whether the desired wait time has been reached.
         /// </summary>
         public bool IsDone => elapsed >= duration;
+        
+        public void Reset()
+        {
+            elapsed = 0f;
+        }
     }
 }

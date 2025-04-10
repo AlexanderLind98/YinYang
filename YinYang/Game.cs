@@ -21,7 +21,7 @@ namespace YinYang
             CenterWindow();
             GL.ClearColor(Color4.Black);
             
-            currentWorld = new PointShadowTestWorld(this);
+            currentWorld = new MotionTestWorld(this);
         }
         
         protected override void OnLoad()

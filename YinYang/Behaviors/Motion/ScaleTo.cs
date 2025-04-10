@@ -6,7 +6,7 @@ namespace YinYang.Behaviors.Motion
     /// Smoothly scales a GameObject from its current Transform.Scale
     /// to a specified target scale over a defined duration.
     /// </summary>
-    public class ScaleTo : IAutoMotion
+    public class ScaleTo : IFiniteMotion, IResetMotion
     {
         private readonly Vector3 targetScale;
         private readonly float duration;
@@ -56,5 +56,11 @@ namespace YinYang.Behaviors.Motion
         /// Indicates whether we've completed the full duration of the scaling.
         /// </summary>
         public bool IsDone => elapsed >= duration;
+        
+        public void Reset()
+        {
+            elapsed = 0f;
+            started = false;
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace YinYang.Behaviors.Motion
     /// Smoothly moves a GameObject from its start position
     /// to a specified target position (XYZ) over a set duration.
     /// </summary>
-    public class MoveToPositionXYZ : IAutoMotion
+    public class MoveToPositionXYZ : IFiniteMotion, IResetMotion
     {
         private readonly Vector3 targetPosition;
         private readonly float duration;
@@ -60,5 +60,11 @@ namespace YinYang.Behaviors.Motion
         /// meaning the object should be at its target.
         /// </summary>
         public bool IsDone => elapsed >= duration;
+        
+        public void Reset()
+        {
+            elapsed = 0f;
+            started = false;
+        }
     }
 }

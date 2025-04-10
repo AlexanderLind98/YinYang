@@ -6,7 +6,7 @@ namespace YinYang.Behaviors.Motion
     /// Smoothly rotates a GameObject from its current rotation
     /// to a specified absolute rotation (in degrees) over a set duration.
     /// </summary>
-    public class TurnXYZDegrees : IAutoMotion
+    public class TurnXYZDegrees : IFiniteMotion, IResetMotion
     {
         private readonly Vector3 targetRotationDeg;
         private readonly float duration;
@@ -57,5 +57,11 @@ namespace YinYang.Behaviors.Motion
         /// Indicates whether we've reached the target rotation timewise.
         /// </summary>
         public bool IsDone => elapsed >= duration;
+        
+        public void Reset()
+        {
+            elapsed = 0f;
+            started = false;
+        }
     }
 }

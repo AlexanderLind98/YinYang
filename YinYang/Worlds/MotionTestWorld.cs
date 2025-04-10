@@ -25,7 +25,7 @@ public class MotionTestWorld : World
     {
         base.ConstructWorld();
         
-        Ground.Add(new GameObjectBuilder(Game)
+        GameObjects.Add(new GameObjectBuilder(Game)
             .Model("Ground")
             .Material(new  mat_concrete())
             .Position(0f, -3f, 0f)
@@ -133,9 +133,9 @@ public class MotionTestWorld : World
 
 
 
-        Ground.Add(SmoothCube);
-        Ground.Add(Monkey);
-        Ground.Add(Sphere);
+        GameObjects.Add(SmoothCube);
+        GameObjects.Add(Monkey);
+        GameObjects.Add(Sphere);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();

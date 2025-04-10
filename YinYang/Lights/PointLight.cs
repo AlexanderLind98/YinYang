@@ -44,6 +44,8 @@ public class PointLight : Light
             .Position(Transform.Position.X, Transform.Position.Y, Transform.Position.Z)
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();
+        
+        Visualizer.Renderer.RenderInDepthPass = false;
 
         currentWorld.GameObjects.Add(Visualizer);
     }

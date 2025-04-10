@@ -38,6 +38,8 @@ public class DirectionalLight : Light
             .Scale(0.1f, 0.1f, 0.1f)
             .Build();
 
+        Visualizer.Renderer.RenderInDepthPass = false;
+        
         currentWorld.GameObjects.Add(Visualizer);
         
         Visualizer.Transform.Position = new Vector3(0, 2, 0);

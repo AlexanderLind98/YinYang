@@ -20,6 +20,16 @@ namespace YinYang.Lights
         /// </summary>
         public virtual Transform? Transform => null;
 
+        public enum ShadowType
+        {
+            None,
+            Static,
+            Dynamic
+        }
+
+        public ShadowType shadowType = ShadowType.None;
+  
+
         /// <summary>
         /// Toggles light color between default and zero (off).
         /// </summary>

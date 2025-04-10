@@ -82,8 +82,9 @@ public class PointShadowTestWorld : World
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
         
-        new PointLight(this);
+        new PointLight(this, Color4.White, 1.0f);
         PointLights[0].SetPosition(0, 0, 3);
+        PointLights[0].shadowType = Light.ShadowType.Static;
     }
 
     public override void HandleInput(KeyboardState input)

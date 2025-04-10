@@ -40,9 +40,9 @@ namespace YinYang.Components
         /// <summary>
         /// Sets the rotation of the light's transform in degrees.
         /// </summary>
-        /// <param name="pitchDegrees">Rotation around the X-axis in degrees.</param>
-        /// <param name="yawDegrees">Rotation around the Y-axis in degrees.</param>
-        /// <param name="rollDegrees">Rotation around the Z-axis in degrees.</param>
+        /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+        /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+        /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
         public virtual void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees) 
         {
             Rotation = new Vector3(

@@ -48,5 +48,22 @@ namespace YinYang.Managers
             // Optionally attach a visual representation of the light.
             Sun.UpdateVisualizer(world);
         }
+        
+        /// <summary>
+        /// Initializes the directional light using Euler angles in degrees instead of a direction vector.
+        /// </summary>
+        /// <param name="world">The world this light belongs to.</param>
+        /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+        /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+        /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
+        /// <param name="initialColor">The color and intensity of the light.</param>
+        public void InitializeDirectionalLight(World world, float pitchDegrees, float yawDegrees, float rollDegrees, Vector3 initialColor)
+        {
+            Sun = new DirectionalLight(world, new Color4(initialColor.X, initialColor.Y, initialColor.Z, 1.0f), 1.0f);
+
+            Sun.Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);
+            Sun.Transform.Position = new Vector3(2, 5, -2);
+            Sun.UpdateVisualizer(world);
+        }
     }
 }

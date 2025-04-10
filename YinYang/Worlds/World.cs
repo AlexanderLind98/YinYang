@@ -42,7 +42,8 @@ namespace YinYang.Worlds
         /// <summary>
         /// Default sun direction vector (used at startup).
         /// </summary>
-        public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
+        public Vector3 SunDirection = new Vector3(45f, 135f, 0f);
+        //public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
 
         /// <summary>
         /// Default sun light color (also represents intensity).

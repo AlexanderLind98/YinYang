@@ -49,6 +49,12 @@ public class DirectionalLight : Light
         if (Visualizer != null) Visualizer.Transform.Rotation = Transform.Rotation;
     }
     
+    /// <summary>
+    /// Set the dir.light using degrees 
+    /// </summary>
+    /// <param name="pitchDegrees">X-axis (tilt). Positive = upward.</param>
+    /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
+    /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
     public override void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees)
     {
         Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);

@@ -27,10 +27,10 @@ public class RotateObjectBehavior : Behaviour
 
     public override void Update(FrameEventArgs args)
     {
-        var rotation = gameObject.Transform.Rotation;
+        var rotationDegrees = gameObject.Transform.GetRotationInDegrees();
 
-        rotation += _rotationAxis * _rotationSpeed * (float)args.Time;
+        rotationDegrees += _rotationAxis * _rotationSpeed * (float)args.Time;
 
-        gameObject.Transform.Rotation = rotation;
+        gameObject.SetRotationInDegrees(rotationDegrees.X, rotationDegrees.Y, rotationDegrees.Z);
     }
 }

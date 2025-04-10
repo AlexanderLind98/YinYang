@@ -7,17 +7,17 @@ using YinYang.Materials;
 
 namespace YinYang.Worlds;
 
-public class SceneTestWorld : World
+public class CaveScene : World
 {
     private GameObject cave;
-    private GameObject cliffExit;
-    private GameObject groundOutdoors;
+    private GameObject CavePillar;
+    private GameObject lightStone;
 
-    public SceneTestWorld(Game game) : base(game)
+    public CaveScene(Game game) : base(game)
     {
         WorldName = game.Title + " Scene Test World";
 
-        SkyColor = Color4.CornflowerBlue;
+        SkyColor = Color4.Black;
         lightingManager.Sun.ToggleLight();
     }
 
@@ -38,29 +38,32 @@ public class SceneTestWorld : World
         base.ConstructWorld();
         
         cave = new GameObjectBuilder(Game)
-            .Model("TestScene/Cave")
-            .Material(new  mat_concrete())
+            .Model("Cave/MainCave")
+            .Material(new  mat_cliffStone())
             .Position(0f, 0, 0f)
             .Build();
 
-        cliffExit = new GameObjectBuilder(Game)
-            .Model("TestScene/CliffExit")
-            .Material(new mat_concrete())
+        CavePillar = new GameObjectBuilder(Game)
+            .Model("Cave/CavePillar")
+            .Material(new mat_cliffStone())
             .Position(0, 0f, 0f)
             .Build();
-
-        groundOutdoors = new GameObjectBuilder(Game)
-            .Model("TestScene/GroundOutdoors")
-            .Material(new mat_concrete())
-            .Position(0f, 0f, 0f)
+        
+        lightStone = new GameObjectBuilder(Game)
+            .Model("Cave/LightStone")
+            .Material(new mat_chrome())
+            .Position(0, 0f, -3f)
             .Build();
 
         GameObjects.Add(cave);
-        GameObjects.Add(cliffExit);
-        GameObjects.Add(groundOutdoors);
+        GameObjects.Add(CavePillar);
+        GameObjects.Add(lightStone);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
+
+        new PointLight(this, Color4.Goldenrod);
+        PointLights[0].SetPosition(0, 0, 0);
     }
 
     public override void HandleInput(KeyboardState input)

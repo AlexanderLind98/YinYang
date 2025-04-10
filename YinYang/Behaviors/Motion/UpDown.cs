@@ -3,40 +3,42 @@ namespace YinYang.Behaviors.Motion
     /// <summary>
     /// Moves an object up and down (Y-axis) using a sine wave motion over time.
     /// </summary>
-    public class UpDown
+    public class UpDown : IAutoMotion
     {
         private readonly float amplitude;
         private readonly float frequency;
-        private readonly float baseY;
+        
+        private float elapsedTime = 0f;
+        private float? initialY = null;
         
         /// <summary>
         /// Constructs an UpDown motion behavior.
         /// </summary>
-        /// <param name="amplitude">How far above and below baseY the object should move.</param>
-        /// <param name="frequency">How quickly the object oscillates.</param>
-        /// <param name="baseY">The vertical center of the oscillation.</param>
-        public UpDown(float amplitude, float frequency, float baseY)
+        /// <param name="amplitude">Maximum distance the object moves above and below its original Y position.</param>
+        /// <param name="frequency">Oscillations per second (Hz). Higher values = faster bobbing.</param>
+        public UpDown(float amplitude, float frequency)
         {
             this.amplitude = amplitude;
             this.frequency = frequency;
-            this.baseY = baseY;
         }
-
-        /// <summary>
-        /// Applies a sine-wave up/down motion to the object's Y position each frame.
-        /// </summary>
-        /// <param name="obj">The target GameObject to move.</param>
-        /// <param name="time">Accumulated time (in seconds) for calculating the sine wave.</param>
-        public void Apply(GameObject obj, float time)
+        
+        public void Apply(GameObject obj, float deltaTime)
         {
-            // Get the current position of the object
-            var position = obj.Transform.Position;
+            // Cache the object's starting Y-position on the first frame
+            if (initialY == null)
+                initialY = obj.Transform.Position.Y;
 
-            // Update the Y coordinate with a sine-based offset around baseY
-            position.Y = baseY + amplitude * MathF.Sin(frequency * time);
+            // Advance time
+            elapsedTime += deltaTime;
 
-            // Assign the modified position back
-            obj.Transform.Position = position;
+            // Calculate angular velocity (2πf) and use it to compute the offset
+            float omega = 2f * MathF.PI * frequency;
+            float offsetY = amplitude * MathF.Sin(omega * elapsedTime);
+
+            // Apply the new Y position, preserving X/Z
+            var pos = obj.Transform.Position;
+            pos.Y = initialY.Value + offsetY;
+            obj.Transform.Position = pos;
         }
     }
 }

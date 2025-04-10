@@ -107,7 +107,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Behaviors\Motion\" />
       <Folder Include="Shaders\OLD\" />
       <None Update="Shaders\texturedebug.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

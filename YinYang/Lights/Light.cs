@@ -28,11 +28,7 @@ namespace YinYang.Lights
         }
 
         public ShadowType shadowType = ShadowType.None;
-
-        public void ToggleLight()
-        {
-            LightColor = LightColor == DefaultColor ? Vector3.Zero : DefaultColor;
-        }
+  
 
         /// <summary>
         /// Toggles light color between default and zero (off).

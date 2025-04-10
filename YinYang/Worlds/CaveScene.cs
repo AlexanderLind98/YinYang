@@ -52,7 +52,10 @@ public class CaveScene : World
         lightStone = new GameObjectBuilder(Game)
             .Model("Cave/LightStone")
             .Material(new mat_chrome())
-            .Position(0, 0f, -3f)
+            .Position(5.75f, 0.7f, 2.98f)
+            .RotationDegrees(40.0f, 45.8f, 11.45f)
+            .Scale(1.37f, 1.37f, 1.37f)
+            .Behavior<EditorBehavior>()
             .Build();
 
         GameObjects.Add(cave);

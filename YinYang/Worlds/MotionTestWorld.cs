@@ -49,7 +49,7 @@ public class MotionTestWorld : World
         Sphere = new GameObjectBuilder(Game)
             .Model("Sphere")
             .Material(new mat_concrete())
-            .Position(0f, 0f, 0f)
+            .Position(0f, 0f, -2f)
             .Build();
         
         Sphere.AddComponent<ParallelBehavior>
@@ -135,7 +135,7 @@ public class MotionTestWorld : World
 
         GameObjects.Add(SmoothCube);
         GameObjects.Add(Monkey);
-        GameObjects.Add(Sphere);
+        //GameObjects.Add(Sphere);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();

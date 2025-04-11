@@ -127,9 +127,9 @@ namespace YinYang.Rendering
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
         
         //Do not clear the depth buffer if we are static
-        if(context.Lighting.Sun.shadowType == Light.ShadowType.Static && !hasRenderedShadow)
+        if(context.Lighting.PointLights[lightIndex].shadowType == Light.ShadowType.Static && !hasRenderedShadow)
             GL.Clear(ClearBufferMask.DepthBufferBit);
-        else if(context.Lighting.Sun.shadowType != Light.ShadowType.Static)
+        else if(context.Lighting.PointLights[lightIndex].shadowType != Light.ShadowType.Static)
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
         switch (context.Lighting.PointLights[lightIndex].shadowType)

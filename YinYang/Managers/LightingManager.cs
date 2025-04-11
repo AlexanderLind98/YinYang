@@ -58,7 +58,7 @@ namespace YinYang.Managers
         /// <param name="yawDegrees">Y-axis (turn). Positive = left.</param>
         /// <param name="rollDegrees">Z-axis (roll). Positive = clockwise (front view).</param>
         /// <param name="initialColor">The color and intensity of the light.</param>
-        public void InitializeDirectionalLightInDegrees(World world, float pitchDegrees, float yawDegrees, float rollDegrees, Vector3 initialColor)
+        public void InitializeDirectionalLightInDegrees(World world, float pitchDegrees, float yawDegrees, float rollDegrees, Vector3 initialColor, Light.ShadowType shadowType)
         {
             Sun = new DirectionalLight(world, new Color4(initialColor.X, initialColor.Y, initialColor.Z, 1.0f), 1.0f);
 

@@ -45,7 +45,7 @@ namespace YinYang.Worlds
         public Vector3 SunDirection = new Vector3(45f, 135f, 0f);
         //public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
 
-        /// <summary>
+        /// <summary>1
         /// Default sun light color (also represents intensity).
         /// </summary>
         public Vector3 SunColor = new Vector3(1f, 1f, 1f);
@@ -60,6 +60,8 @@ namespace YinYang.Worlds
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;
         public List<SpotLight> SpotLights => lightingManager.SpotLights;
+
+        public Camera MainCamera => cameraManager.Camera;
 
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;

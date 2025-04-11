@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Text;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace YinYang;
@@ -16,7 +17,8 @@ public class Shader : IDisposable
             name = name + "+" + Path.GetFileNameWithoutExtension(geometryPath);
         
         // The first step in creating a shader is to load the source code from a file.
-        string vertexSource = File.ReadAllText(vertexPath);
+        //string vertexSource = File.ReadAllText(vertexPath);
+        string vertexSource = PreprocessShader(vertexPath);
         
         // The source code is then compiled into a shader object.
         int vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -28,7 +30,8 @@ public class Shader : IDisposable
         CompileShader(vertexShader);
         
         // The same process is then repeated for the fragment shader.
-        string fragmentSource = File.ReadAllText(fragmentPath);
+        //string fragmentSource = File.ReadAllText(fragmentPath);
+        string fragmentSource = PreprocessShader(fragmentPath);
         int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
         GL.ShaderSource(fragmentShader, fragmentSource);
         CompileShader(fragmentShader);
@@ -38,7 +41,8 @@ public class Shader : IDisposable
         //Geom shader, if specified
         if(geometryPath != null)
         {
-            string geometrySource = File.ReadAllText(geometryPath);
+            //string geometrySource = File.ReadAllText(geometryPath);
+            string geometrySource = PreprocessShader(geometryPath);
             geometryShader = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(geometryShader, geometrySource);
             CompileShader(geometryShader);
@@ -152,4 +156,27 @@ public class Shader : IDisposable
         int location = GL.GetUniformLocation(Handle, name);
         GL.UniformMatrix4(location, true, ref transform);
     }
+    
+    private string PreprocessShader(string path)
+    {
+        var lines = File.ReadAllLines(path);
+        var sb = new StringBuilder();
+
+        foreach (var line in lines)
+        {
+            if (line.TrimStart().StartsWith("#include"))
+            {
+                var includePath = line.Split('"')[1];
+                var fullPath = Path.Combine(Path.GetDirectoryName(path), includePath);
+                sb.AppendLine(PreprocessShader(fullPath));
+            }
+            else
+            {
+                sb.AppendLine(line);
+            }
+        }
+
+        return sb.ToString();
+    }
+
 }

@@ -49,7 +49,7 @@ public class MotionTestWorld : World
         Sphere = new GameObjectBuilder(Game)
             .Model("Sphere")
             .Material(new mat_concrete())
-            .Position(0f, 0f, 0f)
+            .Position(-2f, 0f, 0f)
             .Build();
         
         Sphere.AddComponent<ParallelBehavior>
@@ -142,6 +142,7 @@ public class MotionTestWorld : World
         
         new PointLight(this);
         PointLights[0].SetPosition(0, 0, 3);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
     }
 
     public override void HandleInput(KeyboardState input)

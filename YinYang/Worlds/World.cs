@@ -42,8 +42,8 @@ namespace YinYang.Worlds
         /// <summary>
         /// Default sun direction vector (used at startup).
         /// </summary>
-        public Vector3 SunDirection = new Vector3(45f, 135f, 0f);
-        //public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
+        //public Vector3 SunDirection = new Vector3(45f, 135f, 0f);
+        public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
 
         /// <summary>
         /// Default sun light color (also represents intensity).
@@ -83,7 +83,8 @@ namespace YinYang.Worlds
             cameraManager.Setup(Game, objectManager.GameObjects);
 
             // Set up lighting system including directional sunlight.
-            lightingManager.InitializeDirectionalLightInDegrees(this, -45,0,0, SunColor);
+            //lightingManager.InitializeDirectionalLightInDegrees(this, -45,0,0, SunColor, Light.ShadowType.Static);
+            lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));

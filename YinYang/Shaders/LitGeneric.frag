@@ -78,16 +78,17 @@ uniform samplerCube cubeMap;
 uniform float far_plane;
 
 // INCLUDES (skal stå efter de ting de skal bruge)
-#include "BlinnPhongResult.glsl"
-#include "SpecResult.glsl"
+//#include "BlinnPhongResult.glsl"
+//#include "SpecResult.glsl"
+//#include "DirShadowCalculation.glsl"
 
 
 //Prototypes / definitions
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-//vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular);
-//float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal);
+vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular);
+float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal);
 float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
 
 //Methods
@@ -117,7 +118,7 @@ float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
     if(projCoords.z > 1.0)
     shadow = 0.0;
-    
+
     return shadow;
 }
 
@@ -162,34 +163,34 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     return shadow;
 }
 
-//float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal)
-//{
-//    vec3 halfwayDir = normalize(lightDir + viewDir);
-//    float pi = 3.14159265;
-//    
-//    // specular shading
-//    vec3 reflectDir = reflect(-lightDir, normal);
-//    const float energyConservation = (16.0 + material.shininess) / (16.0 * pi);
-//    float spec = energyConservation * pow(max(dot(normal, halfwayDir), 0.0f), material.shininess);
-//            
-//    return spec;
-//}
+float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal)
+{
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float pi = 3.14159265;
 
-//vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular)
-//{
-//    // Final lighting based on debug mode
-//    vec3 result;
-//    if (debugMode == 1)
-//    result = ambient;
-//    else if (debugMode == 2)
-//    result = diffuse;
-//    else if (debugMode == 3)
-//    result = specular;
-//    else
-//    result = (ambient + diffuse + specular);
-//
-//    return result;
-//}
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    const float energyConservation = (16.0 + material.shininess) / (16.0 * pi);
+    float spec = energyConservation * pow(max(dot(normal, halfwayDir), 0.0f), material.shininess);
+
+    return spec;
+}
+
+vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular)
+{
+    // Final lighting based on debug mode
+    vec3 result;
+    if (debugMode == 1)
+    result = ambient;
+    else if (debugMode == 2)
+    result = diffuse;
+    else if (debugMode == 3)
+    result = specular;
+    else
+    result = (ambient + diffuse + specular);
+
+    return result;
+}
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {

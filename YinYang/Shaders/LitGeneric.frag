@@ -295,10 +295,7 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
 
     // obtain normal from normal map in range [0,1]
-    norm += texture(material.normTex, texCoord).rgb;
-//    norm.r = norm.r * -1; //Flip blue channel
-//    norm.g = norm.g * -1; //Flip blue channel
-//    norm.b = norm.b * -1; //Flip blue channel
+    norm = texture(material.normTex, texCoord).rgb;
     // transform normal vector to range [-1,1]
     norm = norm * 2.0 - 1.0;
     norm = normalize(Normal * norm);

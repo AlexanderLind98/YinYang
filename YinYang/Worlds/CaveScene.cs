@@ -39,6 +39,7 @@ public class CaveScene : World
         
         cave = new GameObjectBuilder(Game)
             .Model("Cave/MainCave")
+            // .Model("SmoothCube")
             .Material(new  mat_cliffStone())
             .Position(0f, 0, 0f)
             .Build();
@@ -67,6 +68,9 @@ public class CaveScene : World
 
         new PointLight(this, Color4.Goldenrod);
         PointLights[0].SetPosition(0, 0, 0);
+        
+        new PointLight(this, Color4.Goldenrod);
+        PointLights[1].SetPosition(0, 2, -25);
     }
 
     public override void HandleInput(KeyboardState input)

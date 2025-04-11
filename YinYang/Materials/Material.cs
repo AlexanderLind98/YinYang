@@ -162,6 +162,7 @@ namespace YinYang.Materials
                 "material.specTex" => 1,
                 "shadowMap"        => 2,
                 "cubeMap"          => 3,
+                "material.normTex" => 4,
                 _ => -1 // unknown name → error
             };
         }

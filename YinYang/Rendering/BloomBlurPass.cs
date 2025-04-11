@@ -47,6 +47,7 @@ namespace YinYang.Rendering
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             BlurredBloomTexture = pingpongBuffer[horizontal ? 0 : 1];
+
             return null;
         }
 

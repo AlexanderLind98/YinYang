@@ -44,6 +44,8 @@ namespace YinYang.Rendering
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
+            GL.Viewport(0, 0, context.Camera.RenderWidth, context.Camera.RenderHeight);
+            
             objects.Render(context);
 
             ErrorCode err = GL.GetError();
@@ -54,26 +56,7 @@ namespace YinYang.Rendering
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             return context.LightSpaceMatrix;
         }
-        // public override Matrix4? Execute(RenderContext context, ObjectManager objects)
-        // {
-        //     GL.CullFace(TriangleFace.Back);
-        //     
-        //     // Set OpenGL viewport dimensions to match window size
-        //     GL.Viewport(0, 0, context.Camera.RenderWidth, context.Camera.RenderHeight);
-        //
-        //     // Clear the color and depth buffers before drawing
-        //     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        //
-        //     // Render all objects using lighting and transformation data
-        //     objects.Render(context);
-        //     
-        //     var err = GL.GetError();
-        //     if (err != ErrorCode.NoError)
-        //         Console.WriteLine($"[GL ERROR - SCENE RENDER PASS] after {nameof(SceneRenderPass)}: {err}");
-        //
-        //     // Return the same light-space matrix to pass along to any subsequent render passes
-        //     return context.LightSpaceMatrix;
-        // }
+
 
         private void InitFramebuffer(RenderContext context)
         {

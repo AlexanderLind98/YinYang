@@ -28,6 +28,8 @@ namespace YinYang.Worlds
         private CompositePass compositePass;
         private bool bloomLinked = false;
         
+        private bool bloomEnabled = true;
+
         
         /// <summary>
         /// Reference to the core game instance.
@@ -121,12 +123,15 @@ namespace YinYang.Worlds
         /// <param name="input">Keyboard state snapshot.</param>
         public virtual void HandleInput(KeyboardState input)
         {
-            if (input.IsKeyPressed(Keys.H))
+            if (input.IsKeyPressed(Keys.B))
             {
-                compositePass.Enabled = !compositePass.Enabled;
-                Console.WriteLine("Bloom Composite toggled: " + compositePass.Enabled);
-            }
+                bloomEnabled = !bloomEnabled;
 
+                blurPass.Enabled = bloomEnabled;
+                compositePass.BloomEnabled = bloomEnabled;
+
+                Console.WriteLine(bloomEnabled ? "Bloom ENABLED" : "Bloom DISABLED");
+            }
             
             cameraManager.HandleInput(input); 
         }
@@ -193,10 +198,10 @@ namespace YinYang.Worlds
                 compositePass.BloomTexture = blurPass.BlurredBloomTexture;
                 bloomLinked = true;
 
-                Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
-                Console.WriteLine("[ScenePass] SceneTex: " + scenePass.SceneColorTexture + ", BrightTex: " + scenePass.BrightColorTexture);
-                Console.WriteLine("[BlurPass] InputBrightTexture: " + blurPass.InputBrightTexture);
-                Console.WriteLine("[Composite] Scene: " + compositePass.SceneTexture + ", Bloom: " + compositePass.BloomTexture);
+                // Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
+                // Console.WriteLine("[ScenePass] SceneTex: " + scenePass.SceneColorTexture + ", BrightTex: " + scenePass.BrightColorTexture);
+                // Console.WriteLine("[BlurPass] InputBrightTexture: " + blurPass.InputBrightTexture);
+                // Console.WriteLine("[Composite] Scene: " + compositePass.SceneTexture + ", Bloom: " + compositePass.BloomTexture);
             }
             
             if (debugOverlayEnabled)
@@ -210,13 +215,13 @@ namespace YinYang.Worlds
 
             if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
             {
-                // Nederst højre hjørne (f.eks. y = 0.0)
+                // Nederst højre hjørne
                 DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
             }
 
             if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
             {
-                // Lige ovenover scene texture (f.eks. y = 0.25)
+                // Lige ovenover scene texture 
                 DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
             }
         }

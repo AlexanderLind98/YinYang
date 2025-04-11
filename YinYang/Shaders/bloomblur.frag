@@ -22,9 +22,11 @@ void main()
     for(int i = 1; i < 5; ++i)
     {
         // Offset for the current sample, based on the direction (horizontal or vertical)
-        vec2 offset = horizontal
-        ? vec2(tex_offset.x * i, 0.0)
-        : vec2(0.0, tex_offset.y * i);
+        vec2 offset;
+        if (horizontal)
+        offset = vec2(tex_offset.x * i, 0.0);
+        else
+        offset = vec2(0.0, tex_offset.y * i);
 
         // Sample the texture at the offset positions and accumulate the results
         result += texture(image, TexCoords + offset).rgb * weight[i];

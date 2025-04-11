@@ -10,9 +10,10 @@ namespace YinYang.Rendering
     /// </summary>
     public class CompositePass : RenderPass
     {
+        public bool BloomEnabled = true;
         public int SceneTexture { get; set; }
         public int BloomTexture { get; set; }
-        public float Exposure { get; set; } = 0.5f;
+        public float Exposure { get; set; } = 0.1f;
 
         private Shader blendShader = new Shader("shaders/blending.vert", "shaders/blending.frag");
         private QuadMesh screenQuad = new();
@@ -27,15 +28,17 @@ namespace YinYang.Rendering
             GL.BindTexture(TextureTarget.Texture2D, SceneTexture);
             blendShader.SetInt("scene", 0);
 
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, BloomTexture);
-            blendShader.SetInt("bloomBlur", 1);
+            if (BloomEnabled)
+            {
+                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture2D, BloomTexture);
+                blendShader.SetInt("bloomBlur", 1);
+            }
 
             blendShader.SetFloat("exposure", Exposure);
+            blendShader.SetInt("bloomEnabled", BloomEnabled ? 1 : 0);
 
             screenQuad.Draw();
-
-            //Console.WriteLine($"[Composite] Drawing: SceneTex={SceneTexture}, BloomTex={BloomTexture}, Exposure={Exposure}");
             
             return context.LightSpaceMatrix;
         }

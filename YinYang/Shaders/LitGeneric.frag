@@ -85,43 +85,11 @@ uniform float far_plane;
 
 
 //Prototypes / definitions
-//vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-//vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular);
-//float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal);
-//float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir);
+
 
 //Methods
-//float DirShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
-//{
-//    // Shadow mapping
-//    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-//    projCoords = projCoords * 0.5 + 0.5;
-//
-//    // Check if in shadow
-//    float dir_closestDepth = texture(shadowMap, projCoords.xy).r;
-//    float currentDepth = projCoords.z;
-//    //float bias = 0.005;
-//    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
-//
-//    float shadow = 0.0;
-//    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-//    for(int x = -1; x <= 1; ++x)
-//    {
-//        for(int y = -1; y <= 1; ++y)
-//        {
-//            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-//            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-//        }
-//    }
-//    shadow /= 9.0;
-//
-//    if(projCoords.z > 1.0)
-//    shadow = 0.0;
-//
-//    return shadow;
-//}
 
 // array of offset direction for sampling
 vec3 gridSamplingDisk[20] = vec3[]
@@ -163,61 +131,6 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
 
     return shadow;
 }
-
-//float SpecResult(vec3 lightDir, vec3 viewDir, vec3 normal)
-//{
-//    vec3 halfwayDir = normalize(lightDir + viewDir);
-//    float pi = 3.14159265;
-//
-//    // specular shading
-//    vec3 reflectDir = reflect(-lightDir, normal);
-//    const float energyConservation = (16.0 + material.shininess) / (16.0 * pi);
-//    float spec = energyConservation * pow(max(dot(normal, halfwayDir), 0.0f), material.shininess);
-//
-//    return spec;
-//}
-//
-//vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular)
-//{
-//    // Final lighting based on debug mode
-//    vec3 result;
-//    if (debugMode == 1)
-//    result = ambient;
-//    else if (debugMode == 2)
-//    result = diffuse;
-//    else if (debugMode == 3)
-//    result = specular;
-//    else
-//    result = (ambient + diffuse + specular);
-//
-//    return result;
-//}
-
-//vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
-//{
-//    vec3 lightDir = normalize(-light.direction);
-//    
-//    // diffuse shading
-//    float diff = max(dot(normal, lightDir), 0.0);
-//    
-//    vec3 texColor = texture(material.diffTex, texCoord).rgb;
-//
-//    // combine results
-//    vec3 ambient  = light.ambient  * material.ambient * texColor;
-//    vec3 diffuse = light.diffuse * diff * material.diffuse * texColor;
-//    vec3 specular = light.specular * SpecResult(lightDir, viewDir, normal) * vec3(texture(material.specTex, texCoord)) * texColor;
-//
-//    float shadow = DirShadowCalculation(FragPosLightSpace, normal, lightDir);
-//
-//    if (debugMode == 1)
-//        return ambient + (1.0 - shadow);
-//    else
-//        return ambient + (1.0 - shadow) * (diffuse + specular);
-//
-//    // Final lighting based on debug mode
-//    
-////    ambient += (1.0 - shadow);
-//}
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {

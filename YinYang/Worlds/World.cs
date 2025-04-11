@@ -19,6 +19,16 @@ namespace YinYang.Worlds
         private bool debugOverlayEnabled = false;
         private DebugOverlay _debugOverlay;
         
+        public bool ShowSceneTexture => Game.showSceneTexture;
+        public bool ShowBloomTexture => Game.showBloomTexture;
+
+        
+        private SceneRenderPass scenePass;
+        private BloomBlurPass blurPass;
+        private CompositePass compositePass;
+        private bool bloomLinked = false;
+        
+        
         /// <summary>
         /// Reference to the core game instance.
         /// </summary>
@@ -89,14 +99,15 @@ namespace YinYang.Worlds
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
             renderPipeline.AddPass(new PointShadowRenderPass());
-            renderPipeline.AddPass(new SceneRenderPass());
+            //renderPipeline.AddPass(new SceneRenderPass());
             
-            // // post-processing pass 
-            // renderPipeline.BloomPass = new BloomRenderPass();
-            // renderPipeline.BloomPass.HDR_Enabled = true;
-            // renderPipeline.BloomPass.Exposure = 0.1f; // TODO: make this adjustable as a var
-            // renderPipeline.AddPass(renderPipeline.BloomPass);
-            
+            scenePass = new SceneRenderPass();
+            blurPass = new BloomBlurPass();
+            compositePass = new CompositePass();
+
+            renderPipeline.AddPass(scenePass);
+            renderPipeline.AddPass(blurPass);
+            renderPipeline.AddPass(compositePass);
         }
 
         /// <summary>
@@ -110,6 +121,13 @@ namespace YinYang.Worlds
         /// <param name="input">Keyboard state snapshot.</param>
         public virtual void HandleInput(KeyboardState input)
         {
+            if (input.IsKeyPressed(Keys.H))
+            {
+                compositePass.Enabled = !compositePass.Enabled;
+                Console.WriteLine("Bloom Composite toggled: " + compositePass.Enabled);
+            }
+
+            
             cameraManager.HandleInput(input); 
         }
 
@@ -166,11 +184,40 @@ namespace YinYang.Worlds
             };
             
             renderPipeline.RenderAll(context, objectManager);
+
+            // After scene pass has run, link bloom targets (if not yet done)
+            if (!bloomLinked && scenePass.SceneColorTexture != 0 && scenePass.BrightColorTexture != 0)
+            {
+                blurPass.InputBrightTexture = scenePass.BrightColorTexture;
+                compositePass.SceneTexture = scenePass.SceneColorTexture;
+                compositePass.BloomTexture = blurPass.BlurredBloomTexture;
+                bloomLinked = true;
+
+                Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
+                Console.WriteLine("[ScenePass] SceneTex: " + scenePass.SceneColorTexture + ", BrightTex: " + scenePass.BrightColorTexture);
+                Console.WriteLine("[BlurPass] InputBrightTexture: " + blurPass.InputBrightTexture);
+                Console.WriteLine("[Composite] Scene: " + compositePass.SceneTexture + ", Bloom: " + compositePass.BloomTexture);
+            }
             
             if (debugOverlayEnabled)
             {
                 _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
                 DrawDebugTexture(depthMap.Handle, Game.Size);
+            }
+            
+            // Draw MRT debug textures 
+            float scale = 0.25f;
+
+            if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
+            {
+                // Nederst højre hjørne (f.eks. y = 0.0)
+                DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
+            }
+
+            if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
+            {
+                // Lige ovenover scene texture (f.eks. y = 0.25)
+                DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
             }
         }
 
@@ -215,6 +262,7 @@ namespace YinYang.Worlds
         public void ToggleDebugOverlay()
         {
             debugOverlayEnabled = !debugOverlayEnabled;
+            Console.WriteLine("debugOverlayEnabled debug: " + debugOverlayEnabled);
         }
     }
 }

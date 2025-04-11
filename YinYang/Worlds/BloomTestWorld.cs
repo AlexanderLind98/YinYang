@@ -3,10 +3,11 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
 using YinYang.Materials;
 using YinYang.Lights;
+using YinYang.Rendering;
 
 namespace YinYang.Worlds;
 
-public class HDRTestWorld : World
+public class BloomTestWorld : World
 {
     private GameObject room;
     private GameObject staticCube;
@@ -14,12 +15,11 @@ public class HDRTestWorld : World
     private GameObject rotatingCube;
     
     public override string DebugLabel => "HDR Visual Test";
-    public HDRTestWorld(Game game) : base(game)
+    
+    public BloomTestWorld(Game game) : base(game)
     {
-        WorldName = "HDR Test World";
+        WorldName = "bloom Test World";
         SkyColor = Color4.Black;
-        
-       
     }
 
     protected override void ConstructWorld()
@@ -64,21 +64,15 @@ public class HDRTestWorld : World
         
         // Colored bloom lights
         var red = new PointLight(this, Color4.Red, 30f);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
         red.Transform.Position = new Vector3(-3f, 2f, 0f);
 
         var green = new PointLight(this, Color4.Green, 30f);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
         green.Transform.Position = new Vector3(0f, 2f, 0f);
 
         var blue = new PointLight(this, Color4.Blue, 30f);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
         blue.Transform.Position = new Vector3(3f, 2f, 0f);
-    }
-
-    public override void HandleInput(KeyboardState input)
-    {
-        if (input.IsKeyPressed(Keys.H))
-        {
-            renderPipeline.BloomPass.HDR_Enabled = !renderPipeline.BloomPass.HDR_Enabled;
-            Console.WriteLine("BloomPass toggled: " + renderPipeline.BloomPass.HDR_Enabled);
-        }
     }
 }

@@ -13,6 +13,9 @@ namespace YinYang
     {
         public readonly World currentWorld;
         public int DebugMode { get; set; } = 0;
+        public bool showSceneTexture = false;
+        public bool showBloomTexture = false;
+
         
 
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -21,7 +24,7 @@ namespace YinYang
             CenterWindow();
             GL.ClearColor(Color4.Black);
             
-            currentWorld = new MotionTestWorld(this);
+            currentWorld = new BloomTestWorld(this);
         }
         
         protected override void OnLoad()
@@ -76,6 +79,19 @@ namespace YinYang
             {
                 currentWorld.ToggleDebugOverlay();
             }
+            
+            if (input.IsKeyPressed(Keys.T))
+            {
+                showSceneTexture = !showSceneTexture;
+                Console.WriteLine("SceneColorTexture debug: " + showSceneTexture);
+            }
+
+            if (input.IsKeyPressed(Keys.Y))
+            {
+                showBloomTexture = !showBloomTexture;
+                Console.WriteLine("BrightColorTexture debug: " + showBloomTexture);
+            }
+
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";
         }
@@ -85,6 +101,7 @@ namespace YinYang
             base.OnRenderFrame(args);
             
             currentWorld.DrawWorld(args, DebugMode);
+            
             
             SwapBuffers();
         }

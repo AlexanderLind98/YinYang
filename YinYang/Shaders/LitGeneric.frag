@@ -81,10 +81,11 @@ uniform float far_plane;
 #include "BlinnPhongResult.glsl"
 #include "SpecResult.glsl"
 #include "DirShadowCalculation.glsl"
+#include "CalcDirLight.glsl"
 
 
 //Prototypes / definitions
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
+//vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 //vec3 BlinnPhongResult(vec3 ambient, vec3 diffuse, vec3 specular);
@@ -192,31 +193,31 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
 //    return result;
 //}
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
-{
-    vec3 lightDir = normalize(-light.direction);
-    
-    // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
-    
-    vec3 texColor = texture(material.diffTex, texCoord).rgb;
-
-    // combine results
-    vec3 ambient  = light.ambient  * material.ambient * texColor;
-    vec3 diffuse = light.diffuse * diff * material.diffuse * texColor;
-    vec3 specular = light.specular * SpecResult(lightDir, viewDir, normal) * vec3(texture(material.specTex, texCoord)) * texColor;
-
-    float shadow = DirShadowCalculation(FragPosLightSpace, normal, lightDir);
-
-    if (debugMode == 1)
-        return ambient + (1.0 - shadow);
-    else
-        return ambient + (1.0 - shadow) * (diffuse + specular);
-
-    // Final lighting based on debug mode
-    
-//    ambient += (1.0 - shadow);
-}
+//vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+//{
+//    vec3 lightDir = normalize(-light.direction);
+//    
+//    // diffuse shading
+//    float diff = max(dot(normal, lightDir), 0.0);
+//    
+//    vec3 texColor = texture(material.diffTex, texCoord).rgb;
+//
+//    // combine results
+//    vec3 ambient  = light.ambient  * material.ambient * texColor;
+//    vec3 diffuse = light.diffuse * diff * material.diffuse * texColor;
+//    vec3 specular = light.specular * SpecResult(lightDir, viewDir, normal) * vec3(texture(material.specTex, texCoord)) * texColor;
+//
+//    float shadow = DirShadowCalculation(FragPosLightSpace, normal, lightDir);
+//
+//    if (debugMode == 1)
+//        return ambient + (1.0 - shadow);
+//    else
+//        return ambient + (1.0 - shadow) * (diffuse + specular);
+//
+//    // Final lighting based on debug mode
+//    
+////    ambient += (1.0 - shadow);
+//}
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {

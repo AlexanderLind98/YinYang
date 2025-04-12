@@ -18,7 +18,11 @@ public class EditorTool
     private Material lightStoneMaterial = new mat_lightStone();
 
     private int currentModel = 0;
-    private List<String> modelNames = new List<String>(){"SmoothCube", "Sphere", "Monkey", "Cave/CavePillar", "Cave/LightStone", "Cave/MainCave"};
+    private List<String> modelNames = new List<String>()
+    {
+        "SmoothCube", "Sphere", "Monkey", "Cave/LightStone", "Cave/BigRock", "Cave/GroundRock001",
+        "Cave/GroundRock002", "Cave/GroundRock003", "Cave/GroundRock004", "Cave/GroundRock005", "Cave/GroundRock006"
+    };
     private int currentMaterial = 0;
     private List<Material> materials;
     

@@ -63,6 +63,9 @@ namespace YinYang
                 
                 if(CursorState == CursorState.Normal)
                 {
+                    if(currentWorld.Editor is { IsEditingObject: true })
+                        currentWorld.Editor.CommitObject(true);
+                    
                     Close();
                 }
             }

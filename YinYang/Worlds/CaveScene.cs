@@ -12,6 +12,7 @@ public class CaveScene : World
     private GameObject cave;
     private GameObject CavePillar;
     private GameObject lightStone;
+    private EditorTool editor;
 
     public CaveScene(Game game) : base(game)
     {
@@ -19,6 +20,7 @@ public class CaveScene : World
 
         SkyColor = Color4.Black;
         lightingManager.Sun.ToggleLight();
+        editor = new EditorTool(this);
     }
 
     public override string DebugLabel
@@ -56,7 +58,6 @@ public class CaveScene : World
             .Position(5.75f, 0.7f, 2.98f)
             .RotationDegrees(40.0f, 45.8f, 11.45f)
             .Scale(1.37f, 1.37f, 1.37f)
-            .Behavior<EditorBehavior>()
             .Build();
 
         GameObjects.Add(cave);
@@ -106,9 +107,6 @@ public class CaveScene : World
             lightingManager.Sun.ToggleLight();
         }
 
-        if (input.IsKeyPressed(Keys.End))
-        {
-            lightStone.RemoveComponent<EditorBehavior>();
-        }
+        editor.Update();
     }
 }

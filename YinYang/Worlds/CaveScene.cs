@@ -105,5 +105,10 @@ public class CaveScene : World
         {
             lightingManager.Sun.ToggleLight();
         }
+
+        if (input.IsKeyPressed(Keys.End))
+        {
+            lightStone.RemoveComponent<EditorBehavior>();
+        }
     }
 }

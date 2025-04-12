@@ -15,6 +15,8 @@ namespace YinYang
         public Renderer Renderer { get; set; }
         private GameWindow gameWindow;
         private List<Behaviour> behaviours = new List<Behaviour>();
+        
+        private List<Behaviour> behavioursToRemove = new List<Behaviour>();
 
         public GameObject(GameWindow gameWindow)
         {
@@ -47,6 +49,16 @@ namespace YinYang
             behaviours.Add(component);
         }
 
+        public void RemoveComponent<T>() where T : Behaviour
+        {
+            Behaviour? component = behaviours.OfType<T>().FirstOrDefault();
+            
+            if (component != null)
+            {
+                behavioursToRemove.Add(component);
+            }
+        }
+
         public T GetComponent<T>() where T : Behaviour
         {
             foreach (var component in behaviours)
@@ -64,6 +76,14 @@ namespace YinYang
             {
                 behaviour.Update(args);
             }
+
+            //Clean up behaviors
+            foreach (var rBehaviour in behavioursToRemove)
+            {
+                behaviours.Remove(rBehaviour);
+            }
+            
+            behavioursToRemove.Clear();
         }
 
         public void Draw(RenderContext context)

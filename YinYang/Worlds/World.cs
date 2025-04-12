@@ -22,11 +22,14 @@ namespace YinYang.Worlds
         public bool ShowSceneTexture => Game.showSceneTexture;
         public bool ShowBloomTexture => Game.showBloomTexture;
 
-        
+        private const int DefaultBloomMipLevels = 5;
+
         private SceneRenderPass scenePass;
+        private BloomBlurPass blurPass;
+        private BloomMipChain _bloomMipChain;
+        private BloomDownsamplePass _bloomDownsamplePass;
+        private BloomUpsamplePass _bloomUpsamplePass;
         private CompositePass compositePass;
-        private DownsamplePass downsamplePass;
-        private UpsamplePass upsamplePass;
 
         private bool bloomLinked = false;
         
@@ -106,19 +109,20 @@ namespace YinYang.Worlds
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
             
+            // Initialize bloom mip chain
+            _bloomMipChain = new BloomMipChain();
+            _bloomMipChain.Init(Game.Size.X, Game.Size.Y, DefaultBloomMipLevels);
             
             // Create bloom passes
-            downsamplePass = new DownsamplePass();
-            upsamplePass = new UpsamplePass();
-            compositePass = new CompositePass();
+            _bloomDownsamplePass = new BloomDownsamplePass(_bloomMipChain);
+            _bloomUpsamplePass = new BloomUpsamplePass(_bloomMipChain);
 
-            // configure target size for upsample pass
-            upsamplePass.TargetSize = new Vector2i(Game.Size.X, Game.Size.Y);
+            compositePass = new CompositePass();
 
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
-            renderPipeline.AddPass(downsamplePass);
-            renderPipeline.AddPass(upsamplePass);
+            renderPipeline.AddPass(_bloomDownsamplePass);
+            renderPipeline.AddPass(_bloomUpsamplePass);
             renderPipeline.AddPass(compositePass);
         }
 
@@ -137,8 +141,8 @@ namespace YinYang.Worlds
             {
                 bloomEnabled = !bloomEnabled;
 
-                downsamplePass.Enabled = bloomEnabled;
-                upsamplePass.Enabled = bloomEnabled;
+                _bloomDownsamplePass.Enabled = bloomEnabled;
+                _bloomUpsamplePass.Enabled = bloomEnabled;
                 compositePass.BloomEnabled = bloomEnabled;
 
                 Console.WriteLine(bloomEnabled ? "Bloom ENABLED" : "Bloom DISABLED");
@@ -204,11 +208,11 @@ namespace YinYang.Worlds
             // After scene pass has run, link bloom targets (if not yet done)
             if (!bloomLinked && scenePass.SceneColorTexture != 0 && scenePass.BrightColorTexture != 0)
             {
-                // Link: scene → downsample → upsample → composite
-                downsamplePass.InputTexture = scenePass.BrightColorTexture;
-                upsamplePass.SourceTexture = downsamplePass.DownsampledTexture;
+                _bloomDownsamplePass.InputTexture = scenePass.BrightColorTexture;
+
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
-                compositePass.BloomTexture = upsamplePass.TargetTexture;
+                compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
+
                 bloomLinked = true;
 
                 // Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
@@ -229,15 +233,18 @@ namespace YinYang.Worlds
             if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
             {
                 // Nederst højre hjørne
-                //DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
-                DrawDebugTexture(downsamplePass.DownsampledTexture, new Vector2(1.0f - scale, 0.0f), scale);
+                DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
             }
 
             if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
             {
                 // Lige ovenover scene texture 
                 //DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
-                DrawDebugTexture(upsamplePass.TargetTexture, new Vector2(1.0f - scale, scale), scale);
+                //DrawDebugTexture(_bloomUpsamplePass.TargetTexture, new Vector2(1.0f - scale, scale), scale);
+                
+                // Show first (full-res) and last (softest) mip levels
+                DrawDebugTexture(_bloomMipChain.Mips[0].Texture, new Vector2(1.0f - scale, scale * 1), scale);
+                DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
         }
 

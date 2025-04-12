@@ -80,6 +80,10 @@ namespace YinYang.Materials
             {
                 shader.SetVector3(name, uniformVec3);
             }
+            else if (uniform is Vector4 uniformVec4)
+            {
+                shader.SetVector4(name, uniformVec4);
+            }
             else if (uniform is Matrix4 uniformMatrix)
             {
                 shader.SetMatrix(name, uniformMatrix);
@@ -162,6 +166,7 @@ namespace YinYang.Materials
                 "material.specTex" => 1,
                 "shadowMap"        => 2,
                 "cubeMap"          => 3,
+                "material.normTex" => 4,
                 _ => -1 // unknown name → error
             };
         }

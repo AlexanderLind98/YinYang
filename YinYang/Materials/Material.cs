@@ -20,7 +20,7 @@ namespace YinYang.Materials
         public virtual bool UsesLighting => true;
 
         /// <summary>
-        /// Called only if <c>UsesLighting</c> is true.
+        /// Called only if UsesLighting is true.
         /// Materials can override to push lighting-specific uniforms.
         /// </summary>
         public virtual void PrepareLighting(RenderContext context) { }

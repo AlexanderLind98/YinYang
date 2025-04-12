@@ -2,7 +2,7 @@
 #version 460 core
 out vec4 FragColor;
 
-in vec2 TexCoords;
+in vec2 texCoord;
 
 uniform sampler2D image;
 
@@ -16,7 +16,7 @@ void main()
     vec2 tex_offset = 1.0 / textureSize(image, 0); 
     
     // The size of one texel in texture coordinates
-    vec3 result = texture(image, TexCoords).rgb * weight[0];
+    vec3 result = texture(image, texCoord).rgb * weight[0];
 
     // Apply the Gaussian blur
     for(int i = 1; i < 5; ++i)
@@ -29,8 +29,8 @@ void main()
         offset = vec2(0.0, tex_offset.y * i);
 
         // Sample the texture at the offset positions and accumulate the results
-        result += texture(image, TexCoords + offset).rgb * weight[i];
-        result += texture(image, TexCoords - offset).rgb * weight[i];
+        result += texture(image, texCoord + offset).rgb * weight[i];
+        result += texture(image, texCoord - offset).rgb * weight[i];
     }
 
     // Set the final color

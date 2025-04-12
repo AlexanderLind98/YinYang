@@ -1,7 +1,8 @@
+// blending.frag
 #version 460 core
 out vec4 FragColor;
 
-in vec2 TexCoords;
+in vec2 texCoord;
 
 uniform bool bloomEnabled;
 uniform sampler2D scene;
@@ -11,11 +12,11 @@ const float gamma = 2.2;
 
 void main()
 {
-    vec3 hdr = texture(scene, TexCoords).rgb;
+    vec3 hdr = texture(scene, texCoord).rgb;
     vec3 bloom;
 
     if (bloomEnabled)
-    bloom = texture(bloomBlur, TexCoords).rgb;
+    bloom = texture(bloomBlur, texCoord).rgb;
     else
     bloom = vec3(0.0);
 

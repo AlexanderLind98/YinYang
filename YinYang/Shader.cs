@@ -150,6 +150,12 @@ public class Shader : IDisposable
         int location = GL.GetUniformLocation(Handle, name);
         GL.Uniform3(location, value);
     }
+    
+    public void SetVector2(string name, Vector2 value)
+    {
+        int location = GL.GetUniformLocation(Handle, name);
+        GL.Uniform2(location, value);
+    }
 
     public void SetMatrix(string name, Matrix4 transform)
     {

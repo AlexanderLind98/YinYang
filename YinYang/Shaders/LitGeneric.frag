@@ -1,3 +1,4 @@
+// LitGeneric.frag
 #version 460 core
 
 // debug mode input 
@@ -234,16 +235,33 @@ void main()
         }
     }
 
+    //    FragColor = vec4(result, 1.0f);
+    //
+    //    // Bright pass: extract highlights
+    //    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722)); // luminance
+    //    if (brightness > 1.0)
+    //    BrightColor = vec4(result, 1.0);
+    //    else
+    //    BrightColor = vec4(0.0);
+
     FragColor = vec4(result, 1.0f);
 
-    // Bright pass: extract highlights
-    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722)); // luminance
-    if (brightness > 1.0)
-    BrightColor = vec4(result, 1.0);
-    else
-    BrightColor = vec4(0.0);
+    // Soft bloom extraction based on luminance 
+    vec3 weights = vec3(0.2126, 0.7152, 0.0722); //(magic nuumbers are perceptual luminance weights, based on human eye)
+    //vec3 weights = vec3(0.299, 0.587, 0.114); // luminance weights based on old TV standards
+    //vec3 weights = vec3(1.0 / 3.0); // greyscale luminance weights 
+    float brightness = dot(result, weights);
 
+    float bloomThresholdMin = 1.0;
+    float bloomThresholdMax = 2.5;
+    
+    // use smoothsteep to create a soft threshold between 1.0 and 2.5
+    float bloomFactor = smoothstep(bloomThresholdMin, bloomThresholdMax, brightness);
+    
+    // apply bloom factor to the result
+    BrightColor = vec4(result * bloomFactor, 1.0);
 
-//    FragColor = vec4(0.5, 0.0, 0.0, 1.0);
-//    BrightColor = vec4(0.0);
+    // debugs
+    //    FragColor = vec4(0.5, 0.0, 0.0, 1.0);
+    //    BrightColor = vec4(0.0);
 }

@@ -1,3 +1,6 @@
+// Bloom is inspiret by this articale: https://learnopengl.com/Advanced-Lighting/Bloom
+// then altered to fit our engine rendering pipeline.
+
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using YinYang.Managers;
@@ -10,12 +13,13 @@ namespace YinYang.Rendering
     /// </summary>
     public class BloomBlurPass : RenderPass
     {
+        int pingPongPasses = 20;
         public int InputBrightTexture { get; set; }
         public int BlurredBloomTexture { get; private set; }
 
         private int[] pingpongFBO = new int[2];
         private int[] pingpongBuffer = new int[2];
-        private Shader blurShader = new Shader("shaders/bloomblur.vert", "shaders/bloomblur.frag");
+        private Shader blurShader = new Shader("shaders/fullscreen.vert", "shaders/bloomblur.frag");
         private QuadMesh screenQuad = new();
 
         private bool initialized = false;
@@ -29,10 +33,9 @@ namespace YinYang.Rendering
             }
 
             bool horizontal = true, first = true;
-            int passes = 20;
 
             blurShader.Use();
-            for (int i = 0; i < passes; i++)
+            for (int i = 0; i < pingPongPasses; i++)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, pingpongFBO[horizontal ? 1 : 0]);
                 blurShader.SetInt("horizontal", horizontal ? 1 : 0);

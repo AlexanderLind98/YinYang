@@ -153,13 +153,13 @@ public class EditorTool
     public void CommitObject(bool force = false)
     {
         if(force)
-            EditorMessage("- FORCE COMMITTED OBJECT - \n   - Evaluate if you want this object or not!", ConsoleColor.DarkRed);
+            EditorMessage("- FORCE COMMITTED OBJECT - \n   - Evaluate if you want this object or not!", ConsoleColor.Yellow);
         
         //TODO: Model and material name
         EditorMessage("Committed object - " + modelNames[currentModel] + ":" +
                     "\nPosition is: " + currentGameObject.Transform.Position + 
                     "\nRotation is: " + currentGameObject.Transform.GetRotationInDegrees() +
-                    "\nScale is: " + currentGameObject.Transform.Scale, force ? ConsoleColor.DarkRed : ConsoleColor.Yellow);
+                    "\nScale is: " + currentGameObject.Transform.Scale, force ? ConsoleColor.Yellow : ConsoleColor.Green);
             
         currentGameObject.RemoveComponent<EditorBehavior>();
         currentGameObject = null;

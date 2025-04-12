@@ -24,8 +24,10 @@ namespace YinYang.Worlds
 
         
         private SceneRenderPass scenePass;
-        private BloomBlurPass blurPass;
         private CompositePass compositePass;
+        private DownsamplePass downsamplePass;
+        private UpsamplePass upsamplePass;
+
         private bool bloomLinked = false;
         
         private bool bloomEnabled = true;
@@ -102,13 +104,21 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
             renderPipeline.AddPass(new PointShadowRenderPass());
             //renderPipeline.AddPass(new SceneRenderPass());
-            
             scenePass = new SceneRenderPass();
-            blurPass = new BloomBlurPass();
+            
+            
+            // Create bloom passes
+            downsamplePass = new DownsamplePass();
+            upsamplePass = new UpsamplePass();
             compositePass = new CompositePass();
 
+            // configure target size for upsample pass
+            upsamplePass.TargetSize = new Vector2i(Game.Size.X, Game.Size.Y);
+
+            // Add to pipeline
             renderPipeline.AddPass(scenePass);
-            renderPipeline.AddPass(blurPass);
+            renderPipeline.AddPass(downsamplePass);
+            renderPipeline.AddPass(upsamplePass);
             renderPipeline.AddPass(compositePass);
         }
 
@@ -127,7 +137,8 @@ namespace YinYang.Worlds
             {
                 bloomEnabled = !bloomEnabled;
 
-                blurPass.Enabled = bloomEnabled;
+                downsamplePass.Enabled = bloomEnabled;
+                upsamplePass.Enabled = bloomEnabled;
                 compositePass.BloomEnabled = bloomEnabled;
 
                 Console.WriteLine(bloomEnabled ? "Bloom ENABLED" : "Bloom DISABLED");
@@ -193,9 +204,11 @@ namespace YinYang.Worlds
             // After scene pass has run, link bloom targets (if not yet done)
             if (!bloomLinked && scenePass.SceneColorTexture != 0 && scenePass.BrightColorTexture != 0)
             {
-                blurPass.InputBrightTexture = scenePass.BrightColorTexture;
+                // Link: scene → downsample → upsample → composite
+                downsamplePass.InputTexture = scenePass.BrightColorTexture;
+                upsamplePass.SourceTexture = downsamplePass.DownsampledTexture;
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
-                compositePass.BloomTexture = blurPass.BlurredBloomTexture;
+                compositePass.BloomTexture = upsamplePass.TargetTexture;
                 bloomLinked = true;
 
                 // Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
@@ -216,13 +229,15 @@ namespace YinYang.Worlds
             if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
             {
                 // Nederst højre hjørne
-                DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
+                //DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
+                DrawDebugTexture(downsamplePass.DownsampledTexture, new Vector2(1.0f - scale, 0.0f), scale);
             }
 
             if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
             {
                 // Lige ovenover scene texture 
-                DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
+                //DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
+                DrawDebugTexture(upsamplePass.TargetTexture, new Vector2(1.0f - scale, scale), scale);
             }
         }
 

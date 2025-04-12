@@ -12,20 +12,20 @@ const float gamma = 2.2;
 
 void main()
 {
+    // Sample scene color (HDR)
     vec3 hdr = texture(scene, texCoord).rgb;
-    vec3 bloom;
 
-    if (bloomEnabled)
-    bloom = texture(bloomBlur, texCoord).rgb;
-    else
-    bloom = vec3(0.0);
+    // Tone-map HDR color
+    vec3 toneMapped = vec3(1.0) - exp(-hdr * exposure);
 
-    vec3 color = hdr + bloom;
+    // Sample bloom texture (already LDR)
+    vec3 bloom = texture(bloomBlur, texCoord).rgb;
 
-    // Reinhard tone mapping
-    color = vec3(1.0) - exp(-color * exposure);
+    // Add bloom after tone mapping
+    float bloomStrength = 0.25; 
+    vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
 
-    // Gamma correction
+    // Gamma correction to convert to display color space
     color = pow(color, vec3(1.0 / gamma));
 
     FragColor = vec4(color, 1.0);

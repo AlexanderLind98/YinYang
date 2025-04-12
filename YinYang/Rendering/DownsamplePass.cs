@@ -10,7 +10,9 @@ namespace YinYang.Rendering
     public class DownsamplePass : RenderPass
     {
         public int InputTexture { get; set; }
-        public int DownsampledTexture { get; private set; }
+        private int downsampledTexture;
+        public int DownsampledTexture => downsampledTexture;
+
 
         private int fbo;
         private Shader downsampleShader;
@@ -47,20 +49,25 @@ namespace YinYang.Rendering
             int w = context.Camera.RenderWidth / 2;
             int h = context.Camera.RenderHeight / 2;
 
-            // Create texture
-            DownsampledTexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, DownsampledTexture);
+            // Create downsample target texture
+            downsampledTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, downsampledTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f, w, h, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            // Create FBO and attach texture
+            // Create and bind framebuffer
             fbo = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, DownsampledTexture, 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, downsampledTexture, 0);
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+
+            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (status != FramebufferErrorCode.FramebufferComplete)
+                Console.WriteLine($"[DownsamplePass] FBO incomplete: {status}");
+
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             // Load shader
@@ -70,8 +77,8 @@ namespace YinYang.Rendering
         public override void Dispose()
         {
             GL.DeleteFramebuffer(fbo);
-            GL.DeleteTexture(DownsampledTexture);
-            downsampleShader.Dispose();
+            GL.DeleteTexture(downsampledTexture); 
+            downsampleShader.Dispose();        
         }
     }
 }

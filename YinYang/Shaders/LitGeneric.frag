@@ -78,6 +78,8 @@ uniform SpotLight spotLights[MAX_SPOTLIGHTS];
 uniform sampler2D shadowMap;
 uniform samplerCube cubeMap;
 uniform float far_plane;
+uniform float bloomThresholdMin;
+uniform float bloomThresholdMax;
 
 // INCLUDES (skal stå efter de ting de skal bruge)
 #include "BlinnPhongResult.glsl"
@@ -251,10 +253,7 @@ void main()
     //vec3 weights = vec3(0.299, 0.587, 0.114); // luminance weights based on old TV standards
     //vec3 weights = vec3(1.0 / 3.0); // greyscale luminance weights 
     float brightness = dot(result, weights);
-
-    float bloomThresholdMin = 1.0;
-    float bloomThresholdMax = 2.5;
-    
+   
     // use smoothsteep to create a soft threshold between 1.0 and 2.5
     float bloomFactor = smoothstep(bloomThresholdMin, bloomThresholdMax, brightness);
     

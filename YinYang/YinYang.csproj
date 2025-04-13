@@ -134,7 +134,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Shaders\Debug\" />
       <Folder Include="Shaders\Includes\" />
+      <Folder Include="Shaders\PostProccesing\" />
+      <Folder Include="Shaders\Shadow\" />
     </ItemGroup>
 
 </Project>

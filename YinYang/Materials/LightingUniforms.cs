@@ -20,6 +20,8 @@ public static class LightingUniforms
 
         mat.SetUniform("lightSpaceMatrix", context.LightSpaceMatrix);
         mat.SetUniform("shadowMap", world.depthMap);
+        mat.SetUniform("bloomThresholdMin", context.BloomSettings.BloomThresholdMin);
+        mat.SetUniform("bloomThresholdMax", context.BloomSettings.BloomThresholdMax);
         
         // if there is a cube map, set the cube map and far plane
         if (context.World.depthCubeMap != null)

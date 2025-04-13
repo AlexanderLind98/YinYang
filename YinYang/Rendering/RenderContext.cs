@@ -31,5 +31,8 @@ namespace YinYang.Rendering
 
         /// <summary>Debug drawing mode, if enabled.</summary>
         public int DebugMode { get; init; }
+        
+        /// <summary>Bloom settings</summary>
+        public BloomSettings BloomSettings { get; init; }
     }
 }

@@ -8,7 +8,8 @@ out vec4 FragColor;
 in vec2 texCoord;
 
 uniform sampler2D srcTexture;
-uniform float filterRadius; 
+uniform float filterRadius;
+uniform float mipWeight;
 
 void main()
 {
@@ -47,6 +48,6 @@ void main()
     color += (a + c + g + i);
     color *= 1.0 / 16.0;
 
-    // Output the final blurred result
-    FragColor = vec4(color, 1.0);
+    // Output the final blurred result with the mipWeight applied
+    FragColor = vec4(color * mipWeight, 1.0);
 }

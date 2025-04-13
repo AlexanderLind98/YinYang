@@ -4,11 +4,13 @@ out vec4 FragColor;
 
 in vec2 texCoord;
 
+const float gamma = 2.2;
+
 uniform bool bloomEnabled;
 uniform sampler2D scene;
 uniform sampler2D bloomBlur;
 uniform float exposure;
-const float gamma = 2.2;
+uniform float bloomStrength;
 
 void main()
 {
@@ -22,7 +24,6 @@ void main()
     vec3 bloom = texture(bloomBlur, texCoord).rgb;
 
     // Add bloom after tone mapping
-    float bloomStrength = 0.25; 
     vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
 
     // Gamma correction to convert to display color space

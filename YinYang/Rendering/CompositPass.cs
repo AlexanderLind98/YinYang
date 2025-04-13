@@ -35,7 +35,8 @@ namespace YinYang.Rendering
                 blendShader.SetInt("bloomBlur", 1);
             }
 
-            blendShader.SetFloat("exposure", Exposure);
+            blendShader.SetFloat("exposure", context.BloomSettings.Exposure);
+            blendShader.SetFloat("bloomStrength", context.BloomSettings.BloomStrength);
             blendShader.SetInt("bloomEnabled", BloomEnabled ? 1 : 0);
 
             screenQuad.Draw();

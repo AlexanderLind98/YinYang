@@ -22,7 +22,6 @@ namespace YinYang.Worlds
         public bool ShowSceneTexture => Game.showSceneTexture;
         public bool ShowBloomTexture => Game.showBloomTexture;
 
-        private const int DefaultBloomMipLevels = 5;
 
         private SceneRenderPass scenePass;
         private BloomBlurPass blurPass;
@@ -30,6 +29,7 @@ namespace YinYang.Worlds
         private BloomDownsamplePass _bloomDownsamplePass;
         private BloomUpsamplePass _bloomUpsamplePass;
         private CompositePass compositePass;
+        private BloomSettings bloomSettings = new();
 
         private bool bloomLinked = false;
         
@@ -111,7 +111,7 @@ namespace YinYang.Worlds
             
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
-            _bloomMipChain.Init(Game.Size.X, Game.Size.Y, DefaultBloomMipLevels);
+            _bloomMipChain.Init(Game.Size.X, Game.Size.Y, bloomSettings.MipLevels);
             
             // Create bloom passes
             _bloomDownsamplePass = new BloomDownsamplePass(_bloomMipChain);
@@ -146,6 +146,58 @@ namespace YinYang.Worlds
                 compositePass.BloomEnabled = bloomEnabled;
 
                 Console.WriteLine(bloomEnabled ? "Bloom ENABLED" : "Bloom DISABLED");
+            }
+            
+            // bloom strength
+            if (input.IsKeyPressed(Keys.O))
+                bloomSettings.BloomStrength = Math.Max(0.0f, bloomSettings.BloomStrength - 0.01f);
+
+            if (input.IsKeyPressed(Keys.P))
+                bloomSettings.BloomStrength = Math.Min(2.0f, bloomSettings.BloomStrength + 0.01f);
+
+            // bloom threshold
+            if (input.IsKeyPressed(Keys.K))
+                bloomSettings.BloomThresholdMin = Math.Max(0.0f, bloomSettings.BloomThresholdMin - 0.05f);
+
+            if (input.IsKeyPressed(Keys.L))
+                bloomSettings.BloomThresholdMin = Math.Min(10.0f, bloomSettings.BloomThresholdMin + 0.05f);
+
+            if (input.IsKeyPressed(Keys.N))
+                bloomSettings.BloomThresholdMax = Math.Max(0.0f, bloomSettings.BloomThresholdMax - 0.05f);
+
+            if (input.IsKeyPressed(Keys.M))
+                bloomSettings.BloomThresholdMax = Math.Min(10.0f, bloomSettings.BloomThresholdMax + 0.05f);
+            
+            bloomSettings.ClampThresholds();
+            
+            // bloom filter radius
+            if (input.IsKeyPressed(Keys.U))
+                bloomSettings.FilterRadius = Math.Max(0.0f, bloomSettings.FilterRadius - 0.001f);
+
+            if (input.IsKeyPressed(Keys.I))
+                bloomSettings.FilterRadius = Math.Min(0.05f, bloomSettings.FilterRadius + 0.001f);
+            
+            // bloom exposure
+            if (input.IsKeyPressed(Keys.T))
+                bloomSettings.Exposure = Math.Max(0.01f, bloomSettings.Exposure - 0.01f);
+
+            if (input.IsKeyPressed(Keys.Y))
+                bloomSettings.Exposure = Math.Min(5.0f, bloomSettings.Exposure + 0.01f);
+
+
+
+
+            // print bloom settings
+            if (input.IsKeyPressed(Keys.D0)) 
+            {
+                Console.WriteLine(
+                    "[BloomSettings]\n" +
+                    $"Strength      = {bloomSettings.BloomStrength:0.00}\n" +
+                    $"ThresholdMin  = {bloomSettings.BloomThresholdMin:0.00} - " +
+                    $"ThresholdMax  = {bloomSettings.BloomThresholdMax:0.00}\n" +
+                    $"FilterRadius  = {bloomSettings.FilterRadius:0.000}\n" +
+                    $"Exposure      = {bloomSettings.Exposure:0.00}"
+                );
             }
             
             cameraManager.HandleInput(input); 
@@ -201,6 +253,7 @@ namespace YinYang.Worlds
                 ViewProjection = cameraManager.GetViewProjection(),
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode,
+                BloomSettings = bloomSettings
             };
             
             renderPipeline.RenderAll(context, objectManager);

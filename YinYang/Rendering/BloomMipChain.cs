@@ -11,8 +11,13 @@ using YinYang.Shapes;
 /// </summary>
 public class BloomMip
 {
+    // Size in float (used for shader UV scaling)
     public Vector2 Size;
+    
+    // Size in int (used for framebuffer binding)
     public Vector2i IntSize;
+    
+    // Texture handle for this mip level
     public int Texture;
 }
 

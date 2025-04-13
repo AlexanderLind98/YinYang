@@ -32,7 +32,7 @@ namespace YinYang.Rendering
             // activate and bind the default framebuffer
             upsampleShader.Use();
             upsampleShader.SetInt("srcTexture", 0);
-            upsampleShader.SetFloat("filterRadius", FilterRadius);
+            upsampleShader.SetFloat("filterRadius", context.BloomSettings.FilterRadius);
 
             // Enable additive blending to accumulate bloom from lower mip levels (color = src + dst)
             GL.Enable(EnableCap.Blend);
@@ -60,6 +60,10 @@ namespace YinYang.Rendering
                 // Bind current source texture
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, src.Texture);
+                
+                float weight = context.BloomSettings.GetMipWeight(i - 1);
+                upsampleShader.SetFloat("mipWeight", weight);
+
 
                 quad.Draw();
             }

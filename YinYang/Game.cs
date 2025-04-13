@@ -75,18 +75,18 @@ namespace YinYang
                 CursorState = CursorState.Grabbed;
             }
 
-            if (input.IsKeyPressed(Keys.R))
+            if (input.IsKeyPressed(Keys.D5))
             {
                 currentWorld.ToggleDebugOverlay();
             }
             
-            if (input.IsKeyPressed(Keys.T))
+            if (input.IsKeyPressed(Keys.D6))
             {
                 showSceneTexture = !showSceneTexture;
                 Console.WriteLine("SceneColorTexture debug: " + showSceneTexture);
             }
 
-            if (input.IsKeyPressed(Keys.Y))
+            if (input.IsKeyPressed(Keys.D7))
             {
                 showBloomTexture = !showBloomTexture;
                 Console.WriteLine("BrightColorTexture debug: " + showBloomTexture);

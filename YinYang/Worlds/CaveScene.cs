@@ -75,6 +75,8 @@ public class CaveScene : World
 
     public override void HandleInput(KeyboardState input)
     {
+        base.HandleInput(input);
+        
         if (input.IsKeyPressed(Keys.D1))
         {
             Game.DebugMode = 1; // Ambient
@@ -101,7 +103,7 @@ public class CaveScene : World
             Game.DebugMode = 0; // Full lighting
         }
 
-        if (input.IsKeyPressed(Keys.T))
+        if (input.IsKeyPressed(Keys.R))
         {
             lightingManager.Sun.ToggleLight();
         }

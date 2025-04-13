@@ -10,7 +10,7 @@ namespace YinYang.Rendering
     /// </summary>
     public class CompositePass : RenderPass
     {
-        public bool BloomEnabled = true;
+        private bool bloomEnabled = false;
         public int SceneTexture { get; set; }
         public int BloomTexture { get; set; }
         public float Exposure { get; set; } = 0.1f;
@@ -28,7 +28,8 @@ namespace YinYang.Rendering
             GL.BindTexture(TextureTarget.Texture2D, SceneTexture);
             blendShader.SetInt("scene", 0);
 
-            if (BloomEnabled)
+            blendShader.SetInt("bloomEnabled", bloomEnabled ? 1 : 0);
+            if (bloomEnabled)
             {
                 GL.ActiveTexture(TextureUnit.Texture1);
                 GL.BindTexture(TextureTarget.Texture2D, BloomTexture);
@@ -37,11 +38,18 @@ namespace YinYang.Rendering
 
             blendShader.SetFloat("exposure", context.BloomSettings.Exposure);
             blendShader.SetFloat("bloomStrength", context.BloomSettings.BloomStrength);
-            blendShader.SetInt("bloomEnabled", BloomEnabled ? 1 : 0);
 
             screenQuad.Draw();
             
             return context.LightSpaceMatrix;
+        }
+
+        /// <summary>
+        /// Sets whether bloom should be applied during final composition.
+        /// </summary>
+        public void SetBloomEnabled(bool enabled)
+        {
+            bloomEnabled = enabled;
         }
 
         public override void Dispose()

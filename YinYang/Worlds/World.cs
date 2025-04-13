@@ -33,7 +33,7 @@ namespace YinYang.Worlds
 
         private bool bloomLinked = false;
         
-        private bool bloomEnabled = true;
+        private bool bloomEnabled = false;
 
         
         /// <summary>
@@ -141,13 +141,7 @@ namespace YinYang.Worlds
         {
             if (input.IsKeyPressed(Keys.B))
             {
-                bloomEnabled = !bloomEnabled;
-
-                _bloomDownsamplePass.Enabled = bloomEnabled;
-                _bloomUpsamplePass.Enabled = bloomEnabled;
-                compositePass.BloomEnabled = bloomEnabled;
-
-                Console.WriteLine(bloomEnabled ? "Bloom ENABLED" : "Bloom DISABLED");
+                SetBloomEnabled(!bloomEnabled);
             }
             
             // bloom strength
@@ -204,6 +198,21 @@ namespace YinYang.Worlds
             
             cameraManager.HandleInput(input); 
         }
+        
+        /// <summary>
+        /// Enables or disables the full bloom system (all passes + composite).
+        /// </summary>
+        private void SetBloomEnabled(bool enabled)
+        {
+            bloomEnabled = enabled;
+
+            _bloomDownsamplePass.Enabled = enabled;
+            _bloomUpsamplePass.Enabled = enabled;
+            compositePass.SetBloomEnabled(enabled);
+
+            Console.WriteLine(enabled ? "Bloom ENABLED" : "Bloom DISABLED");
+        }
+
 
         /// <summary>
         /// Returns the sky color vector (used for ambient light calculation).

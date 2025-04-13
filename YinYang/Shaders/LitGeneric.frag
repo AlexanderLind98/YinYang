@@ -223,12 +223,12 @@ void main()
     // transform normal vector to range [-1,1]
     norm = norm * 2.0 - 1.0;
     norm = normalize(Normal * norm);
-    
+
     vec3 result = vec3(0);
 
     result += CalcDirLight(dirLight, norm, viewDir);
 
-    if(numPointLights != 0) //Only calc lights if lights exist!
+    if (numPointLights != 0) //Only calc lights if lights exist!
     {
         for (int i = 0; i < numPointLights; i++)
         {
@@ -236,17 +236,17 @@ void main()
         }
     }
 
-    if(numSpotLights != 0) //Only calc lights if lights exist!
+    if (numSpotLights != 0) //Only calc lights if lights exist!
     {
-        for(int i = 0; i < numSpotLights; i++)
+        for (int i = 0; i < numSpotLights; i++)
         {
             result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
         }
     }
 
-    if(debugMode == 1)
+    if (debugMode == 1)
     FragColor = vec4(norm, 1.0f);
-    else if(debugMode == 2)
+    else if (debugMode == 2)
     FragColor = vec4(texture(material.normTex, texCoord).rgb, 1.0f);
     else
     FragColor = vec4(result, 1.0f);
@@ -256,10 +256,10 @@ void main()
     //vec3 weights = vec3(0.299, 0.587, 0.114); // luminance weights based on old TV standards
     //vec3 weights = vec3(1.0 / 3.0); // greyscale luminance weights 
     float brightness = dot(result, weights);
-   
+
     // use smoothsteep to create a soft threshold between 1.0 and 2.5
     float bloomFactor = smoothstep(bloomThresholdMin, bloomThresholdMax, brightness);
-    
+
     // apply bloom factor to the result
     BrightColor = vec4(result * bloomFactor, 1.0);
 

@@ -102,6 +102,36 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\CalcDirLight.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Scene\Cave.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Scene\CliffExit.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Scene\GroundOutdoors.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Cave\CavePillar.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Cave\MainCave.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Textures\CliffStone_Diff.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Textures\CliffStone_Spec.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Cave\LightStone.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Textures\CliffStone_Normal.jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\LightStone.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\OLD\tonemap.vert">
@@ -128,6 +158,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Models\Cave\" />
+      <Folder Include="Shaders\OLD\" />
       <None Update="Shaders\texturedebug.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

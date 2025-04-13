@@ -13,6 +13,7 @@ struct Material
     float shininess;
     sampler2D diffTex;
     sampler2D specTex;
+    sampler2D normTex;
 };
 
 struct DirLight
@@ -214,8 +215,14 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 void main()
 {
     // Normalize input
-    vec3 norm = normalize(Normal);
+    vec3 norm; //= normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
+
+    // obtain normal from normal map in range [0,1]
+    norm = texture(material.normTex, texCoord).rgb;
+    // transform normal vector to range [-1,1]
+    norm = norm * 2.0 - 1.0;
+    norm = normalize(Normal * norm);
     
     vec3 result = vec3(0);
 
@@ -237,15 +244,11 @@ void main()
         }
     }
 
-    //    FragColor = vec4(result, 1.0f);
-    //
-    //    // Bright pass: extract highlights
-    //    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722)); // luminance
-    //    if (brightness > 1.0)
-    //    BrightColor = vec4(result, 1.0);
-    //    else
-    //    BrightColor = vec4(0.0);
-
+    if(debugMode == 1)
+    FragColor = vec4(norm, 1.0f);
+    else if(debugMode == 2)
+    FragColor = vec4(texture(material.normTex, texCoord).rgb, 1.0f);
+    else
     FragColor = vec4(result, 1.0f);
 
     // Soft bloom extraction based on luminance 
@@ -263,4 +266,5 @@ void main()
     // debugs
     //    FragColor = vec4(0.5, 0.0, 0.0, 1.0);
     //    BrightColor = vec4(0.0);
-}
+}    
+

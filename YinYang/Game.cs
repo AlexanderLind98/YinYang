@@ -24,7 +24,7 @@ namespace YinYang
             CenterWindow();
             GL.ClearColor(Color4.Black);
             
-            currentWorld = new BloomTestWorld(this);
+            currentWorld = new CaveScene(this);
         }
         
         protected override void OnLoad()

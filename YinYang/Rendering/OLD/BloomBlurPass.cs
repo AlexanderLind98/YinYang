@@ -1,4 +1,4 @@
-// Bloom is inspiret by this articale: https://learnopengl.com/Advanced-Lighting/Bloom
+// Bloom is inspired by this article: https://learnopengl.com/Advanced-Lighting/Bloom
 // then altered to fit our engine rendering pipeline.
 
 using OpenTK.Graphics.OpenGL4;

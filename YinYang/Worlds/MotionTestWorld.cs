@@ -142,6 +142,38 @@ public class MotionTestWorld : World
         
         new PointLight(this);
         PointLights[0].SetPosition(0, 0, 3);
+        
+        cameraManager.Camera.GameObject.AddComponent<SequentialBehavior>(
+            new LoopMotion(
+                new SequentialMotion(
+                    new MoveToPositionXYZ(new Vector3(3.5f, 1.5f, 3.5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 225, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(0f, 1.5f, 5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 180, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(-3.5f, 1.5f, 3.5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 135, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(-5f, 1.5f, 0f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 90, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(-3.5f, 1.5f, -3.5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 45, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(0f, 1.5f, -5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, 0, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(3.5f, 1.5f, -3.5f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, -45, 0), 0.5f),
+
+                    new MoveToPositionXYZ(new Vector3(5f, 1.5f, 0f), 1f),
+                    new TurnXYZDegrees(new Vector3(0, -90, 0), 0.5f)
+                ), 
+                999
+            )
+        );
+
     }
 
     public override void HandleInput(KeyboardState input)

@@ -30,6 +30,7 @@ namespace YinYang.Worlds
         private BloomUpsamplePass _bloomUpsamplePass;
         private CompositePass compositePass;
         private BloomSettings bloomSettings = new();
+        private CubeReflectionRenderPass cubeReflectionRenderPass;
 
         private bool bloomLinked = false;
         
@@ -72,6 +73,7 @@ namespace YinYang.Worlds
         protected ObjectManager objectManager = new();
         protected LightingManager lightingManager = new();
         protected RenderPipeline renderPipeline = new();
+        protected ReflectionManager reflectionManager = new();
         
         public EditorTool? Editor;
         
@@ -85,6 +87,7 @@ namespace YinYang.Worlds
         // Temporary access to shadow map TODO: refcator to acces through renderpipeline
         public Texture depthMap => renderPipeline.ShadowDepthTexture;
         public Texture depthCubeMap => renderPipeline.ShadowDepthCubeTexture;
+        public Texture reflectionCubeMap => renderPipeline.ReflectionCubeTexture;
 
         
         // Temporary access to game objects TODO: refactor to access through objectManager
@@ -112,6 +115,9 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(new PointShadowRenderPass());
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
+            
+            cubeReflectionRenderPass = new CubeReflectionRenderPass();
+            renderPipeline.AddPass(cubeReflectionRenderPass);
             
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
@@ -266,7 +272,8 @@ namespace YinYang.Worlds
                 ViewProjection = cameraManager.GetViewProjection(),
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode,
-                BloomSettings = bloomSettings
+                BloomSettings = bloomSettings,
+                Reflection = reflectionManager
             };
             
             renderPipeline.RenderAll(context, objectManager);

@@ -57,6 +57,9 @@ namespace YinYang.Rendering
             if (Material.UsesLighting)
                 Material.PrepareLighting(context);
 
+            if (Material.IsReflective)
+                Material.SetupReflections(context);
+
             Mesh.Draw();
         }
 

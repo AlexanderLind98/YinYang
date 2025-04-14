@@ -33,7 +33,7 @@ namespace YinYang.Rendering
         public ShadowRenderPass(LightingManager lightingManager)
         {
             // Load the shader responsible for writing depth values only
-            shadowShader = new Shader("Shaders/DirDepth.vert", "Shaders/DirDepth.frag");
+            shadowShader = new Shader("Shaders/Shadow/DirDepth.vert", "Shaders/Shadow/DirDepth.frag");
 
             // Create a framebuffer object that will render depth from the light's perspective
             framebufferHandle = GL.GenFramebuffer();

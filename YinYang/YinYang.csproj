@@ -14,22 +14,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Shaders\DirDepth.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\DirDepth.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Shaders\shader.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\shader.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\shadowDebugQuad.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\shadowDebugQuad.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\LitGeneric.frag">
@@ -73,18 +61,6 @@
       </None>
       <None Update="Models\IcoSphere.obj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\PointDepth.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\PointDepth.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\PointDepth.geom">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\texturedebug.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Models\Scene\Cave.obj">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -197,17 +173,36 @@
       <None Update="Shaders\OLD\bloomblur.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Shaders\Shadow\DirDepth.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Shadow\DirDepth.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Shadow\PointDepth.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Shadow\PointDepth.geom">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Shadow\PointDepth.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Debug\textureDebug.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Debug\shadowDebugQuad.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Debug\shadowDebugQuad.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
       <None Update="Shaders\texturedebug.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Shaders\Debug\" />
-      <Folder Include="Shaders\Shadow\" />
     </ItemGroup>
 
 </Project>

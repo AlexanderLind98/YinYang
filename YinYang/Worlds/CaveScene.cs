@@ -4,6 +4,7 @@ using YinYang.Behaviors;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
+using YinYang.Particles;
 
 namespace YinYang.Worlds;
 
@@ -186,6 +187,14 @@ public class CaveScene : World
         
         new PointLight(this, Color4.Goldenrod, 0.2f);
         PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
+        
+        var magicParticles = new GameObject(Game);
+        // over first lightstone
+        magicParticles.Transform.Position = new Vector3(5.75f, 0.9f, 2.98f); 
+        // 5000 partikler
+        magicParticles.AddComponent<MagicParticleSystem>(5000); 
+        GameObjects.Add(magicParticles);
+
     }
 
     public override void HandleInput(KeyboardState input)

@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Lights;
 using YinYang.Managers;
+using YinYang.Particles;
 using YinYang.Rendering;
 
 namespace YinYang.Worlds
@@ -270,6 +271,14 @@ namespace YinYang.Worlds
             };
             
             renderPipeline.RenderAll(context, objectManager);
+            
+            // render particles
+            foreach (var go in GameObjects)
+            {
+                var ps = go.GetComponent<MagicParticleSystem>();
+                ps?.DrawParticles(context);
+            }
+
 
             // After scene pass has run, link bloom targets (if not yet done)
             if (!bloomLinked && scenePass.SceneColorTexture != 0 && scenePass.BrightColorTexture != 0)

@@ -73,6 +73,26 @@ public class Shader : IDisposable
             GL.DeleteShader(geometryShader);
     }
     
+    public Shader(string computePath, ShaderType shaderType)
+    {
+        if (shaderType != ShaderType.ComputeShader)
+            throw new ArgumentException("This constructor only supports compute shaders.");
+
+        name = Path.GetFileNameWithoutExtension(computePath);
+
+        string computeSource = PreprocessShader(computePath);
+        int computeShader = GL.CreateShader(ShaderType.ComputeShader);
+        GL.ShaderSource(computeShader, computeSource);
+        CompileShader(computeShader);
+
+        Handle = GL.CreateProgram();
+        GL.AttachShader(Handle, computeShader);
+        LinkProgram(Handle);
+
+        GL.DetachShader(Handle, computeShader);
+        GL.DeleteShader(computeShader);
+    }
+    
     private void CompileShader(int shader)
     {
         GL.CompileShader(shader);

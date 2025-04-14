@@ -25,7 +25,7 @@ NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
     Title = "Yin Yang Engine | ",
     NumberOfSamples = 4,
     Icon = CreateIcon(),
-    WindowState = WindowState.Fullscreen
+    //WindowState = WindowState.Fullscreen
 };
 
 // GLFW.WindowHint(WindowHintInt.Samples, 4);

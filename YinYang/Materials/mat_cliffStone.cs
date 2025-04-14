@@ -16,8 +16,8 @@ public class mat_cliffStone : Material
         uniforms.Add("material.normTex", new Texture("Textures/CliffStone_Normal.jpg"));
         uniforms.Add("material.ambient", new Vector3(0.2f));
         uniforms.Add("material.diffuse", new Vector3(0.2f));
-        uniforms.Add("material.specular", new Vector3(0.7f));
-        uniforms.Add("material.shininess", 10.0f);
+        uniforms.Add("material.specular", new Vector3(0.9f));
+        uniforms.Add("material.shininess", 125.0f);
 
         UpdateUniforms();
     }

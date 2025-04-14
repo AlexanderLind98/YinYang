@@ -73,6 +73,8 @@ namespace YinYang.Worlds
         protected LightingManager lightingManager = new();
         protected RenderPipeline renderPipeline = new();
         
+        public EditorTool? Editor;
+        
         // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;

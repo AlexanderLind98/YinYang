@@ -20,9 +20,4 @@ public class mat_lightStone : Material
     /// This material does not support lighting. This method is intentionally left blank.
     /// </summary>
     public override void PrepareLighting(RenderContext context) { }
-
-    /// <summary>
-    /// Prevents light uniforms from being set by default renderer logic.
-    /// </summary>
-    public override bool UsesLighting => true;
 }

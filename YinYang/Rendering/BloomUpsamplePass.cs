@@ -24,7 +24,7 @@ namespace YinYang.Rendering
         public BloomUpsamplePass(BloomMipChain mipChain)
         {
             this.mipChain = mipChain;
-            upsampleShader = new Shader("shaders/fullscreen.vert", "shaders/upsample.frag");
+            upsampleShader = new Shader("shaders/fullscreen.vert", "shaders/PostProcessing/upsample.frag");
         }
 
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)

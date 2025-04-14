@@ -83,26 +83,8 @@
       <None Update="Shaders\PointDepth.geom">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\bloomblur.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\blending.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Shaders\texturedebug.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\BlinnPhongResult.glsl">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\SpecResult.glsl">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\DirShadowCalculation.glsl">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\CalcDirLight.glsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Models\Scene\Cave.obj">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -138,15 +120,6 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\OLD\tonemap.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\downsample.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\fullscreen.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\upsample.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\OLD\blending.vert">
@@ -194,10 +167,39 @@
       <None Update="Models\Cave\GroundRock006.obj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Shaders\Includes\BlinnPhongResult.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Includes\CalcDirLight.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Includes\DirShadowCalculation.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Includes\SpecResult.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\PostProccesing\blending.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\PostProcessing\blending.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\PostProcessing\downsample.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\PostProcessing\upsample.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\fullscreen.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\OLD\bloomblur.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Shaders\OLD\" />
       <None Update="Shaders\texturedebug.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -205,8 +207,6 @@
 
     <ItemGroup>
       <Folder Include="Shaders\Debug\" />
-      <Folder Include="Shaders\Includes\" />
-      <Folder Include="Shaders\PostProccesing\" />
       <Folder Include="Shaders\Shadow\" />
     </ItemGroup>
 

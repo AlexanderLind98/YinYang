@@ -169,26 +169,71 @@ public class Shader : IDisposable
         GL.UniformMatrix4(location, true, ref transform);
     }
     
+    /// <summary>
+    /// Preprocesses a single shader file by resolving all <c>#include</c> directives recursively.
+    /// This is the entry point and ensures each shader gets its own isolated include tracking.
+    /// </summary>
+    /// <param name="path">The full path to the shader file to load and preprocess.</param>
+    /// <returns>The final combined shader source with includes inlined.</returns>
     private string PreprocessShader(string path)
     {
+        // Each shader should get its own include context to avoid global conflicts
+        var includedFiles = new HashSet<string>();
+
+        // Begin recursive expansion
+        return PreprocessShaderInternal(path, includedFiles);
+    }
+
+    /// <summary>
+    /// Recursively expands <c>#include</c> directives inside a shader source file.
+    /// All includes are resolved from the <c>Shaders/Includes</c> directory relative to the application.
+    /// </summary>
+    /// <param name="path">The full path to the current shader or include file.</param>
+    /// <param name="includedFiles">Tracks already included files to avoid circular includes.</param>
+    /// <returns>The preprocessed shader source with all includes inlined.</returns>
+    /// <exception cref="FileNotFoundException">Thrown if an included file cannot be found.</exception>
+    private string PreprocessShaderInternal(string path, HashSet<string> includedFiles)
+    {
+        // EO; Already included, skip it. Prevent recursive or duplicate includes within the same shader file
+        if (includedFiles.Contains(path))
+            return ""; 
+
+        // Mark this file as processed
+        includedFiles.Add(path);
+
+        // Load the lines from the shader file
         var lines = File.ReadAllLines(path);
-        var sb = new StringBuilder();
+        var sb = new StringBuilder(); // Accumulates the expanded shader source
 
         foreach (var line in lines)
         {
+            // Handle #include "filename.glsl"
             if (line.TrimStart().StartsWith("#include"))
             {
+                // Extract path inside quotes
                 var includePath = line.Split('"')[1];
-                var fullPath = Path.Combine(Path.GetDirectoryName(path), includePath);
-                sb.AppendLine(PreprocessShader(fullPath));
+
+                // Resolve to absolute path from the central Includes folder
+                var includeDirectory = Path.Combine(AppContext.BaseDirectory, "Shaders", "Includes");
+                var fullPath = Path.Combine(includeDirectory, includePath);
+
+                // EO; if file doesn't exist
+                if (!File.Exists(fullPath))
+                    throw new FileNotFoundException($"Include not found: {includePath}", fullPath);
+
+                // Add debug markers for clarity (optional)
+                sb.AppendLine($"// Begin include: {includePath}");
+                sb.AppendLine(PreprocessShaderInternal(fullPath, includedFiles)); 
+                sb.AppendLine($"// End include: {includePath}");
             }
             else
             {
+                // Normal line → just pass through
                 sb.AppendLine(line);
             }
         }
 
+        // Return final expanded shader source
         return sb.ToString();
     }
-
 }

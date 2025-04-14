@@ -24,7 +24,7 @@ namespace YinYang.Rendering
         public BloomDownsamplePass(BloomMipChain mipChain)
         {
             this.mipChain = mipChain;
-            downsampleShader = new Shader("shaders/fullscreen.vert", "shaders/downsample.frag");
+            downsampleShader = new Shader("shaders/fullscreen.vert", "shaders/PostProcessing/downsample.frag");
         }
 
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)

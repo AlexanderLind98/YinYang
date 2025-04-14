@@ -15,7 +15,7 @@ namespace YinYang.Rendering
         public int BloomTexture { get; set; }
         public float Exposure { get; set; } = 0.1f;
 
-        private Shader blendShader = new Shader("shaders/fullscreen.vert", "shaders/blending.frag");
+        private Shader blendShader = new Shader("shaders/fullscreen.vert", "shaders/PostProcessing/blending.frag");
         private QuadMesh screenQuad = new();
 
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)

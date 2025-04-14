@@ -61,12 +61,12 @@ public class CaveScene : World
 
         GameObjects.Add(
             new GameObjectBuilder(Game)
-            .Model("Cave/BigRock")
-            .Material(new mat_BigRock())
-            .Position(-8.21f, -0.927f, -0.021f)
-            .RotationDegrees(8.5f, 68.75f, -68.75f)
-            .Scale(4.3f, 4.3f, 4.3f)
-            .Build());
+                .Model("Cave/BigRock")
+                .Material(new mat_BigRock())
+                .Position(-8.21f, -0.927f, -0.021f)
+                .RotationDegrees(8.5f, 68.75f, -68.75f)
+                .Scale(4.3f, 4.3f, 4.3f)
+                .Build());
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
@@ -97,21 +97,21 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-            .Model("Cave/LightStone")
-            .Material(new mat_lightStone())
-            .Position(0.391f, 0.772f, -6.517f)
-            .RotationDegrees(-34.377f, 40.1f, 0.0f)
-            .Scale(0.66f, 0.66f, 0.66f)
-            .Build());
+                .Model("Cave/LightStone")
+                .Material(new mat_lightStone())
+                .Position(0.391f, 0.772f, -6.517f)
+                .RotationDegrees(-34.377f, 40.1f, 0.0f)
+                .Scale(0.66f, 0.66f, 0.66f)
+                .Build());
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-            .Model("Cave/LightStone")
-            .Material(new mat_lightStone())
-            .Position(-0.597f, 1.297f, -6.539f)
-            .RotationDegrees(-28.647f, -51.566f, 0.0f)
-            .Scale(1f, 1f, 1f)
-            .Build());
+                .Model("Cave/LightStone")
+                .Material(new mat_lightStone())
+                .Position(-0.597f, 1.297f, -6.539f)
+                .RotationDegrees(-28.647f, -51.566f, 0.0f)
+                .Scale(1f, 1f, 1f)
+                .Build());
         
         GameObjects.Add(
             new GameObjectBuilder(Game)

@@ -19,6 +19,23 @@ namespace YinYang.Worlds
         private bool debugOverlayEnabled = false;
         private DebugOverlay _debugOverlay;
         
+        public bool ShowSceneTexture => Game.showSceneTexture;
+        public bool ShowBloomTexture => Game.showBloomTexture;
+
+
+        private SceneRenderPass scenePass;
+        private BloomBlurPass blurPass;
+        private BloomMipChain _bloomMipChain;
+        private BloomDownsamplePass _bloomDownsamplePass;
+        private BloomUpsamplePass _bloomUpsamplePass;
+        private CompositePass compositePass;
+        private BloomSettings bloomSettings = new();
+
+        private bool bloomLinked = false;
+        
+        private bool bloomEnabled = false;
+
+        
         /// <summary>
         /// Reference to the core game instance.
         /// </summary>
@@ -56,6 +73,8 @@ namespace YinYang.Worlds
         protected LightingManager lightingManager = new();
         protected RenderPipeline renderPipeline = new();
         
+        public EditorTool? Editor;
+        
         // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;
@@ -91,14 +110,24 @@ namespace YinYang.Worlds
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
             renderPipeline.AddPass(new PointShadowRenderPass());
-            renderPipeline.AddPass(new SceneRenderPass());
+            //renderPipeline.AddPass(new SceneRenderPass());
+            scenePass = new SceneRenderPass();
             
-            // // post-processing pass 
-            // renderPipeline.BloomPass = new BloomRenderPass();
-            // renderPipeline.BloomPass.HDR_Enabled = true;
-            // renderPipeline.BloomPass.Exposure = 0.1f; // TODO: make this adjustable as a var
-            // renderPipeline.AddPass(renderPipeline.BloomPass);
+            // Initialize bloom mip chain
+            _bloomMipChain = new BloomMipChain();
+            _bloomMipChain.Init(Game.Size.X, Game.Size.Y, bloomSettings.MipLevels);
             
+            // Create bloom passes
+            _bloomDownsamplePass = new BloomDownsamplePass(_bloomMipChain);
+            _bloomUpsamplePass = new BloomUpsamplePass(_bloomMipChain);
+
+            compositePass = new CompositePass();
+
+            // Add to pipeline
+            renderPipeline.AddPass(scenePass);
+            renderPipeline.AddPass(_bloomDownsamplePass);
+            renderPipeline.AddPass(_bloomUpsamplePass);
+            renderPipeline.AddPass(compositePass);
         }
 
         /// <summary>
@@ -112,8 +141,80 @@ namespace YinYang.Worlds
         /// <param name="input">Keyboard state snapshot.</param>
         public virtual void HandleInput(KeyboardState input)
         {
+            if (input.IsKeyPressed(Keys.B))
+            {
+                SetBloomEnabled(!bloomEnabled);
+            }
+            
+            // bloom strength
+            if (input.IsKeyPressed(Keys.O))
+                bloomSettings.BloomStrength = Math.Max(0.0f, bloomSettings.BloomStrength - 0.01f);
+
+            if (input.IsKeyPressed(Keys.P))
+                bloomSettings.BloomStrength = Math.Min(2.0f, bloomSettings.BloomStrength + 0.01f);
+
+            // bloom threshold
+            if (input.IsKeyPressed(Keys.K))
+                bloomSettings.BloomThresholdMin = Math.Max(0.0f, bloomSettings.BloomThresholdMin - 0.05f);
+
+            if (input.IsKeyPressed(Keys.L))
+                bloomSettings.BloomThresholdMin = Math.Min(10.0f, bloomSettings.BloomThresholdMin + 0.05f);
+
+            if (input.IsKeyPressed(Keys.N))
+                bloomSettings.BloomThresholdMax = Math.Max(0.0f, bloomSettings.BloomThresholdMax - 0.05f);
+
+            if (input.IsKeyPressed(Keys.M))
+                bloomSettings.BloomThresholdMax = Math.Min(10.0f, bloomSettings.BloomThresholdMax + 0.05f);
+            
+            bloomSettings.ClampThresholds();
+            
+            // bloom filter radius
+            if (input.IsKeyPressed(Keys.U))
+                bloomSettings.FilterRadius = Math.Max(0.0f, bloomSettings.FilterRadius - 0.001f);
+
+            if (input.IsKeyPressed(Keys.I))
+                bloomSettings.FilterRadius = Math.Min(0.05f, bloomSettings.FilterRadius + 0.001f);
+            
+            // bloom exposure
+            if (input.IsKeyPressed(Keys.T))
+                bloomSettings.Exposure = Math.Max(0.01f, bloomSettings.Exposure - 0.01f);
+
+            if (input.IsKeyPressed(Keys.Y))
+                bloomSettings.Exposure = Math.Min(5.0f, bloomSettings.Exposure + 0.01f);
+
+
+
+
+            // print bloom settings
+            if (input.IsKeyPressed(Keys.D0)) 
+            {
+                Console.WriteLine(
+                    "[BloomSettings]\n" +
+                    $"Strength      = {bloomSettings.BloomStrength:0.00}\n" +
+                    $"ThresholdMin  = {bloomSettings.BloomThresholdMin:0.00} - " +
+                    $"ThresholdMax  = {bloomSettings.BloomThresholdMax:0.00}\n" +
+                    $"FilterRadius  = {bloomSettings.FilterRadius:0.000}\n" +
+                    $"Exposure      = {bloomSettings.Exposure:0.00}"
+                );
+            }
+            
             cameraManager.HandleInput(input); 
         }
+        
+        /// <summary>
+        /// Enables or disables the full bloom system (all passes + composite).
+        /// </summary>
+        private void SetBloomEnabled(bool enabled)
+        {
+            bloomEnabled = enabled;
+
+            _bloomDownsamplePass.Enabled = enabled;
+            _bloomUpsamplePass.Enabled = enabled;
+            compositePass.SetBloomEnabled(enabled);
+
+            Console.WriteLine(enabled ? "Bloom ENABLED" : "Bloom DISABLED");
+        }
+
 
         /// <summary>
         /// Returns the sky color vector (used for ambient light calculation).
@@ -165,14 +266,51 @@ namespace YinYang.Worlds
                 ViewProjection = cameraManager.GetViewProjection(),
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode,
+                BloomSettings = bloomSettings
             };
             
             renderPipeline.RenderAll(context, objectManager);
+
+            // After scene pass has run, link bloom targets (if not yet done)
+            if (!bloomLinked && scenePass.SceneColorTexture != 0 && scenePass.BrightColorTexture != 0)
+            {
+                _bloomDownsamplePass.InputTexture = scenePass.BrightColorTexture;
+
+                compositePass.SceneTexture = scenePass.SceneColorTexture;
+                compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
+
+                bloomLinked = true;
+
+                // Console.WriteLine("[World] Linked bloom/composite inputs after FBO init.");
+                // Console.WriteLine("[ScenePass] SceneTex: " + scenePass.SceneColorTexture + ", BrightTex: " + scenePass.BrightColorTexture);
+                // Console.WriteLine("[BlurPass] InputBrightTexture: " + blurPass.InputBrightTexture);
+                // Console.WriteLine("[Composite] Scene: " + compositePass.SceneTexture + ", Bloom: " + compositePass.BloomTexture);
+            }
             
             if (debugOverlayEnabled)
             {
                 _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
                 // DrawDebugTexture(depthMap.Handle, Game.Size);
+            }
+            
+            // Draw MRT debug textures 
+            float scale = 0.25f;
+
+            if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
+            {
+                // Nederst højre hjørne
+                DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
+            }
+
+            if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
+            {
+                // Lige ovenover scene texture 
+                //DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
+                //DrawDebugTexture(_bloomUpsamplePass.TargetTexture, new Vector2(1.0f - scale, scale), scale);
+                
+                // Show first (full-res) and last (softest) mip levels
+                DrawDebugTexture(_bloomMipChain.Mips[0].Texture, new Vector2(1.0f - scale, scale * 1), scale);
+                DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
         }
 
@@ -217,6 +355,7 @@ namespace YinYang.Worlds
         public void ToggleDebugOverlay()
         {
             debugOverlayEnabled = !debugOverlayEnabled;
+            Console.WriteLine("debugOverlayEnabled debug: " + debugOverlayEnabled);
         }
     }
 }

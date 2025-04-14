@@ -1,3 +1,4 @@
+// LitGeneric.frag
 #version 460 core
 
 // debug mode input 
@@ -60,7 +61,8 @@ in vec2 texCoord;
 in vec4 FragPosLightSpace;
 
 //Outputs
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 BrightColor;
 
 //Defines
 #define MAX_POINTLIGHTS 16
@@ -77,6 +79,8 @@ uniform SpotLight spotLights[MAX_SPOTLIGHTS];
 uniform sampler2D shadowMap;
 uniform samplerCube cubeMap;
 uniform float far_plane;
+uniform float bloomThresholdMin;
+uniform float bloomThresholdMax;
 
 // INCLUDES (skal stå efter de ting de skal bruge)
 #include "BlinnPhongResult.glsl"
@@ -219,12 +223,12 @@ void main()
     // transform normal vector to range [-1,1]
     norm = norm * 2.0 - 1.0;
     norm = normalize(Normal * norm);
-    
+
     vec3 result = vec3(0);
 
     result += CalcDirLight(dirLight, norm, viewDir);
 
-    if(numPointLights != 0) //Only calc lights if lights exist!
+    if (numPointLights != 0) //Only calc lights if lights exist!
     {
         for (int i = 0; i < numPointLights; i++)
         {
@@ -232,18 +236,35 @@ void main()
         }
     }
 
-    if(numSpotLights != 0) //Only calc lights if lights exist!
+    if (numSpotLights != 0) //Only calc lights if lights exist!
     {
-        for(int i = 0; i < numSpotLights; i++)
+        for (int i = 0; i < numSpotLights; i++)
         {
             result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
         }
     }
-    
-    if(debugMode == 1)
-        FragColor = vec4(norm, 1.0f);
-    else if(debugMode == 2)
-        FragColor = vec4(texture(material.normTex, texCoord).rgb, 1.0f);
+
+    if (debugMode == 1)
+    FragColor = vec4(norm, 1.0f);
+    else if (debugMode == 2)
+    FragColor = vec4(texture(material.normTex, texCoord).rgb, 1.0f);
     else
-        FragColor = vec4(result, 1.0f);
-}
+    FragColor = vec4(result, 1.0f);
+
+    // Soft bloom extraction based on luminance 
+    vec3 weights = vec3(0.2126, 0.7152, 0.0722); //(magic nuumbers are perceptual luminance weights, based on human eye)
+    //vec3 weights = vec3(0.299, 0.587, 0.114); // luminance weights based on old TV standards
+    //vec3 weights = vec3(1.0 / 3.0); // greyscale luminance weights 
+    float brightness = dot(result, weights);
+
+    // use smoothsteep to create a soft threshold between 1.0 and 2.5
+    float bloomFactor = smoothstep(bloomThresholdMin, bloomThresholdMax, brightness);
+
+    // apply bloom factor to the result
+    BrightColor = vec4(result * bloomFactor, 1.0);
+
+    // debugs
+    //    FragColor = vec4(0.5, 0.0, 0.0, 1.0);
+    //    BrightColor = vec4(0.0);
+}    
+

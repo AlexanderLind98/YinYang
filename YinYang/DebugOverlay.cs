@@ -19,8 +19,8 @@ public class DebugOverlay : IDisposable
     /// </summary>
     public DebugOverlay()
     {
-        debugShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/shadowDebugQuad.frag");
-        textureShader = new Shader("Shaders/shadowDebugQuad.vert", "Shaders/texturedebug.frag");
+        debugShader = new Shader("Shaders/Debug/shadowDebugQuad.vert", "Shaders/Debug/shadowDebugQuad.frag");
+        textureShader = new Shader("Shaders/Debug/shadowDebugQuad.vert", "Shaders/Debug/textureDebug.frag");
         quad = new QuadMesh();
     }
 

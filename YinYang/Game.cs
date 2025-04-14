@@ -13,6 +13,9 @@ namespace YinYang
     {
         public readonly World currentWorld;
         public int DebugMode { get; set; } = 0;
+        public bool showSceneTexture = false;
+        public bool showBloomTexture = false;
+
         
 
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -63,6 +66,9 @@ namespace YinYang
                 
                 if(CursorState == CursorState.Normal)
                 {
+                    if(currentWorld.Editor is { IsEditingObject: true })
+                        currentWorld.Editor.CommitObject(true);
+                    
                     Close();
                 }
             }
@@ -72,10 +78,23 @@ namespace YinYang
                 CursorState = CursorState.Grabbed;
             }
 
-            if (input.IsKeyPressed(Keys.R))
+            if (input.IsKeyPressed(Keys.D5))
             {
                 currentWorld.ToggleDebugOverlay();
             }
+            
+            if (input.IsKeyPressed(Keys.D6))
+            {
+                showSceneTexture = !showSceneTexture;
+                Console.WriteLine("SceneColorTexture debug: " + showSceneTexture);
+            }
+
+            if (input.IsKeyPressed(Keys.D7))
+            {
+                showBloomTexture = !showBloomTexture;
+                Console.WriteLine("BrightColorTexture debug: " + showBloomTexture);
+            }
+
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";
         }
@@ -85,6 +104,7 @@ namespace YinYang
             base.OnRenderFrame(args);
             
             currentWorld.DrawWorld(args, DebugMode);
+            
             
             SwapBuffers();
         }

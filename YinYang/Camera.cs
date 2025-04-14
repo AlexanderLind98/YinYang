@@ -17,6 +17,7 @@ namespace YinYang
         private float far;
         
         public Vector3 Position => gameObject.Transform.Position;
+        public GameObject GameObject => gameObject;
         
         private readonly GameWindow window;
 

@@ -86,6 +86,35 @@ public static class GameObjectFactory
         // Return the GameObject and Mesh as a tuple
         return (modelObject, mesh);
     }
+    
+    public static Mesh CreateModel(string modelName)
+    {
+        // Load the model data from the OBJ file
+        var objLoader = new OBJLoader();
+        objLoader.Load($"Models/{modelName}.obj");
+
+        // Extract relevant geometry data into a model structure
+        var modelData = new Model
+        {
+            Vertices = objLoader.Vertices,
+            TextureCoords = objLoader.TextureCoords,
+            Indices = objLoader.Indices.Select(i => (uint)i).ToList(), // Convert to uint
+            TextureIndices = objLoader.TextureIndices,
+            NormalIndices = objLoader.NormalIndices
+        };
+
+        // Step 1: Calculate smooth normals per vertex
+        var smoothNormals = ComputeSmoothNormals(modelData);
+
+        // Step 2: Build a final vertex buffer and index list
+        var (finalVertexData, finalIndices) = BuildVertexBuffer(modelData, smoothNormals);
+
+        // Create a mesh using the packed vertex data (8 floats per vertex)
+        Mesh mesh = new Mesh(finalVertexData.ToArray(), finalIndices.ToArray(), 8);
+
+        // Return the GameObject and Mesh as a tuple
+        return mesh;
+    }
 
     /// <summary>
     /// Computes smooth normals for a model by averaging the face normals

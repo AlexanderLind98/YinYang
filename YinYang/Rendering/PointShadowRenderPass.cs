@@ -35,7 +35,7 @@ namespace YinYang.Rendering
         public PointShadowRenderPass()
         {
             //Create shader and framebuffer
-            shadowShader = new Shader("Shaders/PointDepth.vert", "Shaders/PointDepth.frag", "Shaders/PointDepth.geom");
+            shadowShader = new Shader("Shaders/Shadow/PointDepth.vert", "Shaders/Shadow/PointDepth.frag", "Shaders/Shadow/PointDepth.geom");
             framebufferHandle = GL.GenFramebuffer();
             
             //Assign handle

@@ -45,7 +45,7 @@ public class BloomSettings
     public static readonly float[] BloomWeights_Cinematic = { 0.9f, 0.5f, 0.25f, 0.125f, 0.05f };
 
     /// <summary>Overbloom: exaggerated, dreamy-style bleeding effect.</summary>
-    public static readonly float[] BloomWeights_Overbloom = {1.0f, 1.5f, 2.0f, 2.5f };
+    public static readonly float[] BloomWeights_Overbloom = {1.0f, 1.5f, 2.0f, 2.5f, 3.0f };
     
     /// <summary>
     /// Ensures valid luminance range. Called after user input.

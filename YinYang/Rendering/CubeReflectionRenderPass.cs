@@ -15,7 +15,7 @@ namespace YinYang.Rendering
     public class CubeReflectionRenderPass : RenderPass
     {
         private int framebufferHandle;
-        private int reflectionResolution = 2048;
+        private int reflectionResolution = 512;
         private Shader reflectionShader;
         private Texture reflectionCubeTexture;
         private float nearPlane = 0.1f;
@@ -67,8 +67,8 @@ namespace YinYang.Rendering
             // attach depth texture as FBO's deph buffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
             GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, textureHandle, 0);
-            /*GL.DrawBuffer(DrawBufferMode.None);
-            GL.ReadBuffer(ReadBufferMode.None);*/
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             
             reflectionCubeTexture = new CubeTexture(textureHandle);
@@ -104,18 +104,18 @@ namespace YinYang.Rendering
         {
             // 0. create depth cubemap transformation matrices
             Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), reflectionResolution / reflectionResolution, nearPlane, farPlane);
-            List<Matrix4> shadowTransforms = new List<Matrix4>();
+            List<Matrix4> reflectionTransforms = new List<Matrix4>();
             Vector3 probePos = context.Reflection.probePositions[0]; //TODO: Hard coded for now                        
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            shadowTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
 
             reflectionShader.Use();
             for (int i = 0; i < 6; i++)
-                reflectionShader.SetMatrix($"reflectMatrices[{i}]", shadowTransforms[i]);
+                reflectionShader.SetMatrix($"reflectMatrices[{i}]", reflectionTransforms[i]);
             reflectionShader.SetFloat("far_plane", farPlane);
             reflectionShader.SetVector3("probePos", probePos);
             

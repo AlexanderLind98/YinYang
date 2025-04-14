@@ -1,5 +1,6 @@
 ﻿using YinYang;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using StbImageSharp;
@@ -23,7 +24,8 @@ NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
     ClientSize = new Vector2i(1920, 1080),
     Title = "Yin Yang Engine | ",
     NumberOfSamples = 4,
-    Icon = CreateIcon()
+    Icon = CreateIcon(),
+    WindowState = WindowState.Fullscreen
 };
 
 // GLFW.WindowHint(WindowHintInt.Samples, 4);

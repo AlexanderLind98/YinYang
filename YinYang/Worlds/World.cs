@@ -33,7 +33,7 @@ namespace YinYang.Worlds
 
         private bool bloomLinked = false;
         
-        private bool bloomEnabled = false;
+        private bool bloomEnabled = true;
 
         
         /// <summary>

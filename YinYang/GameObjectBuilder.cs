@@ -33,7 +33,13 @@ public class GameObjectBuilder
     /// <returns>The builder instance.</returns>
     public GameObjectBuilder Model(string modelName)
     {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
         (_gameObject, _mesh) = GameObjectFactory.CreateObjModel(_game, modelName);
+
+        sw.Stop();
+        Console.WriteLine($"[Profiler] Model '{modelName}' loaded in {sw.ElapsedMilliseconds} ms");
+
         return this;
     }
 

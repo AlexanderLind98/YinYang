@@ -10,7 +10,7 @@ namespace YinYang.Rendering
     /// </summary>
     public class CompositePass : RenderPass
     {
-        private bool bloomEnabled = false;
+        private bool bloomEnabled = true;
         public int SceneTexture { get; set; }
         public int BloomTexture { get; set; }
         public float Exposure { get; set; } = 0.1f;

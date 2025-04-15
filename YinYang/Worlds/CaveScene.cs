@@ -170,7 +170,7 @@ public class CaveScene : World
         GameObject mirrorSphere =
             new GameObjectBuilder(Game)
                 .Model("mask")
-                .Material(new mat_mirror())
+                .Material(new mat_chrome())
                 .Position(0, 0, 0)
                 .Scale(2,2,2)
                 .Build();

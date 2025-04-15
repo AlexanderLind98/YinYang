@@ -59,15 +59,15 @@ namespace YinYang.Rendering
                     IntPtr.Zero);
             
             //Texture wrap & filtering params
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
 
             // attach depth texture as FBO's deph buffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
-            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, textureHandle, 0);
+            // GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, textureHandle, 0);
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -95,6 +95,7 @@ namespace YinYang.Rendering
                     continue;
                 }
             }*/
+            // GL.CullFace(TriangleFace.Front);
             
             RenderReflection(context, objects); 
 
@@ -173,6 +174,7 @@ namespace YinYang.Rendering
                 }
             }
             
+            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             hasRenderedReflection = true;

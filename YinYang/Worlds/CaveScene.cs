@@ -169,12 +169,12 @@ public class CaveScene : World
         
         GameObject mirrorSphere =
             new GameObjectBuilder(Game)
-                .Model("sphere")
+                .Model("monkey")
                 .Material(new mat_mirror())
                 .Position(0, 0, 0)
                 .Build();
         
-        reflectionManager.probePositions.Add(mirrorSphere.Transform.Position);
+        reflectionManager.AddProbe(mirrorSphere.Transform.Position);
 
         GameObjects.Add(mirrorSphere);
         GameObjects.Add(cave);

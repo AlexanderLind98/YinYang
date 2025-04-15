@@ -31,8 +31,6 @@ namespace YinYang
         /// <summary>
         /// Constructs a mesh with vertex data only. Indices are automatically created in sequence.
         /// </summary>
-        /// <param name="vertices">Array of vertex data.</param>
-        /// <param name="vertexStrideFloats">Number of floats per vertex.</param>
         public Mesh(float[] vertices, int vertexStrideFloats)
             : this(vertices, CreateSequentialIndices(vertices.Length / vertexStrideFloats), vertexStrideFloats)
         { }
@@ -61,29 +59,43 @@ namespace YinYang
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
-            // Define vertex attribute layout.
-            // Position: location 0 (3 floats)
+            // Define vertex attribute layout
+            // [0] position (vec3)  - 0 
+            // [1] texcoord (vec2)  - 3     
+            // [2] normal (vec3)    - 5       
+            // [3] tangent (vec3)   - 8      
+            // [4] bitangent (vec3) - 11    
+
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, vertexStride, 0);
             GL.EnableVertexAttribArray(0);
 
-            // Teksturkoordinater: location 1 (2 floats)
-            if (vertexStride > 3 * sizeof(float))
+            if (vertexStride >= 5 * sizeof(float))
             {
                 GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, vertexStride, 3 * sizeof(float));
                 GL.EnableVertexAttribArray(1);
             }
 
-            // Normaler: location 2 (3 floats)
-            if (vertexStride > 5 * sizeof(float))
+            if (vertexStride >= 8 * sizeof(float))
             {
                 GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, vertexStride, 5 * sizeof(float));
                 GL.EnableVertexAttribArray(2);
             }
 
+            if (vertexStride >= 11 * sizeof(float))
+            {
+                GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, vertexStride, 8 * sizeof(float));
+                GL.EnableVertexAttribArray(3);
+            }
+
+            if (vertexStride >= 14 * sizeof(float))
+            {
+                GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, vertexStride, 11 * sizeof(float));
+                GL.EnableVertexAttribArray(4);
+            }
 
             GL.BindVertexArray(0);
         }
-
+     
         public void Draw()
         {
             GL.BindVertexArray(vao);

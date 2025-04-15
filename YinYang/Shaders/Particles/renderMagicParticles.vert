@@ -1,4 +1,4 @@
-// magic_render.vert
+// renderMagicParticles.vert
 #version 460 core
 
 // not used

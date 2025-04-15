@@ -197,13 +197,13 @@
       <None Update="Shaders\Debug\shadowDebugQuad.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\renderMagicParticles.frag">
+      <None Update="Shaders\Particles\computeMagicParticles.comp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\renderMagicParticles.vert">
+      <None Update="Shaders\Particles\renderMagicParticles.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\computeMagicParticles.comp">
+      <None Update="Shaders\Particles\renderMagicParticles.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

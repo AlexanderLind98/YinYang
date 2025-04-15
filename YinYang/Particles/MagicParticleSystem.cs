@@ -47,11 +47,24 @@ namespace YinYang.Particles
             }
         }
 
+        public override void DebugFirstParticle()
+        {
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ssboHandle);
+            IntPtr ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
+            if (ptr != IntPtr.Zero)
+            {
+                Particle p = Marshal.PtrToStructure<Particle>(ptr);
+                Console.WriteLine($"[DEBUG] P0 position: {p.Position.X}, {p.Position.Y}, {p.Position.Z}");
+
+                GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
+            }
+        }
+
 
         protected override void LoadShaders()
         {
-            computeShader = new ComputeShader("Shaders/computeMagicParticles.comp");
-            renderShader = new Shader("Shaders/renderMagicParticles.vert", "Shaders/renderMagicParticles.frag");
+            computeShader = new ComputeShader("Shaders/Particles/computeMagicParticles.comp");
+            renderShader = new Shader("Shaders/Particles/renderMagicParticles.vert", "Shaders/Particles/renderMagicParticles.frag");
         }
     }
 }

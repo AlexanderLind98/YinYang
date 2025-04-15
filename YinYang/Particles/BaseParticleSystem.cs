@@ -52,9 +52,12 @@ namespace YinYang.Particles
         {
             computeShader.Use();
             computeShader.SetFloat("deltaTime", (float)args.Time);
+            computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position);
             computeShader.BindSSBO(0, ssboHandle);
             computeShader.Dispatch((particleCount + 255) / 256);
             computeShader.Barrier();
+            
+            //DebugFirstParticle();
         }
         
         private void WarmupParticles()
@@ -92,5 +95,11 @@ namespace YinYang.Particles
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ssboHandle);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, totalSize, buffer, BufferUsageHint.DynamicDraw);
         }
+        
+        public virtual void DebugFirstParticle()
+        {
+          
+        }
+
     }
 }

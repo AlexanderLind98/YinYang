@@ -169,7 +169,7 @@ public class CaveScene : World
         
         GameObject mirrorSphere =
             new GameObjectBuilder(Game)
-                .Model("SmoothCube")
+                .Model("sphere")
                 .Material(new mat_mirror())
                 .Position(0, 0, 0)
                 .Build();

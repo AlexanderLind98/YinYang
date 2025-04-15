@@ -8,9 +8,10 @@ namespace YinYang.Materials;
 /// </summary>
 public class mat_mirror : Material
 {
-    public mat_mirror() : base("Shaders/LitGeneric.vert", "Shaders/GenericReflective.frag")
+    public mat_mirror() : base("Shaders/LitGeneric.vert", "Shaders/ReflectiveGeneric.frag")
     {
         //uniform samplerCube environmentCubemap;
+        uniforms.Add("isMetallic", 0);
 
         UpdateUniforms();
     }

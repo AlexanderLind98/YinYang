@@ -57,6 +57,7 @@ namespace YinYang.Rendering
                     PixelFormat.Rgba,
                     PixelType.Float,
                     IntPtr.Zero);
+            
             //Texture wrap & filtering params
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
@@ -113,6 +114,83 @@ namespace YinYang.Rendering
             reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
             reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
 
+            // prepare gl, set viewport before and bind framebuffer
+            GL.Viewport(0, 0, reflectionResolution, reflectionResolution);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
+            
+            reflectionShader.Use();
+            // for (int i = 0; i < 6; i++)
+            //     reflectionShader.SetMatrix($"reflectMatrices[{i}]", reflectionTransforms[i]);
+            reflectionShader.SetFloat("far_plane", farPlane);
+            reflectionShader.SetVector3("probePos", probePos);
+            
+            // loop trough sides, rendering each side of the cube map
+            // bind each face of the cubemap to the framebuffer
+            // use seperate rendercontext viewporj. to render each face
+            for (int i = 0; i < 6; ++i)
+            {
+                // bind face of cubemap
+                GL.FramebufferTexture2D(
+                    FramebufferTarget.Framebuffer,
+                    FramebufferAttachment.ColorAttachment0,
+                    TextureTarget.TextureCubeMapPositiveX + i,
+                    reflectionCubeTexture.Handle,
+                    0);
+
+                // clear
+                if(context.Reflection.reflectionType == ReflectionManager.ReflectionType.Static && !hasRenderedReflection)
+                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                else if(context.Reflection.reflectionType != ReflectionManager.ReflectionType.Static)
+                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+                // Override ViewProjection matrix for this face
+                var faceContext = new RenderContext
+                {
+                    Camera = context.Camera,
+                    Lighting = context.Lighting,
+                    World = context.World,
+                    DebugMode = context.DebugMode,
+                    BloomSettings = context.BloomSettings,
+                    Reflection = context.Reflection,
+                    LightSpaceMatrix = context.LightSpaceMatrix,
+                    ViewProjection = reflectionTransforms[i]
+                };
+
+                // use the switch statement to determine the type of reflection rendering
+                switch (context.Reflection.reflectionType)
+                {
+                    case ReflectionManager.ReflectionType.None:
+                        break;
+                    case ReflectionManager.ReflectionType.Static:
+                        if (!hasRenderedReflection)
+                            objects.Render(faceContext);
+                        break;
+                    case ReflectionManager.ReflectionType.Dynamic:
+                        objects.Render(faceContext);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+            hasRenderedReflection = true;
+        }
+        
+        /*private void RenderReflection(RenderContext context, ObjectManager objects)
+        {
+            // 0. create depth cubemap transformation matrices
+            Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), reflectionResolution / reflectionResolution, nearPlane, farPlane);
+            List<Matrix4> reflectionTransforms = new List<Matrix4>();
+            Vector3 probePos = context.Reflection.probePositions[0]; //TODO: Hard coded for now                        
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+
             reflectionShader.Use();
             for (int i = 0; i < 6; i++)
                 reflectionShader.SetMatrix($"reflectMatrices[{i}]", reflectionTransforms[i]);
@@ -147,7 +225,7 @@ namespace YinYang.Rendering
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             hasRenderedReflection = true;
-        }
+        }*/
 
         /// <summary>
         /// Releases GPU resources used by this render pass.

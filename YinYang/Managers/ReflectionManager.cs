@@ -11,7 +11,7 @@ public class ReflectionManager
         Dynamic
     }
     
-    public ReflectionType reflectionType { get; } = ReflectionType.Dynamic;
+    public ReflectionType reflectionType { get; } = ReflectionType.Static;
     
     public List<Vector3> probePositions { get; } = new List<Vector3>();
 

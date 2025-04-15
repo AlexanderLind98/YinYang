@@ -206,7 +206,7 @@
       <None Update="Shaders\Reflection\ReflectCapture.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\GenericReflective.frag">
+      <None Update="Shaders\ReflectiveGeneric.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

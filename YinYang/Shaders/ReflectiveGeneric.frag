@@ -23,7 +23,7 @@ void main()
     float lod = roughness * roughness * MAX_LOD;
     vec3 reflectedColor = textureLod(environmentCubemap, reflectDir, lod).rgb;
 
-    vec3 baseColor = vec3(1, 0, 0);
+    vec3 baseColor = vec3(1);
 
     // Fresnel factor
     float cosTheta = max(dot(-viewDir, normal), 0.0);

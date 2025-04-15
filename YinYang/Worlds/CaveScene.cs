@@ -169,9 +169,10 @@ public class CaveScene : World
         
         GameObject mirrorSphere =
             new GameObjectBuilder(Game)
-                .Model("monkey")
+                .Model("mask")
                 .Material(new mat_mirror())
                 .Position(0, 0, 0)
+                .Scale(2,2,2)
                 .Build();
         
         reflectionManager.AddProbe(mirrorSphere.Transform.Position);

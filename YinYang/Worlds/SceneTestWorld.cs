@@ -44,12 +44,26 @@ public class SceneTestWorld : World
             .Scale(2, 2, 2)
             .Build());
         
-        GameObjects.Add(new GameObjectBuilder(Game)
-            .Model("SmoothCube")
-            .Material(new  mat_concrete())
-            .Position(2f, 0f, 0f)
-            .Scale(1, 1, 1)
-            .Build());
+        // cubes i 3D grid
+        int countX = 6;
+        int countY = 4;
+        int countZ = 6;
+        float spacing = 3.0f;
+
+        for (int x = -countX / 2; x < countX / 2; x++)
+        {
+            for (int y = 0; y < countY; y++)
+            {
+                for (int z = -countZ / 2; z < countZ / 2; z++)
+                {
+                    GameObjects.Add(new GameObjectBuilder(Game)
+                        .Model("Cube")
+                        .Material(new mat_concrete())
+                        .Position(x * spacing, y * spacing, z * spacing)
+                        .Build());
+                }
+            }
+        }
 
         movingCube1 = new GameObjectBuilder(Game)
             .Model("Cube")
@@ -58,14 +72,14 @@ public class SceneTestWorld : World
             .Build();
         GameObjects.Add(movingCube1);
 
-        // movingCube1.AddComponent<SequentialBehavior>(
-        //     new LoopMotion(
-        //         new SequentialMotion(
-        //             new MoveToPositionXYZ(new Vector3(2, 3, 0), 2f),
-        //             new MoveToPositionXYZ(new Vector3(-2, 3, 0), 2f)
-        //         ), 999
-        //     )
-        // );
+        movingCube1.AddComponent<SequentialBehavior>(
+            new LoopMotion(
+                new SequentialMotion(
+                    new MoveToPositionXYZ(new Vector3(2, 3, 0), 2f),
+                    new MoveToPositionXYZ(new Vector3(-2, 3, 0), 2f)
+                ), 999
+            )
+        );
             
         
         // var red = new PointLight(this, Color4.Red, 30f);

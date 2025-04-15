@@ -6,7 +6,7 @@ in vec3 Normal;
 
 uniform samplerCube environmentCubemap;
 uniform vec3 viewPos;
-uniform bool isMetallic;
+uniform float metallic;
 uniform float roughness;
 
 #define MAX_LOD 5
@@ -27,7 +27,7 @@ void main()
 
     // Fresnel factor
     float cosTheta = max(dot(-viewDir, normal), 0.0);
-    vec3 F0 = mix(vec3(0.04), baseColor, isMetallic); // baseColor for metals, otherwise 0.04
+    vec3 F0 = mix(vec3(0.04), baseColor, metallic); // baseColor for metals, otherwise 0.04
     vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 
     //Multiplying looks metallic, adding looks plasticy
@@ -41,11 +41,11 @@ void main()
 //    }
 
     float specularStrength = 1.0 - roughness * roughness;
-    vec3 diffuse = baseColor * (1.0f - fresnel);
-    vec3 specular = reflectedColor * fresnel * specularStrength;
+    vec3 diffuse = baseColor * (1.0f - fresnel) * (1.0 - metallic);
+    vec3 specular = reflectedColor * fresnel;
 
 
-    finalColor = mix(diffuse + specular, specular, isMetallic ? 1.0 : 0.0);
+    finalColor = diffuse + specular * specularStrength;
 
     FragColor = vec4(finalColor, 1.0);
 }

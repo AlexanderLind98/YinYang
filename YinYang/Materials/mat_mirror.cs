@@ -11,8 +11,8 @@ public class mat_mirror : Material
     public mat_mirror() : base("Shaders/LitGeneric.vert", "Shaders/ReflectiveGeneric.frag")
     {
         //uniform samplerCube environmentCubemap;
-        uniforms.Add("isMetallic", 1);
-        uniforms.Add("roughness", 1.0f);
+        uniforms.Add("metallic", 1.0f);
+        uniforms.Add("roughness", 0.99f);
 
         UpdateUniforms();
     }

@@ -20,11 +20,13 @@ namespace YinYang.Worlds
         private bool debugOverlayEnabled = false;
         private DebugOverlay _debugOverlay;
         
-        public bool ShowSceneTexture => Game.showSceneTexture;
-        public bool ShowBloomTexture => Game.showBloomTexture;
+        // public bool ShowSceneTexture => Game.showSceneTexture;
+        // public bool ShowBloomTexture => Game.showBloomTexture;
+        // public bool ShowVolumetricTexture => Game.showVolumetricTexture;
 
 
         private SceneRenderPass scenePass;
+        private VolumetricLightPass volumetricLightPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
         private BloomDownsamplePass _bloomDownsamplePass;
@@ -35,6 +37,8 @@ namespace YinYang.Worlds
         private bool bloomLinked = false;
         
         private bool bloomEnabled = true;
+        private bool volumetricEnabled = true;
+
 
         
         /// <summary>
@@ -61,7 +65,7 @@ namespace YinYang.Worlds
         /// Default sun direction vector (used at startup).
         /// </summary>
         //public Vector3 SunDirection = new Vector3(45f, 135f, 0f);
-        public Vector3 SunDirection = new Vector3(-0.2f, -1.0f, -0.3f);
+        public Vector3 SunDirection = new Vector3(0, 0, -1);
 
         /// <summary>1
         /// Default sun light color (also represents intensity).
@@ -105,7 +109,8 @@ namespace YinYang.Worlds
             cameraManager.Setup(Game, objectManager.GameObjects);
 
             // Set up lighting system including directional sunlight.
-            //lightingManager.InitializeDirectionalLightInDegrees(this, -45,0,0, SunColor, Light.ShadowType.Static);
+            //lightingManager.InitializeDirectionalLightInDegrees(this, 0, 0, 0, SunColor, Light.ShadowType.Dynamic);
+
             lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
             // Initialize modular render passes
@@ -113,6 +118,11 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(new PointShadowRenderPass());
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
+            renderPipeline.AddPass(scenePass);
+            
+            // Volumetric light pass (compute shader)
+            volumetricLightPass = new VolumetricLightPass(Game.Size.X, Game.Size.Y);
+            renderPipeline.AddPass(volumetricLightPass);
             
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
@@ -125,7 +135,6 @@ namespace YinYang.Worlds
             compositePass = new CompositePass();
 
             // Add to pipeline
-            renderPipeline.AddPass(scenePass);
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);
             renderPipeline.AddPass(compositePass);
@@ -146,6 +155,12 @@ namespace YinYang.Worlds
             {
                 SetBloomEnabled(!bloomEnabled);
             }
+            
+            if (input.IsKeyPressed(Keys.V))
+            {
+                SetVolumetricEnabled(!volumetricEnabled);
+            }
+
             
             // bloom strength
             if (input.IsKeyPressed(Keys.O))
@@ -182,8 +197,7 @@ namespace YinYang.Worlds
 
             if (input.IsKeyPressed(Keys.Y))
                 bloomSettings.Exposure = Math.Min(5.0f, bloomSettings.Exposure + 0.01f);
-
-
+                
 
 
             // print bloom settings
@@ -214,6 +228,14 @@ namespace YinYang.Worlds
             compositePass.SetBloomEnabled(enabled);
 
             Console.WriteLine(enabled ? "Bloom ENABLED" : "Bloom DISABLED");
+        }
+
+        private void SetVolumetricEnabled(bool enabled)
+        {
+            volumetricEnabled = enabled;
+            volumetricLightPass.Enabled = enabled;
+            compositePass.SetVolumetricEnabled(enabled); // We'll add this next
+            Console.WriteLine(enabled ? "Volumetric Light ENABLED" : "Volumetric Light DISABLED");
         }
 
 
@@ -320,6 +342,11 @@ namespace YinYang.Worlds
                 // Show first (full-res) and last (softest) mip levels
                 DrawDebugTexture(_bloomMipChain.Mips[0].Texture, new Vector2(1.0f - scale, scale * 1), scale);
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
+            }
+            
+            if (Game.showVolumetricTexture && volumetricLightPass != null && volumetricLightPass.VolumetricTexture != 0)
+            {
+                DrawDebugTexture(volumetricLightPass.VolumetricTexture, new Vector2(0.0f, scale * 1), scale);
             }
         }
 

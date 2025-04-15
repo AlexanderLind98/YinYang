@@ -10,10 +10,16 @@ namespace YinYang.Rendering
     /// </summary>
     public class CompositePass : RenderPass
     {
+        // Bloom 
         private bool bloomEnabled = true;
         public int SceneTexture { get; set; }
         public int BloomTexture { get; set; }
         public float Exposure { get; set; } = 0.1f;
+
+        // Volumetric light
+        public int VolumetricTexture { get; set; }
+        private bool volumetricEnabled = true;
+
 
         private Shader blendShader = new Shader("shaders/fullscreen.vert", "shaders/PostProcessing/blending.frag");
         private QuadMesh screenQuad = new();
@@ -35,7 +41,16 @@ namespace YinYang.Rendering
                 GL.BindTexture(TextureTarget.Texture2D, BloomTexture);
                 blendShader.SetInt("bloomBlur", 1);
             }
-
+            
+            blendShader.SetInt("volumetricEnabled", volumetricEnabled ? 1 : 0);
+            if (volumetricEnabled)
+            {
+                // Bind volumetric texture
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, VolumetricTexture);
+                blendShader.SetInt("volumetric", 2);
+            }
+            
             blendShader.SetFloat("exposure", context.BloomSettings.Exposure);
             blendShader.SetFloat("bloomStrength", context.BloomSettings.BloomStrength);
 
@@ -51,6 +66,13 @@ namespace YinYang.Rendering
         {
             bloomEnabled = enabled;
         }
+        
+
+        public void SetVolumetricEnabled(bool enabled)
+        {
+            volumetricEnabled = enabled;
+        }
+
 
         public override void Dispose()
         {

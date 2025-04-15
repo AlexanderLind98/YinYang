@@ -1,6 +1,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
+using YinYang.Behaviors.Motion;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
@@ -9,16 +10,15 @@ namespace YinYang.Worlds;
 
 public class SceneTestWorld : World
 {
-    private GameObject cave;
-    private GameObject cliffExit;
-    private GameObject groundOutdoors;
+ 
+    private GameObject movingCube1;
 
     public SceneTestWorld(Game game) : base(game)
     {
         WorldName = game.Title + " Scene Test World";
 
         SkyColor = Color4.CornflowerBlue;
-        lightingManager.Sun.ToggleLight();
+        //lightingManager.Sun.ToggleLight();
     }
 
     public override string DebugLabel
@@ -37,30 +37,40 @@ public class SceneTestWorld : World
     {
         base.ConstructWorld();
         
-        cave = new GameObjectBuilder(Game)
-            .Model("TestScene/Cave")
+        GameObjects.Add(new GameObjectBuilder(Game)
+            .Model("Ground")
             .Material(new  mat_concrete())
-            .Position(0f, 0, 0f)
-            .Build();
-
-        cliffExit = new GameObjectBuilder(Game)
-            .Model("TestScene/CliffExit")
-            .Material(new mat_concrete())
-            .Position(0, 0f, 0f)
-            .Build();
-
-        groundOutdoors = new GameObjectBuilder(Game)
-            .Model("TestScene/GroundOutdoors")
-            .Material(new mat_concrete())
-            .Position(0f, 0f, 0f)
-            .Build();
-
-        GameObjects.Add(cave);
-        GameObjects.Add(cliffExit);
-        GameObjects.Add(groundOutdoors);
+            .Position(0f, -3f, 0f)
+            .Scale(2, 2, 2)
+            .Build());
         
-        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
-        SpotLights[0].ToggleLight();
+        GameObjects.Add(new GameObjectBuilder(Game)
+            .Model("SmoothCube")
+            .Material(new  mat_concrete())
+            .Position(2f, 0f, 0f)
+            .Scale(1, 1, 1)
+            .Build());
+
+        movingCube1 = new GameObjectBuilder(Game)
+            .Model("Cube")
+            .Material(new mat_concrete())
+            .Position(2f, 3f, 0f)
+            .Build();
+        GameObjects.Add(movingCube1);
+
+        // movingCube1.AddComponent<SequentialBehavior>(
+        //     new LoopMotion(
+        //         new SequentialMotion(
+        //             new MoveToPositionXYZ(new Vector3(2, 3, 0), 2f),
+        //             new MoveToPositionXYZ(new Vector3(-2, 3, 0), 2f)
+        //         ), 999
+        //     )
+        // );
+            
+        
+        // var red = new PointLight(this, Color4.Red, 30f);
+        // PointLights[0].shadowType = Light.ShadowType.Dynamic;
+        // red.Transform.Position = new Vector3(3f, 3f, 1f);
     }
 
     public override void HandleInput(KeyboardState input)

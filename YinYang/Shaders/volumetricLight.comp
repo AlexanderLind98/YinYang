@@ -1,0 +1,142 @@
+// volumetricLight.comp Compute shader for volumetric lighting via raymarching and depth occlusion.
+#version 430 core
+
+// 
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+// Output image the compute shader writes to
+layout(rgba16f, binding = 0) writeonly uniform image2D volumetricOutput;
+// Depth texture from the main scene rendering (used to occlude rays)
+uniform sampler2D depthMap;
+
+// Matrix to convert from clip space to world space
+uniform mat4 inverseProjection;
+// Matrix to convert from world space to clip space (proj * view)
+uniform mat4 viewProjection;
+
+// Camera position in world space
+uniform vec3 cameraPos;
+// Sun direction (normalized), in world space
+uniform vec3 lightDir;
+// Color/intensity of the sun
+uniform vec3 lightColor;
+
+// Parameters controlling scattering falloff and step resolution
+uniform float density;
+uniform float scatteringStrength;
+uniform int stepCount;
+
+// Camera frustum range, for linear depth conversion
+uniform float nearPlane;
+uniform float farPlane;
+
+// Converts non-linear depth from depth map to linear depth in view space
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Convert from [0..1] to [-1..1] NDC
+    return (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
+}
+
+// Generates pseudo-random jitter based on UV to avoid marching banding artifacts. 
+// Maching banding is when object seen as repeated itself in steps instead of smooth.
+float Rand(vec2 co)
+{
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main()
+{
+    // Determine which pixel this thread is computing
+    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 resolution = imageSize(volumetricOutput);
+
+    // Convert pixel to normalized screen-space UV coordinates
+    vec2 uv = (vec2(pixelCoord) + 0.5) / vec2(resolution);
+
+    // GLSL-standard: matrix * vector
+    // Reconstruct clip-space position from UV (z = 0 near center of frustum)
+    vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
+    // Convert from clip space to world space
+    vec4 worldPos4 = inverseProjection * clip;
+    vec3 worldPos = worldPos4.xyz / worldPos4.w;
+
+    // Create ray direction from camera to current pixel's world position
+    vec3 rayDir = normalize(worldPos - cameraPos);
+
+    // Introduce a small per-pixel offset to avoid banding artifacts
+    float jitter = Rand(uv);
+
+    // Compute the distance to march along the ray
+    float tMax = 50.0;
+    float stepSize = tMax / float(stepCount);
+    vec3 scattering = vec3(0.0);
+
+    // March forward along the ray
+    for (int i = 0; i < stepCount; ++i)
+    {
+        // Advance along the ray with jitter offset
+        float t = (float(i) + jitter) * stepSize;
+        vec3 pos = cameraPos + rayDir * t;
+
+        // Project current sample position to screen space (clip space)
+        vec4 clipPos = viewProjection * vec4(pos, 1.0);
+        vec2 sampleUV = (clipPos.xy / clipPos.w) * 0.5 + 0.5;
+
+        // Skip if sample falls outside screen
+        if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
+        continue;
+
+        // Sample scene depth and convert to linear depth
+        float sceneDepth = texture(depthMap, sampleUV).r;
+        float linearSceneZ = LinearizeDepth(sceneDepth);
+        float rayZ = length(pos - cameraPos);
+
+        // If ray is occluded by scene geometry, stop marching
+        if (rayZ > linearSceneZ)
+        break;
+
+        // Compute forward scattering based on angle between ray and light
+        float phase = max(dot(rayDir, -lightDir), 0.0);
+        // Compute attenuation over distance
+        float attenuation = exp(-density * t);
+
+        // Accumulate scattering contribution
+        scattering += phase * attenuation * lightColor * scatteringStrength * stepSize;
+
+        // Optional early exit for performance
+        if (attenuation * scatteringStrength < 0.001)
+        break;
+    }
+
+    // Write final scattering result to output texture
+    imageStore(volumetricOutput, pixelCoord, vec4(scattering, 1.0));
+}
+
+// debugs
+
+// //output red if pass can write to image
+// imageStore(volumetricOutput, pixelCoord, vec4(1.0, 0.0, 0.0, 1.0));
+
+
+// //red if there is info in texture
+// if (pixelCoord.x < resolution.x / 8 && pixelCoord.y < resolution.y / 8)
+//     imageStore(volumetricOutput, pixelCoord, vec4(1.0, 0.0, 0.0, 1.0));
+// else
+//     imageStore(volumetricOutput, pixelCoord, vec4(scattering, 1.0));
+
+// // grey scale dot(rayDir, -lightDir) 
+// float phase = max(dot(rayDir, -lightDir), 0.0);
+// imageStore(volumetricOutput, pixelCoord, vec4(phase));
+
+
+// //greyscale scene depth 
+// float d = texture(depthMap, sampleUV).r;
+// imageStore(volumetricOutput, pixelCoord, vec4(d, d, d, 1.0));
+
+// // grey scale steps
+// float gray = float(i) / float(stepCount);
+// imageStore(volumetricOutput, pixelCoord, vec4(gray));
+
+// // no phase or attenuation
+// scattering += lightColor * scatteringStrength * stepSize;

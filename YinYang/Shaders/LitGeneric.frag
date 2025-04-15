@@ -59,6 +59,7 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 texCoord;
 in vec4 FragPosLightSpace;
+in mat3 TBN;
 
 //Outputs
 layout(location = 0) out vec4 FragColor;
@@ -222,7 +223,7 @@ void main()
     norm = texture(material.normTex, texCoord).rgb;
     // transform normal vector to range [-1,1]
     norm = norm * 2.0 - 1.0;
-    norm = normalize(Normal * norm);
+    norm = normalize(TBN * norm);
 
     vec3 result = vec3(0);
 

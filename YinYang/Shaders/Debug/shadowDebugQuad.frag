@@ -40,11 +40,11 @@ vec3 GetCubeMapDirectionFromGrid(vec2 uv)
 
 void main()
 {
-    float depthValue = texture(depthMap, TexCoords).r;
-    FragColor = vec4(vec3(depthValue), 1.0); 
+//    float depthValue = texture(depthMap, TexCoords).r;
+//    FragColor = vec4(vec3(depthValue), 1.0); 
 
-//    vec3 dir = GetCubeMapDirectionFromGrid(TexCoords);
-//    float depthValue = texture(depthCubeMap, dir).r;
-//
-//    FragColor = vec4(vec3(depthValue), 1.0);
+    vec3 dir = GetCubeMapDirectionFromGrid(TexCoords);
+    float depthValue = texture(depthCubeMap, dir).r;
+
+    FragColor = vec4(vec3(depthValue), 1.0);
 }

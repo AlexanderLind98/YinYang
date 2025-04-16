@@ -24,6 +24,9 @@ namespace YinYang.Rendering
         public Texture ShadowDepthCubeTexture =>
             renderPasses.OfType<PointShadowRenderPass>().FirstOrDefault()?.ShadowDepthCubeTexture;
         
+        public Texture ReflectionCubeTexture =>
+            renderPasses.OfType<CubeReflectionRenderPass>().FirstOrDefault()?.ReflectionCubeTexture;
+        
         /// <summary>
         /// Adds a render pass to the pipeline.
         /// </summary>
@@ -52,8 +55,6 @@ namespace YinYang.Rendering
                 if(lightSpaceMatrix != null)
                     context.LightSpaceMatrix = (Matrix4)lightSpaceMatrix;
             }
-
-            // return lightSpaceMatrix;
         }
 
 

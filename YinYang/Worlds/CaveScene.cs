@@ -166,7 +166,18 @@ public class CaveScene : World
                 .RotationDegrees(-34.37f, 61.30f, 0.0f)
                 .Scale(0.22f, 0.22f, 0.22f)
                 .Build());
+        
+        GameObject mirrorSphere =
+            new GameObjectBuilder(Game)
+                .Model("mask")
+                .Material(new mat_chrome())
+                .Position(0, 0, 0)
+                .Scale(2,2,2)
+                .Build();
+        
+        reflectionManager.AddProbe(mirrorSphere.Transform.Position);
 
+        GameObjects.Add(mirrorSphere);
         GameObjects.Add(cave);
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);

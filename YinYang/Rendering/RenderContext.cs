@@ -34,5 +34,7 @@ namespace YinYang.Rendering
         
         /// <summary>Bloom settings</summary>
         public BloomSettings BloomSettings { get; init; }
+        
+        public ReflectionManager Reflection { get; init; }
     }
 }

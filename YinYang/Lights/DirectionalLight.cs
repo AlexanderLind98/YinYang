@@ -1,4 +1,5 @@
 using OpenTK.Mathematics;
+using YinYang.Behaviors.Motion;
 using YinYang.Components;
 using YinYang.Materials;
 using YinYang.Worlds;
@@ -32,10 +33,11 @@ public class DirectionalLight : Light
     private void CreateVisualizer(World currentWorld)
     {
         Visualizer = new GameObjectBuilder(currentWorld.Game)
-            .Model("Sphere")
+            .Model("Monkey")
             .Material(new mat_glow())
             .Position(0, 0, 0)
-            .Scale(0.1f, 0.1f, 0.1f)
+            .Scale(1,1,1)
+            //.Scale(0.1f, 0.1f, 0.1f)
             .Build();
 
         Visualizer.Renderer.RenderInDepthPass = false;

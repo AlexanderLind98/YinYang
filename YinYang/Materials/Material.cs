@@ -29,7 +29,13 @@ namespace YinYang.Materials
         public void SetupReflections(RenderContext context)
         {
             if(!uniforms.ContainsKey("environmentCubemap"))
+            {
                 uniforms.Add("environmentCubemap", context.World.reflectionCubeMap);
+            }
+            else
+            {
+                SetUniform("environmentCubemap", context.World.reflectionCubeMap);   
+            }
         }
 
         

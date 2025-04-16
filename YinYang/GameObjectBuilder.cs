@@ -96,6 +96,12 @@ public class GameObjectBuilder
         return this;
     }
 
+    public GameObjectBuilder Scale(float size)
+    {
+        _gameObject.Transform.Scale = new Vector3(size);
+        return this;
+    }
+
     /// <summary>
     /// Adds a behavior component to the GameObject.
     /// The behavior must have a constructor with (GameObject, Game) as the first two parameters.

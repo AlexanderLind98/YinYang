@@ -187,10 +187,7 @@ namespace YinYang.Worlds
 
             if (input.IsKeyPressed(Keys.Y))
                 bloomSettings.Exposure = Math.Min(5.0f, bloomSettings.Exposure + 0.01f);
-
-
-
-
+            
             // print bloom settings
             if (input.IsKeyPressed(Keys.D0)) 
             {

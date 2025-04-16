@@ -127,6 +127,16 @@ public static class GameObjectFactory
         return mesh;
     }
 
+    public static Mesh CreateTBNModel(string modelName)
+    {
+        var loader = new OBJLoader();
+        loader.Load($"Models/{modelName}.obj");
+        loader.ComputeTangentSpace();
+        var mesh = loader.BuildMesh();
+        
+        return mesh;
+    }
+
     /// <summary>
     /// Computes smooth normals for a model by averaging the face normals
     /// of all triangles sharing each vertex.

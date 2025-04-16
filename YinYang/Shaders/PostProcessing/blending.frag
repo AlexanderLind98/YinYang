@@ -26,8 +26,5 @@ void main()
     // Add bloom after tone mapping
     vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
 
-    // Gamma correction to convert to display color space
-    color = pow(color, vec3(1.0 / gamma));
-
     FragColor = vec4(color, 1.0);
 }

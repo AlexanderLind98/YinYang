@@ -22,11 +22,12 @@ void main()
     vec3 T = normalize(vec3(vec4(aTangent,   0.0) * model));
     vec3 B = normalize(vec3(vec4(aBitangent, 0.0) * model));
     vec3 N = normalize(vec3(vec4(aNormal,    0.0) * model));
+//    vec3 N = normalize(mat3(transpose(inverse(model))) * aNormal);
     TBN = mat3(T, B, N);
     
     FragPos = vec3(vec4(aPos, 1.0) * model);
-//    Normal = aNormal * mat3(transpose(inverse(model)));
-    Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
+    Normal = aNormal * mat3(transpose(inverse(model)));
+//    Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
     texCoord = aTexCoord;
     FragPosLightSpace = vec4(FragPos, 1.0f) * lightSpaceMatrix;
     gl_Position = vec4(aPos, 1.0) * mvp;

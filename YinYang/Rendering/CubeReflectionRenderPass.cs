@@ -104,16 +104,19 @@ namespace YinYang.Rendering
 
         private void RenderReflection(RenderContext context, ObjectManager objects)
         {
+            if(context.Reflection.probePositions.Count <= 0)
+                return;
+            
             // 0. create depth cubemap transformation matrices
-            Matrix4 shadowProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), reflectionResolution / reflectionResolution, nearPlane, farPlane);
+            Matrix4 reflectProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), reflectionResolution / reflectionResolution, nearPlane, farPlane);
             List<Matrix4> reflectionTransforms = new List<Matrix4>();
             Vector3 probePos = context.Reflection.probePositions[0]; //TODO: Hard coded for now                        
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * shadowProj);
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * shadowProj);
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
-            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * shadowProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * reflectProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, -1.0f, 0.0f), new Vector3(0.0f,  0.0f, -1.0f)) * reflectProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, 1.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
+            reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 0.0f, -1.0f), new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
 
             // prepare gl, set viewport before and bind framebuffer
             GL.Viewport(0, 0, reflectionResolution, reflectionResolution);
@@ -160,17 +163,19 @@ namespace YinYang.Rendering
                 // use the switch statement to determine the type of reflection rendering
                 switch (context.Reflection.reflectionType)
                 {
-                    case ReflectionManager.ReflectionType.None:
-                        break;
+                    case ReflectionManager.ReflectionType.None: break;
                     case ReflectionManager.ReflectionType.Static:
+                    {
                         if (!hasRenderedReflection)
                             objects.Render(faceContext);
                         break;
+                    }
                     case ReflectionManager.ReflectionType.Dynamic:
+                    {
                         objects.Render(faceContext);
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    }
+                    default: throw new ArgumentOutOfRangeException();
                 }
             }
             

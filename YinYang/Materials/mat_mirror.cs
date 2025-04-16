@@ -12,7 +12,7 @@ public class mat_mirror : Material
     {
         //uniform samplerCube environmentCubemap;
         uniforms.Add("metallic", 1.0f);
-        uniforms.Add("roughness", 0.8f);
+        uniforms.Add("roughness", 0.3f);
 
         UpdateUniforms();
     }

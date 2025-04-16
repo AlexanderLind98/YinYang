@@ -48,7 +48,7 @@ public static class GameObjectFactory
         return cubeObject;
     }
     
-    public static (GameObject, Mesh) CreateObjModel(Game gameInstance, string modelName)
+    public static (GameObject, Mesh) CreateTBNObjModel(Game gameInstance, string modelName)
     {
         var loader = new OBJLoader();
         loader.Load($"Models/{modelName}.obj");
@@ -59,46 +59,44 @@ public static class GameObjectFactory
         return (go, mesh);
     }
 
-    //
-    //
-    // /// <summary>
-    // /// Loads a 3D model from an OBJ file, computes smooth normals for lighting,
-    // /// and builds a GameObject along with its corresponding Mesh.
-    // /// </summary>
-    // /// <param name="gameInstance">The game instance that owns this object.</param>
-    // /// <param name="modelName">The filename of the model to load (without .obj extension).</param>
-    // /// <returns>A tuple containing the GameObject and the Mesh.</returns>
-    // public static (GameObject, Mesh) CreateObjModel(Game gameInstance, string modelName)
-    // {
-    //     // Load the model data from the OBJ file
-    //     var objLoader = new OBJLoader();
-    //     objLoader.Load($"Models/{modelName}.obj");
-    //
-    //     // Extract relevant geometry data into a model structure
-    //     var modelData = new Model
-    //     {
-    //         Vertices = objLoader.Vertices,
-    //         TextureCoords = objLoader.TextureCoords,
-    //         Indices = objLoader.Indices.Select(i => (uint)i).ToList(), // Convert to uint
-    //         TextureIndices = objLoader.TextureIndices,
-    //         NormalIndices = objLoader.NormalIndices
-    //     };
-    //
-    //     // Step 1: Calculate smooth normals per vertex
-    //     var smoothNormals = ComputeSmoothNormals(modelData);
-    //
-    //     // Step 2: Build a final vertex buffer and index list
-    //     var (finalVertexData, finalIndices) = BuildVertexBuffer(modelData, smoothNormals);
-    //
-    //     // Create a mesh using the packed vertex data (8 floats per vertex)
-    //     Mesh mesh = new Mesh(finalVertexData.ToArray(), finalIndices.ToArray(), 8);
-    //
-    //     // Create a GameObject that can hold this mesh
-    //     GameObject modelObject = new GameObject(gameInstance);
-    //
-    //     // Return the GameObject and Mesh as a tuple
-    //     return (modelObject, mesh);
-    // }
+    /// <summary>
+    /// Loads a 3D model from an OBJ file, computes smooth normals for lighting,
+    /// and builds a GameObject along with its corresponding Mesh.
+    /// </summary>
+    /// <param name="gameInstance">The game instance that owns this object.</param>
+    /// <param name="modelName">The filename of the model to load (without .obj extension).</param>
+    /// <returns>A tuple containing the GameObject and the Mesh.</returns>
+    public static (GameObject, Mesh) CreateObjModel(Game gameInstance, string modelName)
+    {
+        // Load the model data from the OBJ file
+        var objLoader = new OBJLoader();
+        objLoader.Load($"Models/{modelName}.obj");
+    
+        // Extract relevant geometry data into a model structure
+        var modelData = new Model
+        {
+            Vertices = objLoader.Vertices,
+            TextureCoords = objLoader.TextureCoords,
+            Indices = objLoader.Indices.Select(i => (uint)i).ToList(), // Convert to uint
+            TextureIndices = objLoader.TextureIndices,
+            NormalIndices = objLoader.NormalIndices
+        };
+    
+        // Step 1: Calculate smooth normals per vertex
+        var smoothNormals = ComputeSmoothNormals(modelData);
+    
+        // Step 2: Build a final vertex buffer and index list
+        var (finalVertexData, finalIndices) = BuildVertexBuffer(modelData, smoothNormals);
+    
+        // Create a mesh using the packed vertex data (8 floats per vertex)
+        Mesh mesh = new Mesh(finalVertexData.ToArray(), finalIndices.ToArray(), 8);
+    
+        // Create a GameObject that can hold this mesh
+        GameObject modelObject = new GameObject(gameInstance);
+    
+        // Return the GameObject and Mesh as a tuple
+        return (modelObject, mesh);
+    }
     
     public static Mesh CreateModel(string modelName)
     {

@@ -42,6 +42,18 @@ public class GameObjectBuilder
 
         return this;
     }
+    
+    public GameObjectBuilder ModelTBN(string modelName)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+
+        (_gameObject, _mesh) = GameObjectFactory.CreateTBNObjModel(_game, modelName);
+
+        sw.Stop();
+        Console.WriteLine($"[Profiler] Model '{modelName}' loaded in {sw.ElapsedMilliseconds} ms");
+
+        return this;
+    }
 
     /// <summary>
     /// Assigns a material to be used with the GameObject's mesh.

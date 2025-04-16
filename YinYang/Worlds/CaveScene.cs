@@ -39,14 +39,14 @@ public class CaveScene : World
         base.ConstructWorld();
         
         cave = new GameObjectBuilder(Game)
-            .Model("Cave/MainCave")
+            .ModelTBN("Cave/MainCave")
             // .Model("SmoothCube")
             .Material(new  mat_cliffStone())
             .Position(0f, 0, 0f)
             .Build();
 
         CavePillar = new GameObjectBuilder(Game)
-            .Model("Cave/CavePillar")
+            .ModelTBN("Cave/CavePillar")
             .Material(new mat_cliffStone())
             .Position(0, 0f, 0f)
             .Build();
@@ -61,7 +61,7 @@ public class CaveScene : World
 
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/BigRock")
+                .ModelTBN("Cave/BigRock")
                 .Material(new mat_BigRock())
                 .Position(-8.21f, -0.927f, -0.021f)
                 .RotationDegrees(8.5f, 68.75f, -68.75f)
@@ -70,7 +70,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/BigRock")
+                .ModelTBN("Cave/BigRock")
                 .Material(new mat_BigRock())
                 .Position(2.21f, -0.955f, -8.229f)
                 .RotationDegrees(-0.0f, 252.101f, 0.0f)
@@ -79,7 +79,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/BigRock")
+                .ModelTBN("Cave/BigRock")
                 .Material(new mat_BigRock())
                 .Position(-1.32f, -0.499f, -7.663f)
                 .RotationDegrees(17.188f, 154.698f, 0.0f)
@@ -88,7 +88,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/GroundRock001")
+                .ModelTBN("Cave/GroundRock001")
                 .Material(new mat_GroundRock())
                 .Position(0.07f, -0.23f, -6.18f)
                 .RotationDegrees(22.91f, 263.56f, 34.377f)
@@ -115,7 +115,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/GroundRock003")
+                .ModelTBN("Cave/GroundRock003")
                 .Material(new mat_GroundRock())
                 .Position(-4.09f, -0.80f, 5.21f)
                 .RotationDegrees(12.6f, -5.72f, 0.0f)
@@ -124,7 +124,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/GroundRock006")
+                .ModelTBN("Cave/GroundRock006")
                 .Material(new mat_GroundRock())
                 .Position(5.07f, -0.69f, 3.22f)
                 .RotationDegrees(0.0f, -162.14f, 0.0f)
@@ -133,7 +133,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/BigRock")
+                .ModelTBN("Cave/BigRock")
                 .Material(new mat_BigRock())
                 .Position(6.75f, -0.97f, 2.25f)
                 .RotationDegrees(5.72f, -309.39f, 0.0f)
@@ -142,7 +142,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/LightStone")
+                .ModelTBN("Cave/LightStone")
                 .Material(new mat_lightStone())
                 .Position(-5.40f, -0.97f, 1.68f)
                 .RotationDegrees(-57.29f, 108.86f, 0.0f)
@@ -160,7 +160,7 @@ public class CaveScene : World
         
         GameObjects.Add(
             new GameObjectBuilder(Game)
-                .Model("Cave/LightStone")
+                .ModelTBN("Cave/LightStone")
                 .Material(new mat_lightStone())
                 .Position(-5.44f, -1.11f, 2.11f)
                 .RotationDegrees(-34.37f, 61.30f, 0.0f)
@@ -169,8 +169,8 @@ public class CaveScene : World
         
         GameObject mirrorSphere =
             new GameObjectBuilder(Game)
-                .Model("mask")
-                .Material(new mat_chrome())
+                .ModelTBN("mask")
+                .Material(new mat_mirror())
                 .Position(0, 0, 0)
                 .Scale(2,2,2)
                 .Build();

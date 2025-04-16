@@ -30,9 +30,6 @@ void main()
     // Add bloom after tone mapping
     vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
 
-    // Gamma correction to convert to display color space
-    color = pow(color, vec3(1.0 / gamma));
-
     // Add Volumetric light after bloom
     vec3 fog = texture(volumetric, texCoord).rgb;
     fog *= 2.0; // boost volumetric visibility for debug

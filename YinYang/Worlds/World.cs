@@ -31,6 +31,7 @@ namespace YinYang.Worlds
         private CompositePass compositePass;
         private BloomSettings bloomSettings = new();
         private CubeReflectionRenderPass cubeReflectionRenderPass;
+        private float curTime;
 
         private bool bloomLinked = false;
         
@@ -252,6 +253,7 @@ namespace YinYang.Worlds
         {
             objectManager.Update(args);
             cameraManager.Update(args);
+            curTime += (float)args.Time;
         }
 
         /// <summary>
@@ -270,7 +272,8 @@ namespace YinYang.Worlds
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode,
                 BloomSettings = bloomSettings,
-                Reflection = reflectionManager
+                Reflection = reflectionManager,
+                Time = curTime
             };
             
             renderPipeline.RenderAll(context, objectManager);

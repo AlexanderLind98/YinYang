@@ -14,6 +14,7 @@ struct WaterMaterial
 };
 
 uniform samplerCube environmentCubemap;
+uniform float time;
 uniform vec3 viewPos;
 uniform WaterMaterial waterMat;
 
@@ -23,7 +24,11 @@ void main()
 {
     vec3 finalColor;
 
-    vec3 tangentNormal = texture(waterMat.normTex, texCoord).rgb * 2.0 - 1.0;
+    vec2 scrollUV = texCoord + vec2(time * 0.05, time * 0.03); // tweak speed and direction
+    vec3 tangentNormal1 = texture(waterMat.normTex, texCoord + time * vec2(0.05, 0.03)).rgb;
+    vec3 tangentNormal2 = texture(waterMat.normTex, texCoord - time * vec2(0.03, 0.05)).rgb;
+    
+    vec3 combinedNormal = normalize((tangentNormal1 + tangentNormal2) * 0.5 * 2.0 - 1.0);
 
     vec3 Q1 = dFdx(FragPos);
     vec3 Q2 = dFdy(FragPos);
@@ -35,7 +40,7 @@ void main()
     vec3 B = normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
-    vec3 norm = normalize(TBN * tangentNormal);
+    vec3 norm = normalize(TBN * combinedNormal);
     
     vec3 viewDir = normalize(FragPos - viewPos);
     vec3 reflectDir = reflect(viewDir, norm);

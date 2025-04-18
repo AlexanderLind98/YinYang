@@ -15,7 +15,7 @@ public class mat_Sand : Material
         uniforms.Add("material.specTex", new Texture("Textures/Sand_Spec.jpg"));
         uniforms.Add("material.normTex", new Texture("Textures/Sand_Norm.jpg"));
         uniforms.Add("material.ambient", new Vector3(0.2f));
-        uniforms.Add("material.diffuse", new Vector3(0.5f, 0.5f, 0.25f));
+        uniforms.Add("material.diffuse", new Vector3(1.0f, 1.0f, 1.0f));
         uniforms.Add("material.specular", new Vector3(0.7f));
         uniforms.Add("material.shininess", 10.0f);
 

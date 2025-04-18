@@ -53,6 +53,7 @@ namespace YinYang.Rendering
             Material.SetUniform("normalMatrix", Matrix4.Invert(model));
             Material.SetUniform("viewPos", context.Camera.Position);
             Material.SetUniform("debugMode", context.DebugMode);
+            Material.SetUniform("time", context.Time);
 
             if (Material.UsesLighting)
                 Material.PrepareLighting(context);

@@ -17,7 +17,7 @@ public class mat_BigMask : Material
         uniforms.Add("material.ambient", new Vector3(0.2f));
         uniforms.Add("material.diffuse", new Vector3(0.2f));
         uniforms.Add("material.specular", new Vector3(0.7f));
-        uniforms.Add("material.shininess", 10.0f);
+        uniforms.Add("material.shininess", 75.0f);
 
         UpdateUniforms();
     }

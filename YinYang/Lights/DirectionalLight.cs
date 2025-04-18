@@ -35,7 +35,7 @@ public class DirectionalLight : Light
             .Model("Sphere")
             .Material(new mat_glow())
             .Position(0, 0, 0)
-            .Scale(0.1f, 0.1f, 0.1f)
+            .Scale(1.0f, 1.0f, 1.0f)
             .Build();
 
         Visualizer.Renderer.RenderInDepthPass = false;

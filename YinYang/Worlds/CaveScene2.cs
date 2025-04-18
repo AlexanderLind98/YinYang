@@ -19,8 +19,10 @@ public class CaveScene2 : World
         WorldName = game.Title + " Cave Scene";
 
         SkyColor = Color4.CornflowerBlue;
-        DirectionalLight.SetRotationInDegrees(7.33f, -39.12f, -576.19f);
-        DirectionalLight.LightColor = new Vector3(1, 1, 0.5f);
+        DirectionalLight.SetRotationInDegrees(17.12f, -13.68f, -9.05f);
+        DirectionalLight.Transform.Position = new Vector3(-14.29f, 17.64f, -47.01f);
+        DirectionalLight.LightColor = new Vector3(5, 5, 2.5f);
+        DirectionalLight.UpdateVisualizer(this);
         // lightingManager.Sun.ToggleLight();
         Editor = new EditorTool(this);
     }
@@ -91,7 +93,7 @@ public class CaveScene2 : World
         GameObjects.Add(
             new GameObjectBuilder(Game)
                 .ModelTBN("Cave/Water_Plane")
-                .Material(new mat_cliffStone())
+                .Material(new mat_water())
                 .Position(0f, 0f, 0f)
                 .Build());
         
@@ -446,6 +448,42 @@ public class CaveScene2 : World
         {
             lightingManager.Sun.ToggleLight();
         }
+
+        /*if (input.IsKeyDown(Keys.KeyPad4))
+        {
+            DirectionalLight.Transform.Rotation -= Vector3.UnitX;
+        }
+        
+        if (input.IsKeyDown(Keys.KeyPad6))
+        {
+            DirectionalLight.Transform.Rotation += Vector3.UnitX;
+        }
+        
+        if (input.IsKeyDown(Keys.KeyPad8))
+        {
+            DirectionalLight.Transform.Rotation -= Vector3.UnitY;
+        }
+        
+        if (input.IsKeyDown(Keys.KeyPad2))
+        {
+            DirectionalLight.Transform.Rotation += Vector3.UnitY;
+        }
+        
+        if (input.IsKeyDown(Keys.KeyPad7))
+        {
+            DirectionalLight.Transform.Rotation -= Vector3.UnitZ;
+        }
+        
+        if (input.IsKeyDown(Keys.KeyPad9))
+        {
+            DirectionalLight.Transform.Rotation += Vector3.UnitZ;
+        }*/
+        
+        // if (input.IsKeyDown(Keys.KeyPadEnter))
+        // {
+        //     Console.WriteLine(DirectionalLight.Transform.Position);
+        //     Console.WriteLine(DirectionalLight.Transform.Rotation);
+        // }
 
         Editor?.Update();
     }

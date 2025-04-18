@@ -181,6 +181,7 @@ namespace YinYang.Materials
                 "cubeMap"          => 3,
                 "material.normTex" => 4,
                 "environmentCubemap" => 5,
+                "waterMat.normTex" =>6,
                 _ => -1 // unknown name → error
             };
         }

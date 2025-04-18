@@ -11,7 +11,7 @@ public class mat_sun : Material
 {
     public mat_sun() : base("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
     {
-        uniforms.Add("color", new Vector3(1.0f, 1.0f, 0.5f));
+        uniforms.Add("color", new Vector3(25.0f, 20.0f, 5.0f));
         UpdateUniforms();
     }
 

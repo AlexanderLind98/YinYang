@@ -14,6 +14,8 @@ public class CaveScene2 : World
     private GameObject lightStone;
     private GameObject mask;
 
+    private Vector3 sunPos = new(58.65f, 55.80f, 5.0f);
+
     public CaveScene2(Game game) : base(game)
     {
         WorldName = game.Title + " Cave Scene";
@@ -42,6 +44,9 @@ public class CaveScene2 : World
     protected override void ConstructWorld()
     {
         base.ConstructWorld();
+        
+        DirectionalLight.Visualizer.Transform.Position = sunPos;
+        DirectionalLight.Visualizer.Transform.Scale = new Vector3(2.5f);
         
         cave = new GameObjectBuilder(Game)
             .ModelTBN("Cave/CaveNew")
@@ -423,6 +428,8 @@ public class CaveScene2 : World
         
         PointLights[0].SetPosition(MainCamera.Position.X, MainCamera.Position.Y, MainCamera.Position.Z);
         // reflectionManager.probePositions[0] = mask.Transform.Position;
+        
+        DirectionalLight.Visualizer.Transform.Position = sunPos + MainCamera.Position;
         
         if (input.IsKeyPressed(Keys.D1))
         {

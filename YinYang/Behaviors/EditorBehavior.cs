@@ -128,5 +128,12 @@ public class EditorBehavior : Behaviour
         {
             gameObject.Transform.Scale -= (scaleFactor * speed);
         }
+
+        if (keyState.IsKeyPressed(Keys.Enter))
+        {
+            Console.WriteLine("P" + gameObject.Transform.Position);
+            Console.WriteLine("R" + gameObject.Transform.Rotation);
+            Console.WriteLine("S" + gameObject.Transform.Scale);
+        }
     }
 }

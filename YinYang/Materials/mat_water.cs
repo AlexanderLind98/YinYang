@@ -13,6 +13,7 @@ public class mat_water : Material
         //uniform samplerCube environmentCubemap;
         uniforms.Add("waterMat.normTex", new Texture("Textures/Water_Normal_RFlip.png"));
         uniforms.Add("waterMat.color", new Vector3(0.5f, 0.8f, 1.0f));
+        uniforms.Add("waterMat.tintColor", new Vector3(0.2f, 0.8f, 0.5f));
         uniforms.Add("time", 0.1f);
 
         UpdateUniforms();

@@ -47,6 +47,17 @@ public static class GameObjectFactory
         //cubeObject.AddComponent<MoveObjectBehaviour>();
         return cubeObject;
     }
+    
+    public static (GameObject, Mesh) CreateTBNObjModel(Game gameInstance, string modelName)
+    {
+        var loader = new OBJLoader();
+        loader.Load($"Models/{modelName}.obj");
+        loader.ComputeTangentSpace();
+        var mesh = loader.BuildMesh();
+
+        var go = new GameObject(gameInstance);
+        return (go, mesh);
+    }
 
     /// <summary>
     /// Loads a 3D model from an OBJ file, computes smooth normals for lighting,
@@ -60,7 +71,7 @@ public static class GameObjectFactory
         // Load the model data from the OBJ file
         var objLoader = new OBJLoader();
         objLoader.Load($"Models/{modelName}.obj");
-
+    
         // Extract relevant geometry data into a model structure
         var modelData = new Model
         {
@@ -70,19 +81,19 @@ public static class GameObjectFactory
             TextureIndices = objLoader.TextureIndices,
             NormalIndices = objLoader.NormalIndices
         };
-
+    
         // Step 1: Calculate smooth normals per vertex
         var smoothNormals = ComputeSmoothNormals(modelData);
-
+    
         // Step 2: Build a final vertex buffer and index list
         var (finalVertexData, finalIndices) = BuildVertexBuffer(modelData, smoothNormals);
-
+    
         // Create a mesh using the packed vertex data (8 floats per vertex)
         Mesh mesh = new Mesh(finalVertexData.ToArray(), finalIndices.ToArray(), 8);
-
+    
         // Create a GameObject that can hold this mesh
         GameObject modelObject = new GameObject(gameInstance);
-
+    
         // Return the GameObject and Mesh as a tuple
         return (modelObject, mesh);
     }
@@ -113,6 +124,16 @@ public static class GameObjectFactory
         Mesh mesh = new Mesh(finalVertexData.ToArray(), finalIndices.ToArray(), 8);
 
         // Return the GameObject and Mesh as a tuple
+        return mesh;
+    }
+
+    public static Mesh CreateTBNModel(string modelName)
+    {
+        var loader = new OBJLoader();
+        loader.Load($"Models/{modelName}.obj");
+        loader.ComputeTangentSpace();
+        var mesh = loader.BuildMesh();
+        
         return mesh;
     }
 

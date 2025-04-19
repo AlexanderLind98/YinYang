@@ -18,12 +18,25 @@ namespace YinYang.Materials
 
         /// <summary>Indicates whether this material uses scene lighting.</summary>
         public virtual bool UsesLighting => true;
+        public virtual bool IsReflective => false;
 
         /// <summary>
         /// Called only if UsesLighting is true.
         /// Materials can override to push lighting-specific uniforms.
         /// </summary>
         public virtual void PrepareLighting(RenderContext context) { }
+        
+        public void SetupReflections(RenderContext context)
+        {
+            if(!uniforms.ContainsKey("environmentCubemap"))
+            {
+                uniforms.Add("environmentCubemap", context.World.reflectionCubeMap);
+            }
+            else
+            {
+                SetUniform("environmentCubemap", context.World.reflectionCubeMap);   
+            }
+        }
 
         
         public void UpdateUniforms()
@@ -167,6 +180,7 @@ namespace YinYang.Materials
                 "shadowMap"        => 2,
                 "cubeMap"          => 3,
                 "material.normTex" => 4,
+                "environmentCubemap" => 5,
                 _ => -1 // unknown name → error
             };
         }

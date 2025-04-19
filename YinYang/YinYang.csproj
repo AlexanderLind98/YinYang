@@ -197,6 +197,21 @@
       <None Update="Shaders\Debug\shadowDebugQuad.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Shaders\Reflection\ReflectCapture.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Reflection\ReflectCapture.geom">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\Reflection\ReflectCapture.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\ReflectiveGeneric.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Models\Mask.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="Shaders\Particles\computeMagicParticles.comp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

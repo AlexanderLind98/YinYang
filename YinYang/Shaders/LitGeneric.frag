@@ -59,6 +59,7 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 texCoord;
 in vec4 FragPosLightSpace;
+in mat3 TBN;
 
 //Outputs
 layout(location = 0) out vec4 FragColor;
@@ -90,7 +91,7 @@ uniform float bloomThresholdMax;
 
 
 //Prototypes / definitions
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, int index);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 
@@ -119,14 +120,11 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     float closestDepth = 0.0f;
     float viewDistance = length(viewPos - fragPos);
     float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
-//    float diskRadius = 25.0;
     for(int i = 0; i < samples; ++i)
     {
         closestDepth = texture(cubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r * far_plane;   // undo mapping [0;1]
         if(currentDepth - bias > closestDepth)
             shadow += 1.0;
-//        shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-//        shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
     }
     shadow /= float(samples);
 
@@ -137,7 +135,7 @@ float PointShadowCalculation(vec3 fragPos, vec3 lightPos)
     return shadow;
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, int index)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     
@@ -159,9 +157,15 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     diffuse  *= attenuation;
     specular *= attenuation;
     
-    float shadow = PointShadowCalculation(fragPos, light.position);
-    
-    return (ambient + (1.0 - shadow) * (diffuse + specular));
+    if(index == 0)
+    {
+        float shadow = PointShadowCalculation(fragPos, light.position);
+        return (ambient + (1.0 - shadow) * (diffuse + specular));
+    }
+    else
+    {
+        return BlinnPhongResult(ambient, diffuse, specular);
+    }
 
 //    return BlinnPhongResult(ambient, diffuse, specular);
 }
@@ -222,7 +226,7 @@ void main()
     norm = texture(material.normTex, texCoord).rgb;
     // transform normal vector to range [-1,1]
     norm = norm * 2.0 - 1.0;
-    norm = normalize(Normal * norm);
+    norm = normalize(TBN * norm);
 
     vec3 result = vec3(0);
 
@@ -232,7 +236,7 @@ void main()
     {
         for (int i = 0; i < numPointLights; i++)
         {
-            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir, i);
         }
     }
 

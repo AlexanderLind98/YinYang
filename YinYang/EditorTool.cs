@@ -20,7 +20,7 @@ public class EditorTool
     private int currentModel = 0;
     private List<String> modelNames = new List<String>()
     {
-        "SmoothCube", "Sphere", "Monkey", "Cave/LightStone", "Cave/BigRock", "Cave/GroundRock001",
+        "SmoothCube", "Sphere", "Monkey", "Mask", "Cave/LightStone", "Cave/BigRock", "Cave/GroundRock001",
         "Cave/GroundRock002", "Cave/GroundRock003", "Cave/GroundRock004", "Cave/GroundRock005", "Cave/GroundRock006"
     };
     private int currentMaterial = 0;
@@ -50,14 +50,14 @@ public class EditorTool
             spawnPosition = world.MainCamera.Position + (world.MainCamera.Front * 5); //Spawn in front of camera
             
             currentGameObject = new GameObjectBuilder(world.Game)
-                .Model("SmoothCube")
+                .ModelTBN("SmoothCube")
                 .Material(materials[currentMaterial])
                 .Position(spawnPosition.X, spawnPosition.Y, spawnPosition.Z)
                 .Behavior<EditorBehavior>()
                 .Build();
             world.GameObjects.Add(currentGameObject);
             
-            currentGameObject.Renderer.Mesh = GameObjectFactory.CreateModel(modelNames[currentModel]);
+            currentGameObject.Renderer.Mesh = GameObjectFactory.CreateTBNModel(modelNames[currentModel]);
         }
 
         //Destroy object
@@ -111,7 +111,7 @@ public class EditorTool
         if(currentModel >= modelNames.Count)
             currentModel = 0;
         
-        currentGameObject.Renderer.Mesh = GameObjectFactory.CreateModel(modelNames[currentModel]);
+        currentGameObject.Renderer.Mesh = GameObjectFactory.CreateTBNModel(modelNames[currentModel]);
     }
 
     private void PreviousModel()
@@ -123,7 +123,7 @@ public class EditorTool
         if(currentModel < 0)
             currentModel = modelNames.Count - 1;
         
-        currentGameObject.Renderer.Mesh = GameObjectFactory.CreateModel(modelNames[currentModel]);
+        currentGameObject.Renderer.Mesh = GameObjectFactory.CreateTBNModel(modelNames[currentModel]);
     }
 
     /*private void NextMaterial()

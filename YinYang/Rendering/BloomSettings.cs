@@ -7,10 +7,10 @@ namespace YinYang.Rendering;
 public class BloomSettings
 {
     /// <summary>HDR exposure for tone mapping (affects brightness of the final image).</summary>
-    public float Exposure = 0.1f;
+    public float Exposure = 1.0f;
 
     /// <summary>How much bloom to apply when compositing (0 = none, 1 = full).</summary>
-    public float BloomStrength = 0.1f;
+    public float BloomStrength = 0.07f;
 
     /// <summary>Minimum luminance for a pixel to start contributing to bloom.</summary>
     public float BloomThresholdMin = 1.0f;

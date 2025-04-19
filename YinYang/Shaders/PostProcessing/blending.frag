@@ -1,42 +1,39 @@
 // blending.frag
 #version 460 core
+
 out vec4 FragColor;
+in  vec2 texCoord;
 
-in vec2 texCoord;
-
-const float gamma = 2.2;
-
-uniform bool bloomEnabled;
+// Scene + Bloom
+uniform bool  bloomEnabled;
 uniform sampler2D scene;
 uniform sampler2D bloomBlur;
 uniform float exposure;
 uniform float bloomStrength;
 
-// Volumetric lighting texture
-uniform int volumetricEnabled;
+// Volumetric lighting
+uniform int   volumetricEnabled;
 uniform sampler2D volumetric;
+uniform vec3  shaftColor;
 
 void main()
 {
-    // Sample scene color (HDR)
-    vec3 hdr = texture(scene, texCoord).rgb;
+    vec3 hdrScene = texture(scene, texCoord).rgb;
+    vec3 hdrBloom = bloomEnabled
+        ? texture(bloomBlur, texCoord).rgb * bloomStrength
+        : vec3(0.0);
 
-    // Tone-map HDR color
-    vec3 toneMapped = vec3(1.0) - exp(-hdr * exposure);
+    vec3 fogTex   = texture(volumetric, texCoord).rgb;
+    float maskVal = fogTex.r;                
+    const float maskThreshold    = 0.001;    
+    maskVal = max(0.0, maskVal - maskThreshold);
 
-    // Sample bloom texture (already LDR)
-    vec3 bloom = texture(bloomBlur, texCoord).rgb;
+    const float volumetricWeight = 0.005;    
+    vec3 hdrFog = maskVal * volumetricWeight * shaftColor;
 
-    // Add bloom after tone mapping
-    vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
+    vec3 hdrCombined = hdrScene + hdrBloom + hdrFog;
 
-    // Add Volumetric light after bloom
-    vec3 fog = texture(volumetric, texCoord).rgb;
-    fog *= 2.0; // boost volumetric visibility for debug
-    if (volumetricEnabled == 1)
-    color += fog;
+    vec3 toneMapped = vec3(1.0) - exp(-hdrCombined * exposure);
 
-
-    // Final color output
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(toneMapped, 1.0);
 }

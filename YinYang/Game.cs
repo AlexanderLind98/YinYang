@@ -13,9 +13,9 @@ namespace YinYang
     {
         public readonly World currentWorld;
         public int DebugMode { get; set; } = 0;
-        public bool showSceneTexture = false;
-        public bool showBloomTexture = false;
-        public bool showVolumetricTexture = false;
+        public bool ShowSceneTexture = false;
+        public bool ShowBloomTexture = false;
+        public bool ShowVolumetricTexture = false;
 
         
 
@@ -86,20 +86,20 @@ namespace YinYang
             
             if (input.IsKeyPressed(Keys.D6))
             {
-                showSceneTexture = !showSceneTexture;
-                Console.WriteLine("SceneColorTexture debug: " + showSceneTexture);
+                ShowSceneTexture = !ShowSceneTexture;
+                Console.WriteLine("SceneColorTexture debug: " + ShowSceneTexture);
             }
 
             if (input.IsKeyPressed(Keys.D7))
             {
-                showBloomTexture = !showBloomTexture;
-                Console.WriteLine("BrightColorTexture debug: " + showBloomTexture);
+                ShowBloomTexture = !ShowBloomTexture;
+                Console.WriteLine("BrightColorTexture debug: " + ShowBloomTexture);
             }
             
             if (input.IsKeyPressed(Keys.D8))
             {
-                showVolumetricTexture = !showVolumetricTexture;
-                Console.WriteLine("VolumetricTexture debug: " + showVolumetricTexture);
+                ShowVolumetricTexture = !ShowVolumetricTexture;
+                Console.WriteLine("VolumetricTexture debug: " + ShowVolumetricTexture);
             }
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";

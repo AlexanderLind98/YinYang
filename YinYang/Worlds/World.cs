@@ -332,13 +332,13 @@ namespace YinYang.Worlds
             // Draw MRT debug textures 
             float scale = 0.25f;
 
-            if (Game.showSceneTexture && scenePass.SceneColorTexture != 0)
+            if (Game.ShowSceneTexture && scenePass.SceneColorTexture != 0)
             {
                 // Nederst højre hjørne
                 DrawDebugTexture(scenePass.SceneColorTexture, new Vector2(1.0f - scale, 0.0f), scale);
             }
 
-            if (Game.showBloomTexture && scenePass.BrightColorTexture != 0)
+            if (Game.ShowBloomTexture && scenePass.BrightColorTexture != 0)
             {
                 // Lige ovenover scene texture 
                 //DrawDebugTexture(scenePass.BrightColorTexture, new Vector2(1.0f - scale, scale), scale);
@@ -349,7 +349,7 @@ namespace YinYang.Worlds
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
             
-            if (Game.showVolumetricTexture && volumetricLightPass != null && volumetricLightPass.VolumetricTexture != 0)
+            if (Game.ShowVolumetricTexture && volumetricLightPass != null && volumetricLightPass.VolumetricTexture != 0)
             {
                 DrawDebugTexture(volumetricLightPass.VolumetricTexture, new Vector2(0.0f, scale * 1), scale);
             }

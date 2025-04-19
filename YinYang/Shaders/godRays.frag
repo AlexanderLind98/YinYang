@@ -14,20 +14,27 @@ const float STEPCOUNT = 0.8;
 const float EXPOSURE = 0.25;
 const float WEIGHT = 0.025;
 
+float Rand(vec2 co)
+{
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main()
 {
     vec2 fragCoord = texCoord;
     vec2 deltaTexCoord = fragCoord - lightPos;
     deltaTexCoord *= 1.0 / float(SAMPLES) * STEPCOUNT;
 
-    vec2 texCoord = fragCoord;
-    float illuminationDecay = 1.0;
+    float offset = Rand(fragCoord);
+    vec2 sampleCoord = fragCoord - deltaTexCoord * offset;
 
+    float illuminationDecay = 1.0;
     vec3 color = vec3(0.0);
+
     for (int i = 0; i < SAMPLES; ++i)
     {
-        texCoord -= deltaTexCoord;
-        vec3 texSample = texture(sceneTex, texCoord).rgb;
+        sampleCoord -= deltaTexCoord;
+        vec3 texSample = texture(sceneTex, sampleCoord).rgb;
 
         texSample *= illuminationDecay * WEIGHT;
         color += texSample;

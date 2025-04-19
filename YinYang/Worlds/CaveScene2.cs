@@ -1,6 +1,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
+using YinYang.Behaviors.CollisionEvents;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
@@ -13,19 +14,23 @@ public class CaveScene2 : World
     private GameObject CavePillar;
     private GameObject lightStone;
     private GameObject mask;
+    private GameObject collider;
 
     private Vector3 sunPos = new(58.65f, 55.80f, 5.0f);
 
     public CaveScene2(Game game) : base(game)
     {
         WorldName = game.Title + " Cave Scene";
-
-        SkyColor = Color4.CornflowerBlue;
+        
         DirectionalLight.SetRotationInDegrees(17.12f, -13.68f, -9.05f);
+        // DirectionalLight.LightColor = new Vector3(5, 5, 2.5f);
+        SunColor = new Vector3(0);
+        // DirectionalLight.UpdateDefaultColor();
+        lightingManager.Sun.ToggleLight();
+
+        SkyColor = Color4.Black;
         DirectionalLight.Transform.Position = new Vector3(-14.29f, 17.64f, -47.01f);
-        DirectionalLight.LightColor = new Vector3(5, 5, 2.5f);
-        DirectionalLight.UpdateVisualizer(this);
-        // lightingManager.Sun.ToggleLight();
+        // DirectionalLight.UpdateVisualizer(this);
         Editor = new EditorTool(this);
     }
 
@@ -398,10 +403,15 @@ public class CaveScene2 : World
                 .Scale(2,2,2)
                 .Build();
 
+        collider = new GameObject(Game);
+        collider.Transform.Position = new Vector3(-30, 5.18f, -16f);
+        collider.AddComponent<DistCollider>();
+
         GameObjects.Add(mask);
         GameObjects.Add(cave);
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);
+        GameObjects.Add(collider);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
@@ -451,45 +461,9 @@ public class CaveScene2 : World
             Game.DebugMode = 0; // Full lighting
         }
 
-        if (input.IsKeyPressed(Keys.R))
-        {
-            lightingManager.Sun.ToggleLight();
-        }
-
-        /*if (input.IsKeyDown(Keys.KeyPad4))
-        {
-            DirectionalLight.Transform.Rotation -= Vector3.UnitX;
-        }
-        
-        if (input.IsKeyDown(Keys.KeyPad6))
-        {
-            DirectionalLight.Transform.Rotation += Vector3.UnitX;
-        }
-        
-        if (input.IsKeyDown(Keys.KeyPad8))
-        {
-            DirectionalLight.Transform.Rotation -= Vector3.UnitY;
-        }
-        
-        if (input.IsKeyDown(Keys.KeyPad2))
-        {
-            DirectionalLight.Transform.Rotation += Vector3.UnitY;
-        }
-        
-        if (input.IsKeyDown(Keys.KeyPad7))
-        {
-            DirectionalLight.Transform.Rotation -= Vector3.UnitZ;
-        }
-        
-        if (input.IsKeyDown(Keys.KeyPad9))
-        {
-            DirectionalLight.Transform.Rotation += Vector3.UnitZ;
-        }*/
-        
-        // if (input.IsKeyDown(Keys.KeyPadEnter))
+        // if (input.IsKeyPressed(Keys.R))
         // {
-        //     Console.WriteLine(DirectionalLight.Transform.Position);
-        //     Console.WriteLine(DirectionalLight.Transform.Rotation);
+        //     lightingManager.Sun.ToggleLight();
         // }
 
         Editor?.Update();

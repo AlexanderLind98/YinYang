@@ -29,6 +29,7 @@ namespace YinYang.Rendering
 
         public Mesh Mesh { get; set; }
         public bool RenderInDepthPass { get; set; } = true;
+        public bool RenderInScenePass { get; set; } = true;
 
         public Renderer(Material material, Mesh mesh)
         {

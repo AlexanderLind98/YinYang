@@ -59,6 +59,11 @@ public class DirectionalLight : Light
         if (Visualizer != null) Visualizer.Transform.Position = Transform.Position;
         return Transform.Position;
     }
+
+    public void UpdateDefaultColor()
+    {
+        DefaultColor = LightColor;
+    }
     
     /// <summary>
     /// Set the dir.light using degrees 

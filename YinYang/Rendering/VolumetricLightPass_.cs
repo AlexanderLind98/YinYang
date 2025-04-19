@@ -8,7 +8,7 @@ namespace YinYang.Rendering
     /// Compute shader-based volumetric lighting pass.
     /// Dispatches a raymarching shader that accumulates light scattering from the sun.
     /// </summary>
-    public class VolumetricLightPass : RenderPass
+    public class VolumetricLightPass_ : RenderPass
     {
         private Shader computeShader;
         private int volumetricTexture;
@@ -22,7 +22,7 @@ namespace YinYang.Rendering
         /// <summary>
         /// Initializes the compute shader and allocates the target texture.
         /// </summary>
-        public VolumetricLightPass(int screenWidth, int screenHeight)
+        public VolumetricLightPass_(int screenWidth, int screenHeight)
         {
             resolutionX = screenWidth;
             resolutionY = screenHeight;

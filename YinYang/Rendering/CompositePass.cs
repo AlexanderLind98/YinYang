@@ -49,6 +49,7 @@ namespace YinYang.Rendering
                 GL.ActiveTexture(TextureUnit.Texture2);
                 GL.BindTexture(TextureTarget.Texture2D, VolumetricTexture);
                 blendShader.SetInt("volumetric", 2);
+                blendShader.SetVector3("shaftColor", new Vector3(1.0f, 0.9f, 0.6f));
             }
             
             blendShader.SetFloat("exposure", context.BloomSettings.Exposure);

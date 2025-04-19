@@ -8,17 +8,17 @@ using YinYang.Materials;
 
 namespace YinYang.Worlds;
 
-public class SceneTestWorld : World
+public class GodRayTestWorld : World
 {
  
     private GameObject movingCube1;
 
-    public SceneTestWorld(Game game) : base(game)
+    public GodRayTestWorld(Game game) : base(game)
     {
         WorldName = game.Title + " Scene Test World";
 
         SkyColor = Color4.CornflowerBlue;
-        //lightingManager.Sun.ToggleLight();
+        lightingManager.Sun.ToggleLight();
     }
 
     public override string DebugLabel
@@ -46,9 +46,10 @@ public class SceneTestWorld : World
         
         // cubes i 3D grid
         int countX = 6;
-        int countY = 4;
+        int countY = 1;
         int countZ = 6;
         float spacing = 3.0f;
+        float verticalOffset = 5.0f;
 
         for (int x = -countX / 2; x < countX / 2; x++)
         {
@@ -59,8 +60,9 @@ public class SceneTestWorld : World
                     GameObjects.Add(new GameObjectBuilder(Game)
                         .Model("Cube")
                         .Material(new mat_concrete())
-                        .Position(x * spacing, y * spacing, z * spacing)
-                        .Build());
+                        .Position(x * spacing, y * spacing + verticalOffset, z * spacing)
+                        .Build()
+                    );
                 }
             }
         }
@@ -82,9 +84,9 @@ public class SceneTestWorld : World
         );
             
         
-        // var red = new PointLight(this, Color4.Red, 30f);
-        // PointLights[0].shadowType = Light.ShadowType.Dynamic;
-        // red.Transform.Position = new Vector3(3f, 3f, 1f);
+        var red = new PointLight(this, Color4.Red, 30f);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
+        red.Transform.Position = new Vector3(3f, 3f, 1f);
     }
 
     public override void HandleInput(KeyboardState input)

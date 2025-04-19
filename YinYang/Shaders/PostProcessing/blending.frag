@@ -15,6 +15,7 @@ uniform float bloomStrength;
 // Volumetric lighting texture
 uniform int volumetricEnabled;
 uniform sampler2D volumetric;
+uniform vec3 shaftColor;
 
 void main()
 {
@@ -32,9 +33,10 @@ void main()
 
     // Add Volumetric light after bloom
     vec3 fog = texture(volumetric, texCoord).rgb;
-    fog *= 2.0; // boost volumetric visibility for debug
+    
+    fog *= shaftColor;
     if (volumetricEnabled == 1)
-    color += fog;
+        color += fog;
 
 
     // Final color output

@@ -89,6 +89,10 @@ namespace YinYang.Materials
             {
                 shader.SetFloat(name, uniformFloat);
             }
+            else if (uniform is Vector2 uniformVec2)
+            {
+                shader.SetVector2(name, uniformVec2);
+            }
             else if (uniform is Vector3 uniformVec3)
             {
                 shader.SetVector3(name, uniformVec3);
@@ -175,13 +179,14 @@ namespace YinYang.Materials
         {
             return name switch
             {
-                "material.diffTex" => 0,
-                "material.specTex" => 1,
-                "shadowMap"        => 2,
-                "cubeMap"          => 3,
-                "material.normTex" => 4,
-                "environmentCubemap" => 5,
-                _ => -1 // unknown name → error
+                "material.diffTex"      => 0,
+                "material.specTex"      => 1,
+                "shadowMap"             => 2,
+                "cubeMap"               => 3,
+                "material.normTex"      => 4,
+                "environmentCubemap"    => 5,
+                "sceneTex"              => 6, 
+                _ => -1
             };
         }
     }

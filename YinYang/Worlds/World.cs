@@ -26,7 +26,7 @@ namespace YinYang.Worlds
 
 
         private SceneRenderPass scenePass;
-        private VolumetricLightPass volumetricLightPass;
+        private GodRayPass _godRayPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
         private BloomDownsamplePass _bloomDownsamplePass;
@@ -124,8 +124,8 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(scenePass);
             
             // Volumetric light pass (compute shader)
-            volumetricLightPass = new VolumetricLightPass(Game.Size.X, Game.Size.Y);
-            renderPipeline.AddPass(volumetricLightPass);
+            _godRayPass = new GodRayPass();
+            renderPipeline.AddPass(_godRayPass);
             
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
@@ -237,7 +237,7 @@ namespace YinYang.Worlds
         private void SetVolumetricEnabled(bool enabled)
         {
             volumetricEnabled = enabled;
-            volumetricLightPass.Enabled = enabled;
+            _godRayPass.Enabled = enabled;
             compositePass.SetVolumetricEnabled(enabled); // We'll add this next
             Console.WriteLine(enabled ? "Volumetric Light ENABLED" : "Volumetric Light DISABLED");
         }
@@ -314,6 +314,8 @@ namespace YinYang.Worlds
 
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
                 compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
+                compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
+
 
                 bloomLinked = true;
 
@@ -349,10 +351,12 @@ namespace YinYang.Worlds
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
             
-            if (Game.ShowVolumetricTexture && volumetricLightPass != null && volumetricLightPass.VolumetricTexture != 0)
+            if (Game.ShowVolumetricTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
             {
-                DrawDebugTexture(volumetricLightPass.VolumetricTexture, new Vector2(0.0f, scale * 1), scale);
+                DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
+                DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
             }
+
         }
 
         /// <summary>

@@ -6,60 +6,82 @@ using YinYang.Rendering;
 
 namespace YinYang.Particles
 {
+    /// <summary>
+    /// Base class for GPU-driven particle systems using OpenGL with clean buffer management.
+    /// </summary>
     public abstract class BaseParticleSystem : Behaviour
     {
         protected int particleCount;
         protected int ssboHandle;
         protected ComputeShader computeShader;
         protected Shader renderShader;
-        private int vao;
+        private int vaoHandle;
+        private int dummyVBO;
 
-        public BaseParticleSystem(GameObject gameObject, Game window, int count) 
+        public BaseParticleSystem(GameObject gameObject, Game window, int count)
             : base(gameObject, window)
         {
             particleCount = count;
             LoadShaders();
-            InitParticleBuffer();
+            InitializeBuffers();
             WarmupParticles();
-
-            // Create a VAO for the particle system
-            vao = GL.GenVertexArray();
-            GL.BindVertexArray(vao);
-            GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
-            GL.BindVertexArray(0);
+            InitializeVAO();
         }
 
         /// <summary>
-        /// Subclasses must fill the initial particle data here.
-        /// </summary>
-        protected abstract void PopulateInitialParticles(Span<byte> bufferData);
-
-        /// <summary>
-        /// Subclasses must load/compile their specific shaders here.
-        /// </summary>
-        protected abstract void LoadShaders();
-
-        /// <summary>
-        /// Returns the size in bytes of one particle.
+        /// Subclasses must provide the per-particle struct size.
         /// </summary>
         protected abstract int GetParticleSize();
 
         /// <summary>
-        /// Called each frame to update particle logic on GPU.
+        /// Subclasses must populate the particle data buffer with initial state.
         /// </summary>
-        public override void Update(FrameEventArgs args)
+        protected abstract void PopulateInitialParticles(Span<byte> bufferData);
+
+        /// <summary>
+        /// Subclasses must load their compute and render shaders.
+        /// </summary>
+        protected abstract void LoadShaders();
+
+        /// <summary>
+        /// Initializes the SSBO and fills it with initial particle data.
+        /// </summary>
+        private void InitializeBuffers()
         {
-            computeShader.Use();
-            computeShader.SetFloat("deltaTime", (float)args.Time);
-            computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position);
-            computeShader.BindSSBO(0, ssboHandle);
-            computeShader.Dispatch((particleCount + 255) / 256);
-            computeShader.Barrier();
-            
-            //DebugFirstParticle();
+            int totalSize = particleCount * GetParticleSize();
+            ssboHandle = GL.GenBuffer();
+
+            byte[] bufferData = new byte[totalSize];
+            PopulateInitialParticles(bufferData);
+
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ssboHandle);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, totalSize, bufferData, BufferUsageHint.DynamicDraw);
         }
-        
+
+        /// <summary>
+        /// Sets up a VAO for rendering the instanced particles.
+        /// </summary>
+        private void InitializeVAO()
+        {
+            vaoHandle = GL.GenVertexArray();
+            dummyVBO = GL.GenBuffer();
+
+            GL.BindVertexArray(vaoHandle);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, dummyVBO);
+
+            float[] dummyData = new float[3];
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * 3, dummyData, BufferUsageHint.StaticDraw);
+
+            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
+
+            GL.BindVertexArray(0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        /// <summary>
+        /// Runs a one-time compute shader dispatch to warm up particles.
+        /// </summary>
         private void WarmupParticles()
         {
             computeShader.Use();
@@ -70,36 +92,36 @@ namespace YinYang.Particles
         }
 
         /// <summary>
-        /// Draws all particles as instanced geometry.
+        /// Updates the particle state using the compute shader.
+        /// </summary>
+        public override void Update(FrameEventArgs args)
+        {
+            computeShader.Use();
+            computeShader.SetFloat("deltaTime", (float)args.Time);
+            computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position);
+           // Console.WriteLine("[PARTICLE DEBUG] Spawn origin = " + gameObject.Transform.Position);
+
+            computeShader.BindSSBO(0, ssboHandle);
+            computeShader.Dispatch((particleCount + 255) / 256);
+            computeShader.Barrier();
+        }
+
+        /// <summary>
+        /// Draws all particles as GL_POINTS using instancing.
         /// </summary>
         public virtual void DrawParticles(RenderContext context)
         {
             renderShader.Use();
+            computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position); 
             renderShader.SetMatrix("viewProj", context.ViewProjection);
-            renderShader.SetVector3("cameraPos", context.Camera.Position);
+
 
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ssboHandle);
-            GL.BindVertexArray(vao); 
+            GL.BindVertexArray(vaoHandle);
             GL.DrawArraysInstanced(PrimitiveType.Points, 0, 1, particleCount);
             GL.BindVertexArray(0);
         }
 
-        private void InitParticleBuffer()
-        {
-            int totalSize = GetParticleSize() * particleCount;
-            ssboHandle = GL.GenBuffer();
-
-            byte[] buffer = new byte[totalSize];
-            PopulateInitialParticles(buffer);
-
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ssboHandle);
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, totalSize, buffer, BufferUsageHint.DynamicDraw);
-        }
-        
-        public virtual void DebugFirstParticle()
-        {
-          
-        }
-
+        public virtual void DebugFirstParticle() { }
     }
 }

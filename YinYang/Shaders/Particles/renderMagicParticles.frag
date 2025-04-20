@@ -1,4 +1,4 @@
-// magic_render.frag
+// renderMagicParticles.frag
 #version 460 core
 
 in float lifetime;

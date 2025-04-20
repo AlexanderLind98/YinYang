@@ -33,6 +33,6 @@ void main()
     }
 
     lifetime = pos.w;
-    gl_Position = viewProj * vec4(pos.xyz, 1.0);
+    gl_Position = vec4(pos.xyz, 1.0) * viewProj;
     gl_PointSize = 6.0;
 }

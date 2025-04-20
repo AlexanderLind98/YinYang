@@ -189,6 +189,13 @@ public class Shader : IDisposable
         GL.UniformMatrix4(location, true, ref transform);
     }
     
+    public void SetMatrix(string name, Matrix4 transform, bool transpose)
+    {
+        int loc = GL.GetUniformLocation(Handle, name);
+        GL.UniformMatrix4(loc, transpose, ref transform);
+    }
+
+    
     /// <summary>
     /// Preprocesses a single shader file by resolving all <c>#include</c> directives recursively.
     /// This is the entry point and ensures each shader gets its own isolated include tracking.

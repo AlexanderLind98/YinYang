@@ -8,38 +8,41 @@ using YinYang.Rendering;
 
 namespace YinYang.Particles
 {
+    /// <summary>
+    /// A specific particle system with randomized circular emission and upward motion.
+    /// </summary>
     public class MagicParticleSystem : BaseParticleSystem
     {
-        public Random rng = new Random();
-        
-        public MagicParticleSystem(GameObject gameObject, Game window, int count) 
-            : base(gameObject, window, count) { }
+        private readonly Random rng = new Random();
 
-        // tell the compiler to lay out the struct in memory in the order we define it
-        [StructLayout(LayoutKind.Sequential)] private struct Particle
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Particle
         {
-            // xyz = position, w = lifetime
-            public Vector4 Position; 
-            
-            // xyz = unused, w = current angle
-            public Vector4 Velocity;  
+            public Vector4 Position;
+            public Vector4 Velocity;
         }
+
+        public MagicParticleSystem(GameObject gameObject, Game window, int count)
+            : base(gameObject, window, count) { }
 
         protected override int GetParticleSize() => Marshal.SizeOf<Particle>();
 
+        protected override void LoadShaders()
+        {
+            computeShader = new ComputeShader("Shaders/Particles/computeMagicParticles.comp");
+            renderShader = new Shader("Shaders/Particles/renderMagicParticles.vert", "Shaders/Particles/renderMagicParticles.frag");
+        }
+
         protected override void PopulateInitialParticles(Span<byte> bufferData)
         {
-            Vector3 spawnPos = gameObject.Transform.Position;
-
             for (int i = 0; i < particleCount; i++)
             {
-                float delay = (float)(rng.NextDouble() * 2.0); // 0 til 2 sekunders delay
+                float delay = (float)(rng.NextDouble() * 2.0);
+
                 var p = new Particle
                 {
-                    // pos, lifetime
-                    Position = new Vector4(0, 0, 0, delay),
-                    // op
-                    Velocity = new Vector4(0.0f, 0.5f, 0.0f, 0.0f) 
+                    Position = new Vector4(0f, 0f, 0f, delay),
+                    Velocity = new Vector4(0.0f, 0.5f, 0.0f, 0.0f)
                 };
 
                 int offset = i * GetParticleSize();
@@ -54,17 +57,9 @@ namespace YinYang.Particles
             if (ptr != IntPtr.Zero)
             {
                 Particle p = Marshal.PtrToStructure<Particle>(ptr);
-                Console.WriteLine($"[DEBUG] P0 position: {p.Position.X}, {p.Position.Y}, {p.Position.Z}");
-
+                Console.WriteLine($"[DEBUG] P0 Position: {p.Position.X}, {p.Position.Y}, {p.Position.Z}, lifetime: {p.Position.W}");
                 GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
             }
-        }
-
-
-        protected override void LoadShaders()
-        {
-            computeShader = new ComputeShader("Shaders/Particles/computeMagicParticles.comp");
-            renderShader = new Shader("Shaders/Particles/renderMagicParticles.vert", "Shaders/Particles/renderMagicParticles.frag");
         }
     }
 }

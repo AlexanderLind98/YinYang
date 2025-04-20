@@ -99,7 +99,6 @@ namespace YinYang.Particles
             computeShader.Use();
             computeShader.SetFloat("deltaTime", (float)args.Time);
             computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position);
-           // Console.WriteLine("[PARTICLE DEBUG] Spawn origin = " + gameObject.Transform.Position);
 
             computeShader.BindSSBO(0, ssboHandle);
             computeShader.Dispatch((particleCount + 255) / 256);
@@ -113,11 +112,23 @@ namespace YinYang.Particles
         {
             renderShader.Use();
             renderShader.SetMatrix("viewProj", context.ViewProjection);
+            renderShader.SetVector3("cameraPosition", context.Camera.Position);
+            renderShader.SetFloat("fadeDistance", 20.0f);
+
+            GL.Enable(EnableCap.ProgramPointSize);
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthMask(false);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ssboHandle);
             GL.BindVertexArray(vaoHandle);
             GL.DrawArraysInstanced(PrimitiveType.Points, 0, 1, particleCount);
             GL.BindVertexArray(0);
+
+            GL.DepthMask(true);
+            GL.Disable(EnableCap.Blend);
         }
 
 

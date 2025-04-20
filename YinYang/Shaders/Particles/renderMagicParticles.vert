@@ -1,7 +1,6 @@
 // renderMagicParticles.vert
 #version 460 core
 
-// not used
 layout(location = 0) in vec3 dummy;
 
 struct Particle 
@@ -16,15 +15,17 @@ layout(std430, binding = 0) buffer Particles
 };
 
 uniform mat4 viewProj;
+uniform vec3 cameraPosition;
+uniform float fadeDistance; 
 
 out float lifetime;
+out float distance;
 
 void main()
 {
     uint id = gl_InstanceID;
     vec4 pos = particles[id].position;
 
-    // EO; if dead on start, set to far away
     if (pos.w <= 0.0)
     {
         gl_Position = vec4(-1000.0, -1000.0, -1000.0, 1.0);
@@ -32,7 +33,14 @@ void main()
         return;
     }
 
+    float dist = length(pos.xyz - cameraPosition);
+    distance = dist;
+
+    float size = mix(8.0, 1.0, clamp(dist / fadeDistance, 0.0, 1.0));
+    gl_PointSize = size;
+
     lifetime = pos.w;
     gl_Position = vec4(pos.xyz, 1.0) * viewProj;
-    gl_PointSize = 6.0;
 }
+
+

@@ -394,6 +394,141 @@ public class CaveScene2 : World
                 .Scale(1.78f)
                 .Build());
         
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-56.61f, -7.57f, -45.20f)
+                .RotationDegrees(40.10f, -80.21f, 0f)
+                .Scale(5.54f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-57.40f, -9.39f, -51.38f)
+                .RotationDegrees(0f, 10.59f, 0f)
+                .Scale(10.59f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-51.37f, -8.62f, -35.14f)
+                .RotationDegrees(-28.64f, 126.05f, 0f)
+                .Scale(15.91f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-57.49f, -8.15f, -69.14f)
+                .RotationDegrees(11.45f, -103.13f, 17.18f)
+                .Scale(5.35f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-25.73f, -7.96f, -39.54f)
+                .RotationDegrees(22.91f, -11.45f, 11.45f)
+                .Scale(9f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-21.31f, -6.79f, -84.70f)
+                .RotationDegrees(-45.83f, 0f, 0f)
+                .Scale(10.73f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-61.82f, 11.03f, -72.88f)
+                .RotationDegrees(11.45f, -103.13f, 17.18f)
+                .Scale(5.35f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-60.32f, 10.47f, -42.91f)
+                .RotationDegrees(0f, 0f, -22.91f)
+                .Scale(7.43f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-26.83f, 5.46f, -30.63f)
+                .RotationDegrees(0f, 0f, 0f)
+                .Scale(2.97f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-44.83f, 6.28f, -29.81f)
+                .RotationDegrees(0f, 177.61f, 0f)
+                .Scale(7.06f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-0.74f, -6.46f, -52.06f)
+                .RotationDegrees(0f, 126.05f, 18.20f)
+                .Scale(18.20f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock02")
+                .Material(new mat_MossRock02())
+                .Position(-13.17f, -8.56f, -80.74f)
+                .RotationDegrees(0f, -74.48f, -80.74f)
+                .Scale(15.07f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-13.17f, -8.56f, -80.74f)
+                .RotationDegrees(0f, -74.48f, 0f)
+                .Scale(15.07f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-6.39f, -7.44f, -64.03f)
+                .RotationDegrees(0f, 103.13f, -64.06f)
+                .Scale(8.50f)
+                .Build());
+        
+        GameObjects.Add(
+            new GameObjectBuilder(Game)
+                .ModelTBN("Cave/MossRock01")
+                .Material(new mat_MossRock01())
+                .Position(-8.83f, -8.63f, -70.62f)
+                .RotationDegrees(0f, 0f, 0f)
+                .Scale(9.18f)
+                .Build());
+        
         mask =
             new GameObjectBuilder(Game)
                 .ModelTBN("mask")

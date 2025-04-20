@@ -21,7 +21,8 @@ public class EditorTool
     private List<String> modelNames = new List<String>()
     {
         "SmoothCube", "Sphere", "Monkey", "Mask", "Cave/LightStone", "Cave/BigRock", "Cave/GroundRock001",
-        "Cave/GroundRock002", "Cave/GroundRock003", "Cave/GroundRock004", "Cave/GroundRock005", "Cave/GroundRock006"
+        "Cave/GroundRock002", "Cave/GroundRock003", "Cave/GroundRock004", "Cave/GroundRock005", "Cave/GroundRock006",
+        "Cave/MossRock01", "Cave/MossRock02"
     };
     private int currentMaterial = 0;
     private List<Material> materials;

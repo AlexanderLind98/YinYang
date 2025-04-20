@@ -117,6 +117,9 @@ namespace YinYang.Worlds
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
             
+            cubeReflectionRenderPass = new CubeReflectionRenderPass();
+            renderPipeline.AddPass(cubeReflectionRenderPass);
+            
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
             _bloomMipChain.Init(Game.Size.X, Game.Size.Y, bloomSettings.MipLevels);
@@ -132,9 +135,6 @@ namespace YinYang.Worlds
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);
             renderPipeline.AddPass(compositePass);
-            
-            cubeReflectionRenderPass = new CubeReflectionRenderPass();
-            renderPipeline.AddPass(cubeReflectionRenderPass);
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace YinYang.Worlds
             
             if (debugOverlayEnabled)
             {
-                _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
+                _debugOverlay.Draw(reflectionCubeMap, new Vector2i(Game.Size.X, Game.Size.Y));
                 // DrawDebugTexture(depthMap.Handle, Game.Size);
             }
             

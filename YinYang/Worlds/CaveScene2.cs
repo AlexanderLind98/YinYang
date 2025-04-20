@@ -563,8 +563,9 @@ public class CaveScene2 : World
         
         new PointLight(this, Color4.Goldenrod, 0.2f);
         PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
-        
-        reflectionManager.AddProbe(mask.Transform.Position);
+
+        Vector3 maskReflectionLoc = mask.Transform.Position + (Vector3.UnitZ * 2.0f);
+        reflectionManager.AddProbe(maskReflectionLoc);
     }
 
     public override void HandleInput(KeyboardState input)

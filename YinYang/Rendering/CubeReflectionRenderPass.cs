@@ -42,7 +42,7 @@ namespace YinYang.Rendering
                 "Shaders/Reflection/ReflectCapture.geom");
             framebufferHandle = GL.GenFramebuffer();
             
-            //Assign handle
+            /*//Assign handle
             int textureHandle = GL.GenTexture();
             GL.BindTexture(TextureTarget.TextureCubeMap, textureHandle);
             
@@ -69,6 +69,54 @@ namespace YinYang.Rendering
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
             // GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, textureHandle, 0);
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            
+            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (status != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine($"[Framebuffer Error] Status: {status}");
+            }*/
+            
+            // Generate and bind cubemap texture
+            int textureHandle = GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureCubeMap, textureHandle);
+            for (int i = 0; i < 6; ++i)
+            {
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i,
+                    0,
+                    PixelInternalFormat.Rgba16f,
+                    reflectionResolution,
+                    reflectionResolution,
+                    0,
+                    PixelFormat.Rgba,
+                    PixelType.Float,
+                    IntPtr.Zero);
+            }
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+// Generate framebuffer
+            framebufferHandle = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
+
+// Create and attach depth buffer
+            int depthRenderbuffer = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthRenderbuffer);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent24, reflectionResolution, reflectionResolution);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthRenderbuffer);
+
+// Don't bind the cubemap to the FBO yet — it's done per-face during rendering
+
+// Check framebuffer status
+            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (status != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine($"[Framebuffer Error] Status: {status}");
+            }
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             

@@ -112,15 +112,14 @@ namespace YinYang.Particles
         public virtual void DrawParticles(RenderContext context)
         {
             renderShader.Use();
-            computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position); 
             renderShader.SetMatrix("viewProj", context.ViewProjection);
-
 
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ssboHandle);
             GL.BindVertexArray(vaoHandle);
             GL.DrawArraysInstanced(PrimitiveType.Points, 0, 1, particleCount);
             GL.BindVertexArray(0);
         }
+
 
         public virtual void DebugFirstParticle() { }
     }

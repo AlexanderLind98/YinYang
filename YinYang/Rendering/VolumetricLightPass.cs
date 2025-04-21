@@ -27,10 +27,8 @@ namespace YinYang.Rendering
             resolutionX = screenWidth;
             resolutionY = screenHeight;
 
-            // Load compute shader from file
             computeShader = new Shader("Shaders/volumetricLight.comp", ShaderType.ComputeShader);
 
-            // Create 2D floating-point texture for storing volumetric result
             volumetricTexture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, volumetricTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f,
@@ -42,58 +40,44 @@ namespace YinYang.Rendering
         /// <summary>
         /// Executes the volumetric light raymarching pass.
         /// </summary>
-        /// <param name="context">Rendering context containing camera, lighting, matrices, etc.</param>
-        /// <param name="objects">Scene object manager containing renderable objects.</param>
-        /// <returns>Returns the input light-space matrix unmodified.</returns>
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)
         {
             computeShader.Use();
 
-            // Bind the output image the compute shader will write to (binding = 0)
+            // Bind output image (binding = 0 in compute shader)
             GL.BindImageTexture(0, volumetricTexture, 0, false, 0, TextureAccess.WriteOnly, SizedInternalFormat.Rgba16f);
 
-            // Get view and projection matrices and combine to form world-space to clip-space transform
+            // Provide required matrix uniforms
             Matrix4 view = context.Camera.GetView();
             Matrix4 proj = context.Camera.GetProjection();
-            
             Matrix4 inverseViewProj = Matrix4.Invert(view * proj);
-            computeShader.SetMatrix("inverseViewProjection", inverseViewProj, true);
+            computeShader.SetMatrix("inverseViewProjection", inverseViewProj);
+            computeShader.SetMatrix("lightSpaceMatrix", context.LightSpaceMatrix);
 
-
-            computeShader.SetMatrix("viewProjection", context.Camera.GetViewProjection(), true); 
-            //computeShader.SetMatrix("inverseProjection", inverseProj, true);
-            computeShader.SetMatrix("view", view, true);
-
-            
-            // Set camera position in world space
+            // Set camera and lighting parameters
             computeShader.SetVector3("cameraPos", context.Camera.Position);
+            Vector3 sunDir = context.Lighting.Sun.GetDirectionFromDegrees(
+                context.Lighting.Sun.Transform.GetRotationInDegrees()
+            );
+            computeShader.SetVector3("lightDir", sunDir);
+            computeShader.SetVector3("lightColor", new Vector3(1.0f, 0.9f, 0.5f));
 
-            
-            Vector3 sunRotDegrees = context.World.DirectionalLight.Transform.GetRotationInDegrees();
-            Vector3 sunForward = context.World.DirectionalLight.GetDirectionFromDegrees(sunRotDegrees);
-            computeShader.SetVector3("lightDir", sunForward);
-
-            Vector3 GodRayColor = new(1.0f, 0.9f, 0.5f);
-            computeShader.SetVector3("lightColor", GodRayColor);
-            
-            //Console.WriteLine("[VolLight] sunDir = " + sunForward);
-
-            // Set raymarching and scattering parameters
-            computeShader.SetFloat("density", 0.04f);  // ,1
-            computeShader.SetFloat("scatteringStrength", 8.0f); //,2
+            // Raymarch parameters
+            computeShader.SetFloat("density", 0.04f);
+            computeShader.SetFloat("scatteringStrength", 8.0f);
             computeShader.SetInt("stepCount", 256);
             computeShader.SetFloat("nearPlane", 0.1f);
             computeShader.SetFloat("farPlane", 50.0f);
 
-            // Bind the depth map for occlusion testing in raymarching
+            // Bind depth map (used for visibility in light space)
             GL.ActiveTexture(TextureUnit.Texture0);
             context.World.depthMap.Use();
             computeShader.SetInt("depthMap", 0);
 
-            // Launch compute shader: 1 thread per 8x8 block of pixels
+            // Dispatch one thread group per 8x8 tile of pixels
             GL.DispatchCompute((resolutionX + 7) / 8, (resolutionY + 7) / 8, 1);
 
-            // Ensure the shader writes are visible before other passes use the texture
+            // Ensure writes are visible to subsequent passes
             GL.MemoryBarrier(MemoryBarrierFlags.ShaderImageAccessBarrierBit);
 
             return context.LightSpaceMatrix;

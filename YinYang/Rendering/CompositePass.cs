@@ -55,6 +55,7 @@ namespace YinYang.Rendering
             blendShader.SetFloat("exposure", context.BloomSettings.Exposure);
             blendShader.SetFloat("bloomStrength", context.BloomSettings.BloomStrength);
 
+            GL.MemoryBarrier(MemoryBarrierFlags.TextureFetchBarrierBit);
             screenQuad.Draw();
             
             return context.LightSpaceMatrix;

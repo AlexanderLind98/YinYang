@@ -12,13 +12,14 @@ public class GodRayTestWorld : World
 {
  
     private GameObject movingCube1;
+    private GameObject sunpointer;
+    private GameObject center;
 
     public GodRayTestWorld(Game game) : base(game)
     {
         WorldName = game.Title + " Scene Test World";
 
-        SkyColor = Color4.CornflowerBlue;
-        lightingManager.Sun.ToggleLight();
+        SkyColor = Color4.Black;
     }
 
     public override string DebugLabel
@@ -37,19 +38,19 @@ public class GodRayTestWorld : World
     {
         base.ConstructWorld();
         
-        GameObjects.Add(new GameObjectBuilder(Game)
-            .Model("Ground")
-            .Material(new  mat_concrete())
-            .Position(0f, -3f, 0f)
-            .Scale(2, 2, 2)
-            .Build());
+        // GameObjects.Add(new GameObjectBuilder(Game)
+        //     .Model("Ground")
+        //     .Material(new  mat_concrete())
+        //     .Position(0f, -3f, 0f)
+        //     .Scale(2, 2, 2)
+        //     .Build());
         
         // cubes i 3D grid
         int countX = 6;
-        int countY = 1;
+        int countY = 2;
         int countZ = 6;
         float spacing = 3.0f;
-        float verticalOffset = 5.0f;
+        float verticalOffset = 10.0f;
 
         for (int x = -countX / 2; x < countX / 2; x++)
         {
@@ -66,13 +67,28 @@ public class GodRayTestWorld : World
                 }
             }
         }
-
+        
         movingCube1 = new GameObjectBuilder(Game)
             .Model("Cube")
             .Material(new mat_concrete())
             .Position(2f, 3f, 0f)
             .Build();
         GameObjects.Add(movingCube1);
+
+        sunpointer = new GameObjectBuilder(Game)
+            .Model("Cave/LightStone")
+            .Material(new mat_chrome())
+            .Position(0,0,-1f)
+            .Build();
+        GameObjects.Add(sunpointer);
+        
+        center = new GameObjectBuilder(Game)
+            .Model("Sphere")
+            .Material(new mat_chrome())
+            .Position(0,0,0f)
+            .Scale(0.5f, 0.5f, 0.5f)
+            .Build();
+        GameObjects.Add(center);
 
         movingCube1.AddComponent<SequentialBehavior>(
             new LoopMotion(

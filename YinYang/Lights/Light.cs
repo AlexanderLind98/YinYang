@@ -70,11 +70,11 @@ namespace YinYang.Lights
             float pitch = radians.X;
             float yaw = radians.Y;
 
-            float x = MathF.Cos(pitch) * MathF.Cos(yaw);
+            float x = MathF.Cos(pitch) * MathF.Sin(yaw);
             float y = MathF.Sin(pitch);
-            float z = MathF.Cos(pitch) * MathF.Sin(yaw);
+            float z = MathF.Cos(pitch) * MathF.Cos(yaw);
 
-            return Vector3.Normalize(new Vector3(-x, -y, -z));
+            return Vector3.Normalize(new Vector3(x, y, -z)); 
         }
     }
 }

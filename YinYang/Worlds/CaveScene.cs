@@ -193,7 +193,7 @@ public class CaveScene : World
         magicParticles.Transform.Position = new Vector3(5.75f, 0.7f, 2.98f); 
         //magicParticles.Transform.Position = new Vector3(5,0,0); //debug position
         // 5000 partikler
-        magicParticles.AddComponent<MagicParticleSystem>(10000); 
+        magicParticles.AddComponent<MagicParticleSystem>(1000); 
         GameObjects.Add(magicParticles);
 
     }

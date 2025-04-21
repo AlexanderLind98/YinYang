@@ -1,206 +1,123 @@
-// volumetricLight.comp Compute shader for volumetric lighting via raymarching and depth occlusion.
-#version 430 core
+#version 460 core
 
-// 
+// Thread group size: 8x8 threads per workgroup
+layout (local_size_x = 8, local_size_y = 8) in;
 
-layout(local_size_x = 8, local_size_y = 8) in;
+// Final volumetric scattering result will be written to this RGBA16F image
+layout (rgba16f, binding = 0) writeonly uniform image2D outVolTex;
 
-// Output image the compute shader writes to
-layout(rgba16f, binding = 0) writeonly uniform image2D volumetricOutput;
-// Depth texture from the main scene rendering (used to occlude rays)
+// Depth texture from shadow map, used for occlusion in light space
 uniform sampler2D depthMap;
 
-// Matrix to convert from clip space to world space
+// Matrces for transformations
+
+// Transforms NDC coordinates back to world space
 uniform mat4 inverseViewProjection;
-// Matrix to convert from world space to clip space (proj * view)
-uniform mat4 viewProjection;
-// Matrix to convert from world space to view space (view)
-uniform mat4 view;
+
+// Transforms world-space positions into the directional light's projection space
+uniform mat4 lightSpaceMatrix;
 
 
-// Camera position in world space
+// cam and ligtht parameters
 uniform vec3 cameraPos;
-// Sun direction (normalized), in world space
 uniform vec3 lightDir;
-// Color/intensity of the sun
 uniform vec3 lightColor;
 
-// Parameters controlling scattering falloff and step resolution
+
+// raymarch parameters
 uniform float density;
 uniform float scatteringStrength;
 uniform int stepCount;
 
-// Camera frustum range, for linear depth conversion
+// Near and far clipping planes of the camera (needed to scale raymarching step)
 uniform float nearPlane;
 uniform float farPlane;
 
-// Converts non-linear depth from depth map to linear depth in view space
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0; // Convert from [0..1] to [-1..1] NDC
-    return (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
-}
 
-// Generates pseudo-random jitter based on UV to avoid marching banding artifacts. 
-// Maching banding is when object seen as repeated itself in steps instead of smooth.
-float Rand(vec2 co)
-{
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
-}
-
-/*
-// Main compute shader function
 void main()
 {
-    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 resolution = imageSize(volumetricOutput);
-    vec2 uv = (vec2(pixelCoord) + 0.5) / vec2(resolution);
+    // Get the pixel coordinates of this thread
+    ivec2 pix = ivec2(gl_GlobalInvocationID.xy);
 
-    vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
-    vec4 worldPos4 = clip * inverseViewProjection;
-    //vec4 worldPos4 = inverseViewProjection *clip;
-    vec3 worldPos = worldPos4.xyz / worldPos4.w;
+    // Get the resolution of the output texture
+    ivec2 sz = imageSize(outVolTex);
 
-    vec3 rayDir = normalize(worldPos - cameraPos);
+    // Convert pixel coordinates to normalized UV coordinates in [0, 1]
+    // Add 0.5 to address the pixel center
+    vec2 uv = (vec2(pix) + 0.5) / vec2(sz);
+ 
+    // Build an NDC position at the near plane (Z = 0.0), in range [-1, 1]
+    vec4 clipNear = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
 
-    float jitter = Rand(uv);
-    float tMax = 50.0;
-    float stepSize = tMax / float(stepCount);
-    vec3 scattering = vec3(0.0);
+    // Transform clipNear to world space using the inverse view-projection matrix
+    vec4 worldNearH = clipNear * inverseViewProjection;
+    worldNearH.xyz /= worldNearH.w;
 
+    // Repeat for far plane (Z = 1.0)
+    vec4 clipFar = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
+    vec4 worldFarH = clipFar * inverseViewProjection;
+    worldFarH.xyz /= worldFarH.w;
+
+    // Calculate normalized ray direction from near to far point in world space
+    vec3 rayDir = normalize(worldFarH.xyz - worldNearH.xyz);
+
+    // Set starting point for raymarching at the near-plane world-space position
+    vec3 rayStart = worldNearH.xyz;
+
+    // calculate the distance between each raymarching sample
+    float tStep = (farPlane - nearPlane) / float(stepCount);
+
+    // current position along the ray
+    float tCurr = nearPlane;
+
+    // accumulated light scattering result
+    vec3 accum = vec3(0.0);
+
+    // iterate over the number of raymarching steps
     for (int i = 0; i < stepCount; ++i)
     {
-        float t = (float(i) + jitter) * stepSize;
-        vec3 pos = cameraPos + rayDir * t;
+        // Sample world-space position along the ray
+        vec3 pos = rayStart + rayDir * tCurr;
 
-        vec4 clipPos = vec4(pos, 1.0) * viewProjection;
-        vec2 sampleUV = (clipPos.xy / clipPos.w) * 0.5 + 0.5;
+        // Transform world position into light-space coordinates (shadow map projection)
+        vec4 lsH = vec4(pos, 1.0) * lightSpaceMatrix;
+        lsH.xyz /= lsH.w;
 
-        if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
-            continue;
+        // Convert from NDC [-1, 1] to UV [0, 1] to access the depth map
+        vec2 shadowUV = lsH.xy * 0.5 + 0.5;
 
-        float sceneDepth = texture(depthMap, sampleUV).r;
-        float linearSceneZ = LinearizeDepth(sceneDepth);
+        float vis = 0.0;
 
-        
-        float rayZ = -((vec4(pos, 1.0) * view).z);
+        // Only sample the depth map if we're inside the light's shadow map bounds
+        if (all(greaterThanEqual(shadowUV, vec2(0.0))) && all(lessThanEqual(shadowUV, vec2(1.0))))
+        {
+            // Read stored scene depth from the depth texture at this UV
+            float sceneDepth = texture(depthMap, shadowUV).r;
 
-        if (rayZ > linearSceneZ)
-            break;
+            // Normalize the light-space depth to [0, 1] to match the depth map
+            float litDepth = lsH.z * 0.5 + 0.5;
 
-        float phase = max(dot(rayDir, -lightDir), 0.0);
-        float attenuation = exp(-density * t);
-        scattering += phase * attenuation * lightColor * scatteringStrength * stepSize;
+            // If the current point is closer to the light than what's in the depth map, it's visible
+            vis = litDepth <= sceneDepth ? 1.0 : 0.0;
+        }
 
-        if (attenuation * scatteringStrength < 0.001)
-            break;
+
+        // Dot product gives the cosine of the angle between light and view ray (for phase function)
+        float phase = max(dot(lightDir, rayDir), 0.0);
+
+        // Combine all scattering terms into a single scalar factor
+        float scatter = density * scatteringStrength * phase * vis;
+
+        // Accumulate scattered light, weighted by light color
+        accum += scatter * lightColor;
+
+        // Advance to next raymarch sample point
+        tCurr += tStep;
     }
 
-    imageStore(volumetricOutput, pixelCoord, vec4(scattering, 1.0));
+    // Average the accumulated scattering over the number of steps for stability
+    vec3 color = accum / float(stepCount);
+
+    // Write the computed color into the output texture
+    imageStore(outVolTex, pix, vec4(color, 1.0));
 }
-*/
-
-/*
-void main()
-{
-    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 resolution = imageSize(volumetricOutput);
-    vec2 uv = (vec2(pixelCoord) + 0.5) / vec2(resolution);
-
-    // Clip → World
-    vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
-    vec4 worldPos4 = clip * inverseViewProjection;
-    vec3 worldPos = worldPos4.xyz / worldPos4.w;
-
-    vec3 rayDir = normalize(worldPos - cameraPos);
-
-    // March fremad langs ray
-    float t = 10.0;
-    vec3 samplePos = cameraPos + rayDir * t;
-
-    // Project sample til clip space
-    vec4 clipPos = vec4(samplePos, 1.0) * viewProjection;
-    vec2 sampleUV = (clipPos.xy / clipPos.w) * 0.5 + 0.5;
-
-    // Sammenlign depth i clip space (begge i [0..1])
-    float sceneDepth = texture(depthMap, sampleUV).r;
-    float rayDepth = (clipPos.z / clipPos.w) * 0.5 + 0.5;
-
-    // Debug visualisering: forskel
-    float diff = abs(rayDepth - sceneDepth);
-    imageStore(volumetricOutput, pixelCoord, vec4(vec3(diff), 1.0));
-}
-
-
-void main()
-{
-    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 resolution = imageSize(volumetricOutput);
-    vec2 uv = (vec2(pixelCoord) + 0.5) / vec2(resolution);
-
-    // ✅ CORRECT MULTIPLICATION ORDER
-    vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
-    vec4 worldPos4 = inverseViewProjection * clip;
-    vec3 worldPos = worldPos4.xyz / worldPos4.w;
-
-    vec3 rayDir = normalize(worldPos - cameraPos);
-
-    float t = 10.0;
-    vec3 pos = cameraPos + rayDir * t;
-
-    vec4 clipPos = vec4(pos, 1.0) * viewProjection;
-    vec2 sampleUV = (clipPos.xy / clipPos.w) * 0.5 + 0.5;
-
-    float sceneDepth = texture(depthMap, sampleUV).r;
-
-    float z = sceneDepth * 2.0 - 1.0;
-    float viewSpaceZ = (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
-
-    float rayZ = -((vec4(pos, 1.0) * view).z);
-
-    float diff = abs(rayZ - viewSpaceZ) / 50.0;
-    imageStore(volumetricOutput, pixelCoord, vec4(diff));
-}
-*/
-
-void main()
-{
-    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-    vec2 uv = (vec2(pixelCoord) + 0.5) / vec2(imageSize(volumetricOutput));
-
-    float d = texture(depthMap, uv).r;
-    imageStore(volumetricOutput, pixelCoord, vec4(d, d, d, 1.0));
-}
-
-
-
-
-
-
-// debugs
-
-// //output red if pass can write to image
-// imageStore(volumetricOutput, pixelCoord, vec4(1.0, 0.0, 0.0, 1.0));
-
-
-// //red if there is info in texture
-// if (pixelCoord.x < resolution.x / 8 && pixelCoord.y < resolution.y / 8)
-//     imageStore(volumetricOutput, pixelCoord, vec4(1.0, 0.0, 0.0, 1.0));
-// else
-//     imageStore(volumetricOutput, pixelCoord, vec4(scattering, 1.0));
-
-// // grey scale dot(rayDir, -lightDir) 
-// float phase = max(dot(rayDir, -lightDir), 0.0);
-// imageStore(volumetricOutput, pixelCoord, vec4(phase));
-
-
-// //greyscale scene depth 
-// float d = texture(depthMap, sampleUV).r;
-// imageStore(volumetricOutput, pixelCoord, vec4(d, d, d, 1.0));
-
-// // grey scale steps
-// float gray = float(i) / float(stepCount);
-// imageStore(volumetricOutput, pixelCoord, vec4(gray));
-
-// // no phase or attenuation
-// scattering += lightColor * scatteringStrength * stepSize;

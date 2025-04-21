@@ -55,30 +55,28 @@ namespace YinYang.Rendering
             // Get view and projection matrices and combine to form world-space to clip-space transform
             Matrix4 view = context.Camera.GetView();
             Matrix4 proj = context.Camera.GetProjection();
-            // this order is opposit, but it workds, maybe because of the shader being a compute shader
-            Matrix4 viewProjection = proj * view; 
-            // Used to reconstruct rays from screen-space
-            Matrix4 inverseViewProj = Matrix4.Invert(viewProjection); 
             
-            // Console.WriteLine("----- Volumetric Debug -----");
-            // Console.WriteLine($"Camera Pos = {context.Camera.Position}");
-            // Vector3 degrees = context.World.DirectionalLight.Transform.GetRotationInDegrees();
-            // Console.WriteLine($"Sun Euler (degrees) = {degrees}");
-            // Vector3 forward = context.World.DirectionalLight.GetDirectionFromDegrees(degrees);
-            // Console.WriteLine($"Sun Forward = {forward}");
-            // Console.WriteLine($"viewProjection = {viewProjection}");
-            // Console.WriteLine($"inverseViewProjection = {inverseViewProj}");
+            Matrix4 inverseViewProj = Matrix4.Invert(view * proj);
+            computeShader.SetMatrix("inverseViewProjection", inverseViewProj, true);
 
-            // Send all camera-related uniforms to shader
-            computeShader.SetMatrix("viewProjection", viewProjection);
-            computeShader.SetMatrix("inverseProjection", inverseViewProj);
+
+            computeShader.SetMatrix("viewProjection", context.Camera.GetViewProjection(), true); 
+            //computeShader.SetMatrix("inverseProjection", inverseProj, true);
+            computeShader.SetMatrix("view", view, true);
+
+            
+            // Set camera position in world space
             computeShader.SetVector3("cameraPos", context.Camera.Position);
 
-            // Calculate sun direction in world space from its Euler rotation
-            var sunRot = context.World.DirectionalLight.Transform.GetRotationInDegrees();
-            var sunDir = context.World.DirectionalLight.GetDirectionFromDegrees(sunRot);
-            computeShader.SetVector3("lightDir", sunDir);
-            computeShader.SetVector3("lightColor", context.World.DirectionalLight.LightColor);
+            
+            Vector3 sunRotDegrees = context.World.DirectionalLight.Transform.GetRotationInDegrees();
+            Vector3 sunForward = context.World.DirectionalLight.GetDirectionFromDegrees(sunRotDegrees);
+            computeShader.SetVector3("lightDir", sunForward);
+
+            Vector3 GodRayColor = new(1.0f, 0.9f, 0.5f);
+            computeShader.SetVector3("lightColor", GodRayColor);
+            
+            //Console.WriteLine("[VolLight] sunDir = " + sunForward);
 
             // Set raymarching and scattering parameters
             computeShader.SetFloat("density", 0.04f);  // ,1

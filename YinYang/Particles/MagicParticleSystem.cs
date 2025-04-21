@@ -52,13 +52,6 @@ namespace YinYang.Particles
                 MemoryMarshal.Write(bufferData.Slice(offset), ref p);
             }
         }
-        
-        public override void Update(FrameEventArgs args)
-        {
-            base.Update(args); // or current update logic
-            DebugFirstParticle();
-        }
-
 
         public override void DebugFirstParticle()
         {

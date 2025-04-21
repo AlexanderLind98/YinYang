@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using YinYang.Behaviors;
@@ -44,8 +43,10 @@ namespace YinYang.Particles
         protected abstract void LoadShaders();
 
         /// <summary>
-        /// Initializes the SSBO and fills it with initial particle data.
+        /// Subclasses can override this to define a unique SSBO binding index.
         /// </summary>
+        protected virtual int GetBindingIndex() => 0;
+
         private void InitializeBuffers()
         {
             int totalSize = particleCount * GetParticleSize();
@@ -58,9 +59,6 @@ namespace YinYang.Particles
             GL.BufferData(BufferTarget.ShaderStorageBuffer, totalSize, bufferData, BufferUsageHint.DynamicDraw);
         }
 
-        /// <summary>
-        /// Sets up a VAO for rendering the instanced particles.
-        /// </summary>
         private void InitializeVAO()
         {
             vaoHandle = GL.GenVertexArray();
@@ -79,35 +77,26 @@ namespace YinYang.Particles
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        /// <summary>
-        /// Runs a one-time compute shader dispatch to warm up particles.
-        /// </summary>
         private void WarmupParticles()
         {
             computeShader.Use();
             computeShader.SetFloat("deltaTime", 0.016f);
-            computeShader.BindSSBO(0, ssboHandle);
+            computeShader.BindSSBO(GetBindingIndex(), ssboHandle);
             computeShader.Dispatch((particleCount + 255) / 256);
             computeShader.Barrier();
         }
 
-        /// <summary>
-        /// Updates the particle state using the compute shader.
-        /// </summary>
         public override void Update(FrameEventArgs args)
         {
             computeShader.Use();
             computeShader.SetFloat("deltaTime", (float)args.Time);
             computeShader.SetVector3("spawnOrigin", gameObject.Transform.Position);
 
-            computeShader.BindSSBO(0, ssboHandle);
+            computeShader.BindSSBO(GetBindingIndex(), ssboHandle);
             computeShader.Dispatch((particleCount + 255) / 256);
             computeShader.Barrier();
         }
 
-        /// <summary>
-        /// Draws all particles as GL_POINTS using instancing.
-        /// </summary>
         public virtual void DrawParticles(RenderContext context)
         {
             renderShader.Use();
@@ -116,13 +105,12 @@ namespace YinYang.Particles
             renderShader.SetFloat("fadeDistance", 20.0f);
 
             GL.Enable(EnableCap.ProgramPointSize);
-
             GL.Enable(EnableCap.DepthTest);
             GL.DepthMask(false);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ssboHandle);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, GetBindingIndex(), ssboHandle);
             GL.BindVertexArray(vaoHandle);
             GL.DrawArraysInstanced(PrimitiveType.Points, 0, 1, particleCount);
             GL.BindVertexArray(0);
@@ -130,7 +118,6 @@ namespace YinYang.Particles
             GL.DepthMask(true);
             GL.Disable(EnableCap.Blend);
         }
-
 
         public virtual void DebugFirstParticle() { }
     }

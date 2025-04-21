@@ -9,7 +9,7 @@ struct Particle
     vec4 velocity;
 };
 
-layout(std430, binding = 0) buffer Particles 
+layout(std430, binding = 1) buffer Particles 
 {
     Particle particles[];
 };

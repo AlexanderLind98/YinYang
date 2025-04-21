@@ -15,7 +15,7 @@ struct Particle
 };
 
 // GPU buffer containing all particles (read/write from shader)
-layout(std430, binding = 0) buffer Particles
+layout(std430, binding = 1) buffer Particles
 {
     Particle particles[];
 };

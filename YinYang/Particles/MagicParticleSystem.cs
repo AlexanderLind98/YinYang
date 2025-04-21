@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using YinYang;
 using YinYang.Particles;
 using YinYang.Rendering;
@@ -26,6 +27,8 @@ namespace YinYang.Particles
             : base(gameObject, window, count) { }
 
         protected override int GetParticleSize() => Marshal.SizeOf<Particle>();
+        
+        protected override int GetBindingIndex() => 1;
 
         protected override void LoadShaders()
         {
@@ -49,6 +52,13 @@ namespace YinYang.Particles
                 MemoryMarshal.Write(bufferData.Slice(offset), ref p);
             }
         }
+        
+        public override void Update(FrameEventArgs args)
+        {
+            base.Update(args); // or current update logic
+            DebugFirstParticle();
+        }
+
 
         public override void DebugFirstParticle()
         {

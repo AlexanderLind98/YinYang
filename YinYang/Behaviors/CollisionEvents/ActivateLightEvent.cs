@@ -24,13 +24,14 @@ public class ActivateLightEvent : CollisionEvent
     {
         DoesUpdate = true;
         lerping = false;
-        backwards = true;
+        backwards = true; //Start backwards as we always flip direction (a bit hacky)
         
         this.world = world;
     }
     
     public override void Trigger()
     {
+        //Start and reset lerp, flip directions too
         lerping = true;
         lerpProgress = 0f;
         backwards = !backwards;
@@ -38,11 +39,9 @@ public class ActivateLightEvent : CollisionEvent
 
     public override void Update(float deltaTime)
     {
+        //Lerp ambient and sun strength
         if(!lerping)
             return;
-        
-        //TODO: Lerp lighting and ambiance
-        Console.WriteLine("Lerping");
         
         lerpProgress += deltaTime / lerpTime; // Replace Time.DeltaTime with your delta time
 
@@ -53,8 +52,7 @@ public class ActivateLightEvent : CollisionEvent
         // Lerp between ambient light colors
         Color4 ambient = LerpColor(ambientOffColor, ambientOnColor, t);
         Vector3 sunlight = Vector3.Lerp(sunOffColor, sunOnColor, t);
-
-        // Apply lighting here
+        
         world.DirectionalLight.LightColor = sunlight;
         world.SkyColor = ambient;
         GL.ClearColor(ambient);

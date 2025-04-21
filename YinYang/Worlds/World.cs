@@ -118,7 +118,6 @@ namespace YinYang.Worlds
             scenePass = new SceneRenderPass();
             
             cubeReflectionRenderPass = new CubeReflectionRenderPass();
-            renderPipeline.AddPass(cubeReflectionRenderPass);
             
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
@@ -132,6 +131,7 @@ namespace YinYang.Worlds
 
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
+            renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);
             renderPipeline.AddPass(compositePass);

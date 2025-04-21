@@ -15,11 +15,13 @@ namespace YinYang.Rendering
     public class CubeReflectionRenderPass : RenderPass
     {
         private int framebufferHandle;
-        private int reflectionResolution = 512;
+        private int reflectionResolution = 128;
         private Shader reflectionShader;
         private Texture reflectionCubeTexture;
         private float nearPlane = 0.1f;
-        private float farPlane = 50.0f;
+        private float farPlane = 20.0f;
+        private float nextUpdate = 0.0f;
+        private int currentFace = 0;
         
         // private Vector3 probePosition;
         
@@ -133,30 +135,21 @@ namespace YinYang.Rendering
         /// <returns>The computed light-space transformation matrix.</returns>
         public override Matrix4? Execute(RenderContext context, ObjectManager objects)
         {
-            /*for (int i = 0; i < context.Lighting.PointLights.Count; i++)
-            {
-                //Skip none shadowing lights
-                if (hasRenderedShadow && context.Lighting.PointLights[i].shadowType == Light.ShadowType.None)
-                {
-                    continue;
-                }
-            }*/
-            // GL.CullFace(TriangleFace.Front);
-            
-            RenderReflection(context, objects); 
+            if(context.Time > nextUpdate)
+                RenderReflection(context, objects); 
 
             return null;
         }
 
         private void RenderReflection(RenderContext context, ObjectManager objects)
         {
-            if(context.Reflection.probePositions.Count <= 0)
+            if(context.Reflection.ProbePositions.Count <= 0)
                 return;
             
             // 0. create depth cubemap transformation matrices
             Matrix4 reflectProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), reflectionResolution / reflectionResolution, nearPlane, farPlane);
             List<Matrix4> reflectionTransforms = new List<Matrix4>();
-            Vector3 probePos = context.Reflection.probePositions[0]; //TODO: Hard coded for now                        
+            Vector3 probePos = context.Reflection.ProbePositions[0]; //TODO: Hard coded for now                        
             reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(1.0f, 0.0f, 0.0f),  new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
             reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(-1.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f,  0.0f)) * reflectProj);
             reflectionTransforms.Add(Matrix4.LookAt(probePos, probePos + new Vector3(0.0f, 1.0f, 0.0f),  new Vector3(0.0f,  0.0f,  1.0f)) * reflectProj);
@@ -177,61 +170,75 @@ namespace YinYang.Rendering
             // loop trough sides, rendering each side of the cube map
             // bind each face of the cubemap to the framebuffer
             // use seperate rendercontext viewporj. to render each face
-            for (int i = 0; i < 6; ++i)
+            /*for (int i = 0; i < 6; ++i)
             {
-                // bind face of cubemap
-                GL.FramebufferTexture2D(
-                    FramebufferTarget.Framebuffer,
-                    FramebufferAttachment.ColorAttachment0,
-                    TextureTarget.TextureCubeMapPositiveX + i,
-                    reflectionCubeTexture.Handle,
-                    0);
+                RenderFace(context, objects, i, reflectionTransforms);
+            }*/
+            
+            RenderFace(context, objects, currentFace, reflectionTransforms);
+            
+            currentFace = (currentFace + 1) % 6;
 
-                // clear
-                if(context.Reflection.reflectionType == ReflectionManager.ReflectionType.Static && !hasRenderedReflection)
-                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-                else if(context.Reflection.reflectionType != ReflectionManager.ReflectionType.Static)
-                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-                // Override ViewProjection matrix for this face
-                var faceContext = new RenderContext
-                {
-                    Camera = context.Camera,
-                    Lighting = context.Lighting,
-                    World = context.World,
-                    DebugMode = context.DebugMode,
-                    BloomSettings = context.BloomSettings,
-                    Reflection = context.Reflection,
-                    LightSpaceMatrix = context.LightSpaceMatrix,
-                    ViewProjection = reflectionTransforms[i]
-                };
-
-                // use the switch statement to determine the type of reflection rendering
-                switch (context.Reflection.reflectionType)
-                {
-                    case ReflectionManager.ReflectionType.None: break;
-                    case ReflectionManager.ReflectionType.Static:
-                    {
-                        if (!hasRenderedReflection)
-                            objects.Render(faceContext);
-                        break;
-                    }
-                    case ReflectionManager.ReflectionType.Dynamic:
-                    {
-                        objects.Render(faceContext);
-                        break;
-                    }
-                    default: throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            GL.BindTexture(TextureTarget.TextureCubeMap, reflectionCubeTexture.Handle);
-            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
+            if (currentFace == 0)
+                GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap); // full mip update once complete
+            
+            // GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             hasRenderedReflection = true;
+            nextUpdate = context.Time + context.Reflection.UpdateFrequency; //Set next update time
         }
-        
+
+        private void RenderFace(RenderContext context, ObjectManager objects, int faceID, List<Matrix4> reflectionTransforms)
+        {
+            // bind face of cubemap
+            GL.FramebufferTexture2D(
+                FramebufferTarget.Framebuffer,
+                FramebufferAttachment.ColorAttachment0,
+                TextureTarget.TextureCubeMapPositiveX + faceID,
+                reflectionCubeTexture.Handle,
+                0);
+
+            // clear
+            if(context.Reflection.reflectionType == ReflectionManager.ReflectionType.Static && !hasRenderedReflection)
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            else if(context.Reflection.reflectionType != ReflectionManager.ReflectionType.Static)
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            // Override ViewProjection matrix for this face
+            var faceContext = new RenderContext
+            {
+                Camera = context.Camera,
+                Lighting = context.Lighting,
+                World = context.World,
+                DebugMode = context.DebugMode,
+                BloomSettings = context.BloomSettings,
+                Reflection = context.Reflection,
+                LightSpaceMatrix = context.LightSpaceMatrix,
+                ViewProjection = reflectionTransforms[faceID]
+            };
+
+            // use the switch statement to determine the type of reflection rendering
+            switch (context.Reflection.reflectionType)
+            {
+                case ReflectionManager.ReflectionType.None: break;
+                case ReflectionManager.ReflectionType.Static:
+                {
+                    if (!hasRenderedReflection)
+                        objects.Render(faceContext);
+                    break;
+                }
+                case ReflectionManager.ReflectionType.Dynamic:
+                {
+                    objects.Render(faceContext);
+                    break;
+                }
+                default: throw new ArgumentOutOfRangeException();
+            }
+            
+            GL.BindTexture(TextureTarget.TextureCubeMap, reflectionCubeTexture.Handle);
+        }
+
         /*private void RenderReflection(RenderContext context, ObjectManager objects)
         {
             // 0. create depth cubemap transformation matrices

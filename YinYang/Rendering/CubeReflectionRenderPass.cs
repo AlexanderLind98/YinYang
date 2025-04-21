@@ -78,7 +78,7 @@ namespace YinYang.Rendering
                 Console.WriteLine($"[Framebuffer Error] Status: {status}");
             }*/
             
-            // Generate and bind cubemap texture
+            //Create cubemap
             int textureHandle = GL.GenTexture();
             GL.BindTexture(TextureTarget.TextureCubeMap, textureHandle);
             for (int i = 0; i < 6; ++i)
@@ -99,19 +99,17 @@ namespace YinYang.Rendering
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
 
-// Generate framebuffer
+            //Framebuffer setup
             framebufferHandle = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferHandle);
 
-// Create and attach depth buffer
+            //Create and attach depth buffer - needed for objects to render correctly (depth sorting and distance)
             int depthRenderbuffer = GL.GenRenderbuffer();
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthRenderbuffer);
             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent24, reflectionResolution, reflectionResolution);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthRenderbuffer);
 
-// Don't bind the cubemap to the FBO yet — it's done per-face during rendering
-
-// Check framebuffer status
+            //Status debug message
             var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (status != FramebufferErrorCode.FramebufferComplete)
             {
@@ -226,7 +224,8 @@ namespace YinYang.Rendering
                     default: throw new ArgumentOutOfRangeException();
                 }
             }
-            
+
+            GL.BindTexture(TextureTarget.TextureCubeMap, reflectionCubeTexture.Handle);
             GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 

@@ -1,0 +1,52 @@
+// computeWaterfallMist.comp
+
+#version 460
+layout(local_size_x = 256) in;
+
+struct Particle {
+    vec4 position; // xyz = position, w = lifetime
+    vec4 velocity; // xyz = direction, w = unused
+};
+
+layout(std430, binding = 0) buffer Particles {
+    Particle particles[];
+};
+
+uniform float deltaTime;
+uniform vec3 spawnOrigin;
+
+float hash(float x) {
+    return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    Particle p = particles[id];
+
+    float seed = float(id) + fract(p.position.w * 321.123);
+    p.position.w -= deltaTime;
+
+    if (p.position.w < 0.0) {
+        float offset = hash(seed) * 6.0 - 3.0; // spread left-right
+        float depth = hash(seed + 1.0) * 2.0 - 1.0;
+        float height = hash(seed + 2.0) * 0.2;
+
+        p.position.xyz = spawnOrigin + vec3(offset, height, depth * 0.5);
+        p.position.w = 0.5 + hash(seed + 3.0) * 1.0;
+
+        float vx = (hash(seed + 4.0) - 0.5) * 1.5;
+        float vy = 1.5 + hash(seed + 5.0) * 0.3;
+        float vz = (hash(seed + 6.0) - 0.5) * 1.5;
+
+        p.velocity.xyz = vec3(vx, vy, vz * 0.3);
+    }
+
+    // Apply velocity
+    p.position.xyz += p.velocity.xyz * deltaTime;
+
+    // Add turbulence
+    p.position.x += sin(p.position.w * 15.0 + seed) * 0.02;
+    p.position.z += cos(p.position.w * 12.0 + seed) * 0.01;
+
+    particles[id] = p;
+}

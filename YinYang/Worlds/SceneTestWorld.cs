@@ -79,11 +79,17 @@ public class SceneTestWorld : World
         
         // particles
         var magicParticles = new GameObject(Game);
-        magicParticles.Transform.Position = new Vector3(0,0,0); //debug position
+        magicParticles.Transform.Position = new Vector3(0,2,0); //debug position
         magicParticles.AddComponent<MagicParticleSystem>(1000); 
         GameObjects.Add(magicParticles);
+        
+        var mistObject = new GameObject(Game);
+        mistObject.Transform.Position = new Vector3(0,0,0); 
+        mistObject.AddComponent<WaterfallMistParticleSystem>(1000);
+        GameObjects.Add(mistObject);
 
-        MoveCam();
+
+        //MoveCam();
     }
     
     private void MoveCamTest()
@@ -115,6 +121,8 @@ public class SceneTestWorld : World
 
     private void MoveCam()
     {
+        var maskPos = new Vector3(-2.08f, 0.436f, -29.80f);
+        
         var cameraObj = cameraManager.Camera.GameObject;
 
         // set initial
@@ -128,23 +136,22 @@ public class SceneTestWorld : World
 
             new LogMotion("Looking side to side"),
             new SequentialMotion(
-                new TurnXYZDegrees(new Vector3(0, 45, 0), 0.5f),
-                new WaitXSeconds(0.5f),
-                new TurnXYZDegrees(new Vector3(0, 0, 0), 0.5f),
-                new WaitXSeconds(0.5f),
                 new TurnXYZDegrees(new Vector3(0, -45, 0), 0.5f),
-                new WaitXSeconds(0.5f)
+                new WaitXSeconds(0.5f),
+                new TurnXYZDegrees(new Vector3(0, 90, 0), 1.5f),
+                new WaitXSeconds(1.0f)
             ),
+            
+            new LogMotion("Turning forward again"),
+            new TurnXYZDegrees(new Vector3(0, -45, 0), 1.0f),
+            new WaitXSeconds(0.2f),
 
-            new LogMotion("Turning to Step 1 direction"),
-            new LookAtTargetTimed(new Vector3(4.38f, 0.61f, -1.84f), 2f),
-
-            new LogMotion("Steps 1–3, moving towards mask"),
-            //new LookAtTargetTimed(new Vector3(-0.01f, -0.36f, -0.93f), 1f),
+            new LogMotion("Steps 1–3: move to mask while turning to look at it"),
             new ParallelMotion
             (
-                new CamForwardDirectionBehavior(new Vector3(-0.01f, -0.36f, -0.93f), 10f), // look at mask
-                new SequentialMotion(
+                new CamContinuousTrackBehavior(maskPos),
+                new SequentialMotion
+                (
                     new LogMotion("Step 1"),
                     new MoveToPositionXYZ(new Vector3(4.38f, 0.61f, -1.84f), 2f),
                     new LogMotion("Step 2"),
@@ -153,13 +160,17 @@ public class SceneTestWorld : World
                     new MoveToPositionXYZ(new Vector3(5.65f, 1.82f, -21.28f), 2f)
                 )
             ),
-            new LogMotion("step 4-7, Looking at mask"),
             new ParallelMotion(
-                new LookAtTargetTimed(new Vector3(-2.08f, 0.436f, -29.80f), 8f), // looking at mask
+                new LogMotion("Step 4"),
+                new MoveToPositionXYZ(new Vector3(1.21f, 2.67f, -26.63f), 2f)
+            ),
+
+            
+            new LogMotion("step 5-7, Looking at mask"),
+            new ParallelMotion(
+                new CamContinuousTrackBehavior(new Vector3(0,0,0)), // looking at mask
                 new SequentialMotion
                 (
-                    new LogMotion("Step 4"),
-                    new MoveToPositionXYZ(new Vector3(1.21f, 2.67f, -26.63f), 2f),
                     new LogMotion("Step 5"),
                     new MoveToPositionXYZ(new Vector3(-1.82f, 2.67f, -25.35f), 2f),
                     new LogMotion("Step 6"),
@@ -173,7 +184,7 @@ public class SceneTestWorld : World
 
             new LogMotion("Step 8–11: moving to exit"),
             new ParallelMotion(
-                new CamForwardDirectionBehavior(new Vector3(-18.78f, 2.04f, -21.19f), 8f),
+                new LookAtTargetTimed(new Vector3(-18.78f, 2.04f, -21.19f), 8f),
                 new SequentialMotion(
                     new LogMotion("Step 8"),
                     new MoveToPositionXYZ(new Vector3(-18.78f, 2.04f, -21.19f), 2f),
@@ -186,7 +197,7 @@ public class SceneTestWorld : World
                 )
             ),
 
-            new LogMotion("Pausing to look at temple"),
+            new LogMotion("Pausing to look at temple"), // Temple Position is: (-52,571808; 17,964113; -57,38627)
             new LookAtTargetTimed(new Vector3(-52.58f, 17.96f, -57.38f), 3f),
             new WaitXSeconds(1f),
 

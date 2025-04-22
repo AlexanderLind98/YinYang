@@ -4,18 +4,31 @@ using YinYang.Behaviors.Motion;
 
 public class CamForwardDirectionBehavior : IFiniteMotion
 {
-    private readonly Vector3 direction;
+    private readonly Vector3 targetDirection;
     private readonly float duration;
 
     private float elapsed = 0f;
     private bool started = false;
 
     private Vector3 startDirection;
-    private Vector3 targetDirection;
 
+    /// <summary>
+    /// Rotates toward a given direction (must be normalized).
+    /// </summary>
     public CamForwardDirectionBehavior(Vector3 direction, float duration)
     {
-        this.direction = direction.Normalized();
+        this.targetDirection = direction.Normalized();
+        this.duration = duration;
+    }
+
+    /// <summary>
+    /// Rotates toward a position in world space.
+    /// Computes direction based on the GameObject's starting position.
+    /// </summary>
+    public CamForwardDirectionBehavior(Vector3 targetPosition, GameObject obj, float duration)
+    {
+        Vector3 dir = targetPosition - obj.Transform.Position;
+        this.targetDirection = dir.LengthSquared > 0.0001f ? dir.Normalized() : new Vector3(0, 0, -1);
         this.duration = duration;
     }
 
@@ -26,17 +39,15 @@ public class CamForwardDirectionBehavior : IFiniteMotion
             started = true;
             elapsed = 0f;
 
-            // Get current forward direction from rotation
             var rot = obj.Transform.GetRotationInDegrees();
             float yaw = MathHelper.DegreesToRadians(rot.Y);
             float pitch = MathHelper.DegreesToRadians(rot.X);
+
             startDirection = new Vector3(
                 MathF.Cos(pitch) * MathF.Cos(yaw),
                 MathF.Sin(pitch),
                 MathF.Cos(pitch) * MathF.Sin(yaw)
             ).Normalized();
-
-            targetDirection = direction;
         }
 
         elapsed += deltaTime;

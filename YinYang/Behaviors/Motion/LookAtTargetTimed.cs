@@ -34,7 +34,7 @@ public class LookAtTargetTimed : IFiniteMotion, IResetMotion
             dir = Vector3.Normalize(dir);
 
             // Yaw: angle left/right from -Z axis
-            float yaw = MathF.Atan2(dir.X, -dir.Z);
+            float yaw = MathF.Atan2(dir.X, dir.Z);
 
             // Pitch: angle up/down from horizontal
             float pitch = MathF.Atan2(dir.Y, MathF.Sqrt(dir.X * dir.X + dir.Z * dir.Z));

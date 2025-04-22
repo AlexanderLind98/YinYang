@@ -15,6 +15,9 @@ public class CaveScene2 : World
     private GameObject lightStone;
     private GameObject mask;
     private GameObject collider;
+    private GameObject water;
+
+    private int camKeyFrame = 0;
 
     private Vector3 sunPos = new(58.65f, 55.80f, 5.0f);
 
@@ -100,12 +103,12 @@ public class CaveScene2 : World
                 .Position(0f, 0f, 0f)
                 .Build());
         
-        GameObjects.Add(
+        water =
             new GameObjectBuilder(Game)
                 .ModelTBN("Cave/Water_Plane")
                 .Material(new mat_water())
                 .Position(0f, 0f, 0f)
-                .Build());
+                .Build();
         
         lightStone = new GameObjectBuilder(Game)
             .Model("Cave/LightStone")
@@ -537,12 +540,16 @@ public class CaveScene2 : World
                 .RotationDegrees(28.64f, 0f, 0f)
                 .Scale(2,2,2)
                 .Build();
+        
+        mask.Renderer.RenderInReflectionPass = false;
+        water.Renderer.RenderInReflectionPass = false;
 
         collider = new GameObject(Game);
         collider.Transform.Position = new Vector3(-30, 5.18f, -16f);
         collider.AddComponent<DistCollider>();
 
         GameObjects.Add(mask);
+        GameObjects.Add(water);
         GameObjects.Add(cave);
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);
@@ -597,10 +604,13 @@ public class CaveScene2 : World
             Game.DebugMode = 0; // Full lighting
         }
 
-        // if (input.IsKeyPressed(Keys.R))
-        // {
-        //     lightingManager.Sun.ToggleLight();
-        // }
+        if (input.IsKeyPressed(Keys.End))
+        {
+            Console.WriteLine(camKeyFrame + " Pos is: " + MainCamera.Position);
+            Console.WriteLine(camKeyFrame + "Forward is: " + MainCamera.Front);
+
+            camKeyFrame++;
+        }
 
         Editor?.Update();
     }

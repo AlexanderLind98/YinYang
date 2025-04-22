@@ -46,7 +46,7 @@ namespace YinYang.Components
         public virtual void SetRotationInDegrees(float pitchDegrees, float yawDegrees, float rollDegrees) 
         {
             Rotation = new Vector3(
-                MathHelper.DegreesToRadians(-pitchDegrees),
+                MathHelper.DegreesToRadians(pitchDegrees),
                 MathHelper.DegreesToRadians(yawDegrees),
                 MathHelper.DegreesToRadians(rollDegrees)
             );

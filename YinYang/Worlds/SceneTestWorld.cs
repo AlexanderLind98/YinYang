@@ -107,7 +107,7 @@ public class SceneTestWorld : World
         var cameraObj = cameraManager.Camera.GameObject;
 
         // set initial
-        cameraObj.SetRotationInDegrees(0, 0, 0); 
+        cameraObj.SetRotationInDegrees(0, -90, 0);
         
         // move sequence
         cameraObj.AddComponent<SequentialBehavior>
@@ -132,7 +132,7 @@ public class SceneTestWorld : World
             //new LookAtTargetTimed(new Vector3(-0.01f, -0.36f, -0.93f), 1f),
             new ParallelMotion
             (
-                new CamForwardDirectionBehavior(new Vector3(-0.01f, -0.36f, -0.93f), 10f), // Step 5's direction
+                new CamForwardDirectionBehavior(new Vector3(-0.01f, -0.36f, -0.93f), 10f), // look at mask
                 new SequentialMotion(
                     new LogMotion("Step 1"),
                     new MoveToPositionXYZ(new Vector3(4.38f, 0.61f, -1.84f), 2f),
@@ -144,7 +144,7 @@ public class SceneTestWorld : World
             ),
             new LogMotion("step 4-7, Looking at mask"),
             new ParallelMotion(
-                new CamForwardDirectionBehavior(new Vector3(-2.08f, 0.436f, -29.80f), 8f), // looking at mask
+                new LookAtTargetTimed(new Vector3(-2.08f, 0.436f, -29.80f), 8f), // looking at mask
                 new SequentialMotion
                 (
                     new LogMotion("Step 4"),
@@ -179,7 +179,7 @@ public class SceneTestWorld : World
             new LookAtTargetTimed(new Vector3(-0.95f, 0.30f, -0.30f), 3f),
             new WaitXSeconds(1f),
 
-            new LogMotion("Step 12–16: move while looking at origin"),
+            new LogMotion("Step 12–16: move while looking at temple"),
             new ParallelMotion(
                 new CamForwardDirectionBehavior(new Vector3(-0.95f, 0.30f, -0.30f), 10f),
                 new SequentialMotion(

@@ -78,6 +78,8 @@ namespace YinYang.Worlds
         
         public EditorTool? Editor;
         
+        public ReflectionManager ReflectionManager => reflectionManager;
+        
         // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;

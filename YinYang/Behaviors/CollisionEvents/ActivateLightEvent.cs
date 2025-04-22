@@ -42,6 +42,8 @@ public class ActivateLightEvent : CollisionEvent
         //Lerp ambient and sun strength
         if(!lerping)
             return;
+
+        world.ReflectionManager.ProbePositions[0] = new Vector3(-45f, -6.5f, -55);
         
         lerpProgress += deltaTime / lerpTime; // Replace Time.DeltaTime with your delta time
 

@@ -28,7 +28,6 @@ NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
     // WindowState = WindowState.Fullscreen
 };
 
-/*
 [System.Runtime.InteropServices.DllImport("kernel32.dll")]
 static extern bool SetEnvironmentVariable(string lpName, string lpValue);
 
@@ -37,8 +36,6 @@ SetEnvironmentVariable("SHIM_MCCOMPAT", "0x800000001");
 SetEnvironmentVariable("NV_OPTIMUS_ENABLEMENT", "0x00000001");
 
 SetEnvironmentVariable("AMD_POWERXPRESS_REQUEST_HIGH_PERFORMANCE", "1");
-*/
 
-// GLFW.WindowHint(WindowHintInt.Samples, 4);
 using Game game = new Game(settings, nativeWindowSettings);
 game.Run();

@@ -66,6 +66,6 @@ void main()
     vec3 specular = reflectedColor * fresnel;
 
     //Finalize
-    finalColor = (diffuse * depthTint) + specular * specularStrength;
+    finalColor = ((diffuse * depthTint) / 5) + specular * specularStrength;
     FragColor = vec4(finalColor, 1.0);
 }

@@ -1,0 +1,89 @@
+// computemagicparticle.comp
+#version 460
+
+// Launch 256 threads per work group
+layout(local_size_x = 256) in;
+
+// A single particle has a position and a velocity
+struct Particle
+{
+    // xyz = position, w = lifetime
+    vec4 position;
+
+    // xyz = direction, w = unused
+    vec4 velocity;
+};
+
+// GPU buffer containing all particles (read/write from shader)
+layout(std430, binding = 0) buffer Particles
+{
+    Particle particles[];
+};
+
+// Time since last frame (provided by CPU)
+uniform float deltaTime;
+// Spawn origin for particles (provided by CPU)
+uniform vec3 spawnOrigin;
+
+
+// Simple hash function to generate pseudo-random values
+float hash(float x)
+{
+    return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+void main()
+{
+    // Unique ID for this thread (one thread per particle)
+    uint id = gl_GlobalInvocationID.x;
+
+    // Read the particle from the buffer
+    Particle p = particles[id];
+    
+    // Use the ID as a seed for randomness
+    float seed = float(id) + fract(p.position.w * 123.456);
+
+    // Decrease the lifetime
+    p.position.w -= deltaTime;
+
+    // If the particle is dead (lifetime expired), respawn it
+    if (p.position.w < 0.0)
+    {
+        // Random angle (0 to 2PI)
+        float angle = hash(seed) * 6.2831;
+
+        // Random radius from center (0 to 0.4)
+        float radius = hash(seed + 1.0) * 0.4;
+
+        // Small vertical offset
+        float height = hash(seed + 2.0) * 0.1;
+
+        // Compute spawn position in a flat circle
+        float x = cos(angle) * radius;
+        float z = sin(angle) * radius;
+        float y = height;
+
+        // Set new position
+        p.position.xyz = spawnOrigin + vec3(x, y, z);
+
+        // Assign a new lifetime between 1.0 and 3.0 seconds
+        p.position.w = 1.0 + hash(seed + 3.0) * 2.0;
+
+        // Random velocity (mostly upward, slight sideways motion)
+        float vx = (hash(seed + 4.0) - 0.5) * 1.0;
+        float vy = 0.7 + hash(seed + 5.0) * 0.5;
+        float vz = (hash(seed + 6.0) - 0.5) * 1.0;
+
+        // Apply the velocity
+        p.velocity.xyz = vec3(vx, vy, vz);
+    }
+
+    // Move the particle using its velocity and delta time
+    p.position.xyz += p.velocity.xyz * deltaTime;
+
+    // Add a slight swirl to the motion using a sine wave
+    p.position.x += sin(p.position.w * 5.0 + seed) * 0.01;
+
+    // Write the updated particle back into the buffer
+    particles[id] = p;
+}

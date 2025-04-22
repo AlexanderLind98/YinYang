@@ -14,6 +14,7 @@ public class SceneTestWorld : World
     private GameObject cave;
     private GameObject cliffExit;
     private GameObject groundOutdoors;
+    private GameObject mask;
 
     public SceneTestWorld(Game game) : base(game)
     {
@@ -62,6 +63,16 @@ public class SceneTestWorld : World
                 .Build());
 
         GameObjects.Add(cave);
+        
+        mask = new GameObjectBuilder(Game)
+            .ModelTBN("mask")
+            .Material(new mat_mirror())
+            .Position(-2.08f, 0.436f, -29.80f)
+            .RotationDegrees(28.64f, 0f, 0f)
+            .Scale(2,2,2)
+            .Build();
+
+        GameObjects.Add(mask);
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();

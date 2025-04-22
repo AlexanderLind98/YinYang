@@ -16,6 +16,7 @@ public class CaveScene2 : World
     private GameObject mask;
     private GameObject collider;
     private GameObject water;
+    private GameObject waterfall;
 
     private int camKeyFrame = 0;
 
@@ -532,6 +533,13 @@ public class CaveScene2 : World
                 .Scale(9.18f)
                 .Build());
         
+        waterfall =
+            new GameObjectBuilder(Game)
+                .Model("Cave/Temple_Waterfall")
+                .Material(new mat_waterfall())
+                .Position(0f, 0f, 0f)
+                .Build();
+        
         mask =
             new GameObjectBuilder(Game)
                 .ModelTBN("mask")
@@ -543,6 +551,7 @@ public class CaveScene2 : World
         
         mask.Renderer.RenderInReflectionPass = false;
         water.Renderer.RenderInReflectionPass = false;
+        waterfall.Renderer.RenderInReflectionPass = false;
 
         collider = new GameObject(Game);
         collider.Transform.Position = new Vector3(-30, 5.18f, -16f);
@@ -550,6 +559,7 @@ public class CaveScene2 : World
 
         GameObjects.Add(mask);
         GameObjects.Add(water);
+        GameObjects.Add(waterfall);
         GameObjects.Add(cave);
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);

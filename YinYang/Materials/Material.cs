@@ -89,6 +89,10 @@ namespace YinYang.Materials
             {
                 shader.SetFloat(name, uniformFloat);
             }
+            else if (uniform is Vector2 uniformVec2)
+            {
+                shader.SetVector2(name, uniformVec2);
+            }
             else if (uniform is Vector3 uniformVec3)
             {
                 shader.SetVector3(name, uniformVec3);

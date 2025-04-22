@@ -94,17 +94,17 @@ namespace YinYang.Rendering
         }
         
         // Orthographic projection to simulate infinite directional light projection.
-        Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-50.0f, 50.0f, -50f, 50f, 0.1f, 50.0f);
+        Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(-60.0f, 60.0f, -60f, 60f, 0.1f, 50.0f);
 
-        Vector3 camPos = context.Camera.Position;
+        /*Vector3 camPos = context.Camera.Position;
         Vector3 offSet = new Vector3(20.0f, 20.0f, 20.0f);
         Vector3 lightPosition = (camPos + offSet);
         
-        context.Lighting.Sun.SetPosition(lightPosition.X, lightPosition.Y, lightPosition.Z);
+        context.Lighting.Sun.SetPosition(lightPosition.X, lightPosition.Y, lightPosition.Z);*/
         
         // Create a view matrix from the light's position looking along its rotation vector.
         Matrix4 lightView = Matrix4.LookAt(
-            lightPosition,
+            context.Lighting.Sun.Transform.Position,
             context.Lighting.Sun.Transform.Position + context.Lighting.Sun.Transform.Rotation,
             Vector3.UnitY);
 

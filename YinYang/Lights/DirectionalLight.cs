@@ -1,4 +1,5 @@
 using OpenTK.Mathematics;
+using YinYang.Behaviors;
 using YinYang.Components;
 using YinYang.Materials;
 using YinYang.Worlds;
@@ -33,9 +34,9 @@ public class DirectionalLight : Light
     {
         Visualizer = new GameObjectBuilder(currentWorld.Game)
             .Model("Sphere")
-            .Material(new mat_glow())
+            .Material(new mat_sun())
             .Position(0, 0, 0)
-            .Scale(0.1f, 0.1f, 0.1f)
+            .Scale(1.0f, 1.0f, 1.0f)
             .Build();
 
         Visualizer.Renderer.RenderInDepthPass = false;
@@ -49,6 +50,7 @@ public class DirectionalLight : Light
     public void UpdateVisualizer(World currentWorld)
     {
         if (Visualizer != null) Visualizer.Transform.Rotation = Transform.Rotation;
+        if (Visualizer != null) Visualizer.Transform.Position = Transform.Position;
     }
 
     public override Vector3 SetPosition(float x, float y, float z)
@@ -56,6 +58,11 @@ public class DirectionalLight : Light
         Transform.Position = new Vector3(x, y, z);
         if (Visualizer != null) Visualizer.Transform.Position = Transform.Position;
         return Transform.Position;
+    }
+
+    public void UpdateDefaultColor()
+    {
+        DefaultColor = LightColor;
     }
     
     /// <summary>

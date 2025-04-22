@@ -31,6 +31,7 @@ namespace YinYang.Worlds
         private CompositePass compositePass;
         private BloomSettings bloomSettings = new();
         private CubeReflectionRenderPass cubeReflectionRenderPass;
+        private float curTime;
 
         private bool bloomLinked = false;
         
@@ -77,6 +78,8 @@ namespace YinYang.Worlds
         
         public EditorTool? Editor;
         
+        public ReflectionManager ReflectionManager => reflectionManager;
+        
         // Temporary pass-throughs for lighting TODO: Refactor to acces lightingManager directly or other way
         public DirectionalLight DirectionalLight => lightingManager.Sun;
         public List<PointLight> PointLights => lightingManager.PointLights;
@@ -116,6 +119,8 @@ namespace YinYang.Worlds
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
             
+            cubeReflectionRenderPass = new CubeReflectionRenderPass();
+            
             // Initialize bloom mip chain
             _bloomMipChain = new BloomMipChain();
             _bloomMipChain.Init(Game.Size.X, Game.Size.Y, bloomSettings.MipLevels);
@@ -128,12 +133,10 @@ namespace YinYang.Worlds
 
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
+            renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);
             renderPipeline.AddPass(compositePass);
-            
-            cubeReflectionRenderPass = new CubeReflectionRenderPass();
-            renderPipeline.AddPass(cubeReflectionRenderPass);
         }
 
         /// <summary>
@@ -252,6 +255,7 @@ namespace YinYang.Worlds
         {
             objectManager.Update(args);
             cameraManager.Update(args);
+            curTime += (float)args.Time;
         }
 
         /// <summary>
@@ -270,7 +274,8 @@ namespace YinYang.Worlds
                 LightSpaceMatrix = Matrix4.Identity, // placeholder to start
                 DebugMode = debugMode,
                 BloomSettings = bloomSettings,
-                Reflection = reflectionManager
+                Reflection = reflectionManager,
+                Time = curTime
             };
             
             renderPipeline.RenderAll(context, objectManager);

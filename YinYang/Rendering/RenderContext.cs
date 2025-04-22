@@ -36,5 +36,7 @@ namespace YinYang.Rendering
         public BloomSettings BloomSettings { get; init; }
         
         public ReflectionManager Reflection { get; init; }
+        
+        public float Time { get; set; }
     }
 }

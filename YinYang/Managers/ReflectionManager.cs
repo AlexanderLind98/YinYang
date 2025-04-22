@@ -11,12 +11,14 @@ public class ReflectionManager
         Dynamic
     }
     
-    public ReflectionType reflectionType { get; } = ReflectionType.Static;
+    public ReflectionType reflectionType { get; } = ReflectionType.Dynamic;
     
-    public List<Vector3> probePositions { get; } = new List<Vector3>();
+    public List<Vector3> ProbePositions { get; } = new List<Vector3>();
+    
+    public float UpdateFrequency { get; } = 0.025f;
 
     public void AddProbe(Vector3 probe)
     {
-        probePositions.Add(probe);
+        ProbePositions.Add(probe);
     }
 }

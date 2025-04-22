@@ -29,6 +29,7 @@ namespace YinYang.Rendering
 
         public Mesh Mesh { get; set; }
         public bool RenderInDepthPass { get; set; } = true;
+        public bool RenderInScenePass { get; set; } = true;
 
         public Renderer(Material material, Mesh mesh)
         {
@@ -53,6 +54,7 @@ namespace YinYang.Rendering
             Material.SetUniform("normalMatrix", Matrix4.Invert(model));
             Material.SetUniform("viewPos", context.Camera.Position);
             Material.SetUniform("debugMode", context.DebugMode);
+            Material.SetUniform("time", context.Time);
 
             if (Material.UsesLighting)
                 Material.PrepareLighting(context);

@@ -158,18 +158,18 @@ public class SceneTestWorld : World
                 )
             ),
             new LogMotion("Step 8: turn to exit"),
-            new LookAtTargetTimed(new Vector3(-18.78f, 2.04f, -21.19f), 2f),
+            new LookAtTargetTimed(new Vector3(-52.57f, 18f, -57.38f), 2f), // temple pos 
 
             new LogMotion("Step 8–11: moving to exit"),
             new ParallelMotion(
-                new CamForwardDirectionBehavior(new Vector3(-18.78f, 2.04f, -21.19f), 8f),
+                new LookAtTargetTimed(new Vector3(-52.57f, 18f, -57.38f), 8f),
                 new SequentialMotion(
                     new LogMotion("Step 8"),
                     new MoveToPositionXYZ(new Vector3(-18.78f, 2.04f, -21.19f), 2f),
                     new LogMotion("Step 9"),
-                    new MoveToPositionXYZ(new Vector3(-25.65f, 3.94f, -14.91f), 2f),
+                    new MoveToPositionXYZ(new Vector3(-25.65f, 3.94f, -14.91f), 2f), 
                     new LogMotion("Step 10"),
-                    new MoveToPositionXYZ(new Vector3(-33.11f, 8.28f, -20.36f), 2f),
+                    new MoveToPositionXYZ(new Vector3(-33.11f, 8.28f, -20.36f), 2f), // look at temple
                     new LogMotion("Step 11"),
                     new MoveToPositionXYZ(new Vector3(-34.93f, 8.68f, -27.26f), 2f)
                 )
@@ -181,7 +181,7 @@ public class SceneTestWorld : World
 
             new LogMotion("Step 12–16: move while looking at temple"),
             new ParallelMotion(
-                new CamForwardDirectionBehavior(new Vector3(-0.95f, 0.30f, -0.30f), 10f),
+                new LookAtTargetTimed(new Vector3(-0.95f, 0.30f, -0.30f), 10f),
                 new SequentialMotion(
                     new LogMotion("Step 12"),
                     new MoveToPositionXYZ(new Vector3(-25.73f, 8.11f, -32.39f), 2f),

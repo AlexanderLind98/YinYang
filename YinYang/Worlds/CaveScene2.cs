@@ -53,7 +53,7 @@ public class CaveScene2 : World
         
         // particles
         var magicParticles = new GameObject(Game);
-        magicParticles.Transform.Position = new Vector3(3,3,3); //debug position
+        magicParticles.Transform.Position = new Vector3(1,1,1); //debug position
         magicParticles.AddComponent<MagicParticleSystem>(1000); 
         GameObjects.Add(magicParticles);
         

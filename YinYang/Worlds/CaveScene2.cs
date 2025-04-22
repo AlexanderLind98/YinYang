@@ -5,6 +5,7 @@ using YinYang.Behaviors.CollisionEvents;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
+using YinYang.Particles;
 
 namespace YinYang.Worlds;
 
@@ -49,6 +50,12 @@ public class CaveScene2 : World
     protected override void ConstructWorld()
     {
         base.ConstructWorld();
+        
+        // particles
+        var magicParticles = new GameObject(Game);
+        magicParticles.Transform.Position = new Vector3(3,3,3); //debug position
+        magicParticles.AddComponent<MagicParticleSystem>(1000); 
+        GameObjects.Add(magicParticles);
         
         DirectionalLight.Visualizer.Transform.Position = sunPos;
         DirectionalLight.Visualizer.Transform.Scale = new Vector3(2.5f);

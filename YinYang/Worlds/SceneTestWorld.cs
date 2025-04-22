@@ -5,6 +5,7 @@ using YinYang.Behaviors.Motion;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
+using YinYang.Particles;
 
 namespace YinYang.Worlds;
 
@@ -64,6 +65,12 @@ public class SceneTestWorld : World
         
         new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
         SpotLights[0].ToggleLight();
+        
+        // particles
+        var magicParticles = new GameObject(Game);
+        magicParticles.Transform.Position = new Vector3(0,0,0); //debug position
+        magicParticles.AddComponent<MagicParticleSystem>(1000); 
+        GameObjects.Add(magicParticles);
 
         MoveCam();
     }

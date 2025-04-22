@@ -172,7 +172,7 @@ public class SceneTestWorld : World
             new LookAtTargetTimed(new Vector3(-0.95f, 0.30f, -0.30f), 3f),
             new WaitXSeconds(1f),
 
-            new LogMotion("Step 12–16: move while looking at origin"),
+            new LogMotion("Step 12–16: move while looking at temple"),
             new ParallelMotion(
                 new CamForwardDirectionBehavior(new Vector3(-0.95f, 0.30f, -0.30f), 10f),
                 new SequentialMotion(

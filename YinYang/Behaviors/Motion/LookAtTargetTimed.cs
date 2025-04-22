@@ -31,10 +31,15 @@ public class LookAtTargetTimed : IFiniteMotion, IResetMotion
             // Compute target direction and angles
             Vector3 dir = targetPos - obj.Transform.Position;
             if (dir.Length < 0.001f) dir = new Vector3(0, 0, -1);
-            dir.Normalize();
+            dir = Vector3.Normalize(dir);
 
-            float yaw = MathF.Atan2(dir.X, dir.Z);
-            float pitch = MathF.Asin(dir.Y);
+            // Yaw: angle left/right from -Z axis
+            float yaw = MathF.Atan2(dir.X, -dir.Z);
+
+            // Pitch: angle up/down from horizontal
+            float pitch = MathF.Atan2(dir.Y, MathF.Sqrt(dir.X * dir.X + dir.Z * dir.Z));
+
+            // Convert to degrees
             targetRot = new Vector3(
                 MathHelper.RadiansToDegrees(pitch),
                 MathHelper.RadiansToDegrees(yaw),

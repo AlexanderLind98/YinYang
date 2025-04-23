@@ -25,7 +25,8 @@ namespace YinYang.Worlds
 
 
         private SceneRenderPass scenePass;
-        private GodRayPass _godRayPass;
+        //private GodRayPass _godRayPass;
+        private VolumetricLightPass volumetricLightPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
         private BloomDownsamplePass _bloomDownsamplePass;
@@ -122,7 +123,8 @@ namespace YinYang.Worlds
             scenePass = new SceneRenderPass();
             
             // screen space god rays
-            _godRayPass = new GodRayPass();
+            //_godRayPass = new GodRayPass();
+            volumetricLightPass = new VolumetricLightPass(Game.Size.X, Game.Size.Y);
             
             cubeReflectionRenderPass = new CubeReflectionRenderPass();
             
@@ -139,6 +141,7 @@ namespace YinYang.Worlds
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
             //renderPipeline.AddPass(_godRayPass);
+            renderPipeline.AddPass(volumetricLightPass);
             renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);
@@ -234,7 +237,8 @@ namespace YinYang.Worlds
         private void SetVolumetricEnabled(bool enabled)
         {
             volumetricEnabled = enabled;
-            _godRayPass.Enabled = enabled;
+            //_godRayPass.Enabled = enabled;
+            volumetricLightPass.Enabled = enabled;
             compositePass.SetVolumetricEnabled(enabled); // We'll add this next
             Console.WriteLine(enabled ? "Volumetric Light ENABLED" : "Volumetric Light DISABLED");
         }
@@ -311,7 +315,8 @@ namespace YinYang.Worlds
                 _bloomDownsamplePass.InputTexture = scenePass.BrightColorTexture;
 
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
-                compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
+                //compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
+                compositePass.VolumetricTexture = volumetricLightPass.VolumetricTexture;
                 compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
 
                 bloomLinked = true;
@@ -348,10 +353,15 @@ namespace YinYang.Worlds
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
             
-            if (Game.showLightShaftTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
+            // if (Game.showLightShaftTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
+            // {
+            //     DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
+            //     DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
+            // }
+            if (Game.showLightShaftTexture && volumetricLightPass != null && volumetricLightPass.VolumetricTexture != 0)
             {
-                DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
-                DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
+                //DrawDebugTexture(_godRayPass.LightShaftTexture, new Vector2(0.0f, scale * 2), scale); // blurred result
+                DrawDebugTexture(volumetricLightPass.VolumetricTexture, new Vector2(0.0f, scale * 1), scale); // raw mask
             }
         }
 

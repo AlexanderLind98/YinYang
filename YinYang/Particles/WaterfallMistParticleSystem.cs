@@ -31,7 +31,7 @@ namespace YinYang.Particles
         protected override void LoadShaders()
         {
             computeShader = new ComputeShader("Shaders/Particles/computeWaterfallMist.comp");
-            renderShader = new Shader("Shaders/Particles/renderMagicParticles.vert", "Shaders/Particles/renderWaterMist.frag");
+            renderShader = new Shader("Shaders/Particles/renderWaterMist.vert", "Shaders/Particles/renderWaterMist.frag");
         }
 
         protected override void PopulateInitialParticles(Span<byte> bufferData)

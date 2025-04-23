@@ -25,6 +25,8 @@ namespace YinYang.Worlds
 
 
         private SceneRenderPass scenePass;
+        private ShadowRenderPass shadowPass;
+        private PointShadowRenderPass pointShadowPass;
         private GodRayPass _godRayPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
@@ -117,8 +119,8 @@ namespace YinYang.Worlds
             lightingManager.InitializeDirectionalLight(this, SunDirection, SunColor);
 
             // Initialize modular render passes
-            renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
-            renderPipeline.AddPass(new PointShadowRenderPass());
+            shadowPass = new ShadowRenderPass(lightingManager);
+            pointShadowPass = new PointShadowRenderPass();
             scenePass = new SceneRenderPass();
             
             // screen space god rays
@@ -138,6 +140,8 @@ namespace YinYang.Worlds
 
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
+            renderPipeline.AddPass(shadowPass);
+            renderPipeline.AddPass(pointShadowPass);
             //renderPipeline.AddPass(_godRayPass);
             renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);
@@ -324,7 +328,7 @@ namespace YinYang.Worlds
             
             if (debugOverlayEnabled)
             {
-                _debugOverlay.Draw(reflectionCubeMap, new Vector2i(Game.Size.X, Game.Size.Y));
+                _debugOverlay.Draw(depthMap, new Vector2i(Game.Size.X, Game.Size.Y));
                 // DrawDebugTexture(depthMap.Handle, Game.Size);
             }
             

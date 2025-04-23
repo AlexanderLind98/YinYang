@@ -35,21 +35,39 @@ void main() {
     float seed = float(id) + fract(p.position.w * 321.123);
     p.position.w -= deltaTime;
 
+    // Constants for spawn region 
+    float spawnWidth    = 6.0;  
+    float spawnDepth    = 12.0; 
+    float maxHeight     = 0.2;  
+    
+    // Lifetime range
+    float minLifetime   = 0.5;
+    float maxLifetime   = 1.5;  
+    
+    // Velocity parameters
+    float maxHorizontalSpeed = 1.5;
+    float baseUpwardSpeed    = 1.5;
+    float upwardVariance     = 0.3;
+    float velocityZScale     = 0.3;
+    
     if (p.position.w < 0.0) 
     {
-        // 
-        float offset = hash(seed) * 3.0 - 3.0; // spread left-right
-        float depth = hash(seed + 1.0) * 12.0 - 1.0;
-        float height = hash(seed + 2.0) * 0.2;
-
-        p.position.xyz = spawnOrigin + vec3(offset, height, depth * 0.5);
-        p.position.w = 0.5 + hash(seed + 3.0) * 1.0;
-
-        float vx = (hash(seed + 4.0) - 0.5) * 1.5;
-        float vy = 1.5 + hash(seed + 5.0) * 0.3;
-        float vz = (hash(seed + 6.0) - 0.5) * 1.5;
-
-        p.velocity.xyz = vec3(vx, vy, vz * 0.3);
+        // Generate symmetric random spawn position around spawnOrigin
+        float offset = (hash(seed) - 0.5) * spawnWidth;        
+        float depth  = (hash(seed + 1.0) - 0.5) * spawnDepth;  
+        float height = hash(seed + 2.0) * maxHeight;           
+    
+        p.position.xyz = spawnOrigin + vec3(offset, height, depth);
+    
+        // Random lifetime in [min, max]
+        p.position.w = minLifetime + hash(seed + 3.0) * (maxLifetime - minLifetime);
+    
+        // Randomized velocity, mostly upward with slight horizontal variation
+        float vx = (hash(seed + 4.0) - 0.5) * maxHorizontalSpeed;
+        float vy = baseUpwardSpeed + hash(seed + 5.0) * upwardVariance;
+        float vz = (hash(seed + 6.0) - 0.5) * maxHorizontalSpeed;
+    
+        p.velocity.xyz = vec3(vx, vy, vz * velocityZScale);
     }
 
     // Apply velocity

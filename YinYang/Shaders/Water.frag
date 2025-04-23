@@ -12,6 +12,8 @@ struct WaterMaterial
     sampler2D normTex;
     vec3 color;
     vec3 tintColor;
+    bool doubleNormals;
+    vec2 flowDir;
 };
 
 uniform samplerCube environmentCubemap;
@@ -27,10 +29,19 @@ void main()
 
     //Scroll normals
     vec2 scrollUV = texCoord + vec2(time * 0.05, time * 0.03); // tweak speed and direction
-    vec3 tangentNormal1 = texture(waterMat.normTex, texCoord + time * vec2(0.05, 0.03)).rgb;
-    vec3 tangentNormal2 = texture(waterMat.normTex, texCoord - time * vec2(0.03, 0.05)).rgb;
+    vec3 tangentNormal1 = texture(waterMat.normTex, texCoord + time * waterMat.flowDir).rgb;
+    vec3 tangentNormal2 = texture(waterMat.normTex, texCoord - time * vec2(waterMat.flowDir.y, waterMat.flowDir.x)).rgb; //Flows opposite to normal1
+
+    vec3 combinedNormal;
     
-    vec3 combinedNormal = normalize((tangentNormal1 + tangentNormal2) * 0.5 * 2.0 - 1.0);
+    if(waterMat.doubleNormals)
+    {
+        combinedNormal = normalize((tangentNormal1 + tangentNormal2) * 0.5 * 2.0 - 1.0);
+    }
+    else
+    {
+        combinedNormal = normalize(tangentNormal1); 
+    }
 
     //Derive TBN
     vec3 Q1 = dFdx(FragPos);
@@ -66,6 +77,7 @@ void main()
     vec3 specular = reflectedColor * fresnel;
 
     //Finalize
-    finalColor = ((diffuse * depthTint) / 5) + specular * specularStrength;
+//    finalColor = ((diffuse * depthTint) / 5) + specular * specularStrength;
+    finalColor = specular * specularStrength;
     FragColor = vec4(finalColor, 1.0);
 }

@@ -287,6 +287,12 @@
       <None Update="Textures\MossRock01_Spec.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Models\Cave\Temple_Waterfall.obj">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Textures\Waterfall_Norm.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="Shaders\Particles\computeMagicParticles.comp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

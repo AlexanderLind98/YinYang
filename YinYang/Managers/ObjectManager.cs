@@ -71,6 +71,22 @@ namespace YinYang.Managers
                 obj.RenderDepth(depthShader);
             }
         }
+        
+        public void RenderReflection(RenderContext context)
+        {
+            // Iterate through and draw each GameObject with appropriate matrices and lighting context.
+            foreach (var obj in GameObjects)
+            {
+                if (obj.Renderer == null) //TODO: maybe seperate lists for renderers and non-renderers
+                {
+                    // If the object has no renderer, skip it.
+                    // Console.WriteLine($"ObjectManager.Render: Object at {obj.Transform.Position} has no Renderer.");
+                    continue;
+                }
+                
+                obj.RenderReflection(context);
+            }
+        }
 
         /// <summary>
         /// Cleans up all GameObjects and their resources.

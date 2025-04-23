@@ -1,4 +1,4 @@
-// lightShaft.frag
+// godrays.frag
 #version 460 core
 
 out vec4 FragColor;

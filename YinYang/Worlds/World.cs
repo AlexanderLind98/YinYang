@@ -25,6 +25,7 @@ namespace YinYang.Worlds
 
 
         private SceneRenderPass scenePass;
+        private GodRayPass _godRayPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
         private BloomDownsamplePass _bloomDownsamplePass;
@@ -37,6 +38,7 @@ namespace YinYang.Worlds
         private bool bloomLinked = false;
         
         private bool bloomEnabled = true;
+        private bool volumetricEnabled = true;
 
         
         /// <summary>
@@ -120,6 +122,10 @@ namespace YinYang.Worlds
             //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
             
+            // screen space god rays
+            _godRayPass = new GodRayPass();
+            //renderPipeline.AddPass(_godRayPass);
+            
             cubeReflectionRenderPass = new CubeReflectionRenderPass();
             
             // Initialize bloom mip chain
@@ -154,6 +160,10 @@ namespace YinYang.Worlds
             if (input.IsKeyPressed(Keys.B))
             {
                 SetBloomEnabled(!bloomEnabled);
+            }
+            if (input.IsKeyPressed(Keys.V))
+            {
+                SetVolumetricEnabled(!volumetricEnabled);
             }
             
             // bloom strength
@@ -220,6 +230,14 @@ namespace YinYang.Worlds
             compositePass.SetBloomEnabled(enabled);
 
             Console.WriteLine(enabled ? "Bloom ENABLED" : "Bloom DISABLED");
+        }
+        
+        private void SetVolumetricEnabled(bool enabled)
+        {
+            volumetricEnabled = enabled;
+            _godRayPass.Enabled = enabled;
+            compositePass.SetVolumetricEnabled(enabled); // We'll add this next
+            Console.WriteLine(enabled ? "Volumetric Light ENABLED" : "Volumetric Light DISABLED");
         }
 
 
@@ -294,6 +312,7 @@ namespace YinYang.Worlds
                 _bloomDownsamplePass.InputTexture = scenePass.BrightColorTexture;
 
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
+                compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
                 compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
 
                 bloomLinked = true;
@@ -328,6 +347,12 @@ namespace YinYang.Worlds
                 // Show first (full-res) and last (softest) mip levels
                 DrawDebugTexture(_bloomMipChain.Mips[0].Texture, new Vector2(1.0f - scale, scale * 1), scale);
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
+            }
+            
+            if (Game.showLightShaftTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
+            {
+                DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
+                DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
             }
         }
 

@@ -15,6 +15,7 @@ namespace YinYang
         public int DebugMode { get; set; } = 0;
         public bool showSceneTexture = false;
         public bool showBloomTexture = false;
+        public bool showLightShaftTexture = false;
 
         
 
@@ -24,7 +25,7 @@ namespace YinYang
             CenterWindow();
             GL.ClearColor(Color4.Black);
             
-            currentWorld = new CaveScene2(this);
+            currentWorld = new SceneTestWorld(this);
         }
         
         protected override void OnLoad()
@@ -94,7 +95,12 @@ namespace YinYang
                 showBloomTexture = !showBloomTexture;
                 Console.WriteLine("BrightColorTexture debug: " + showBloomTexture);
             }
-
+            
+            if (input.IsKeyPressed(Keys.D8))
+            {
+                showLightShaftTexture = !showLightShaftTexture;
+                Console.WriteLine("VolumetricTexture debug: " + showLightShaftTexture);
+            }
 
             Title = $"{currentWorld.WorldName} | {currentWorld.DebugLabel}";
         }

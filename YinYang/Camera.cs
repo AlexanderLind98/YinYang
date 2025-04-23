@@ -52,5 +52,14 @@ namespace YinYang
             return view * projection;
         }
 
+        public Matrix4 GetView()
+        {
+            return Matrix4.LookAt(gameObject.Transform.Position, gameObject.Transform.Position + Front, Up);
+        }
+        
+        public Matrix4 GetProjection()
+        {
+            return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), aspectX / aspectY, near, far);
+        }
     }
 }

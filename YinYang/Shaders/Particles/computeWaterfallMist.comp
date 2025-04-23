@@ -1,0 +1,81 @@
+// computeWaterfallMist.comp
+
+#version 460
+// Launch 256 threads per work group
+layout(local_size_x = 256) in;
+
+// A single particle has a position and a velocity
+struct Particle 
+{
+    vec4 position; // xyz = pos, w = lifetime
+    vec4 velocity; // xyz = direction, w = unused
+};
+
+// GPU buffer containing all particles (read/write from shader)
+layout(std430, binding = 0) buffer Particles 
+{
+    Particle particles[];
+};
+
+// Time since last frame (provided by CPU)
+uniform float deltaTime;
+// Spawn origin for particles (provided by CPU)
+uniform vec3 spawnOrigin;
+
+// Simple hash to create pseudo-random values
+float hash(float x) 
+{
+    return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    Particle p = particles[id];
+
+    float seed = float(id) + fract(p.position.w * 321.123);
+    p.position.w -= deltaTime;
+
+    // Constants for spawn region 
+    float spawnWidth    = 6.0;  
+    float spawnDepth    = 12.0; 
+    float maxHeight     = 0.2;  
+    
+    // Lifetime range
+    float minLifetime   = 0.5;
+    float maxLifetime   = 1.5;  
+    
+    // Velocity parameters
+    float maxHorizontalSpeed = 1.5;
+    float baseUpwardSpeed    = 1.5;
+    float upwardVariance     = 0.3;
+    float velocityZScale     = 0.3;
+    
+    if (p.position.w < 0.0) 
+    {
+        // Generate symmetric random spawn position around spawnOrigin
+        float offset = (hash(seed) - 0.5) * spawnWidth;        
+        float depth  = (hash(seed + 1.0) - 0.5) * spawnDepth;  
+        float height = hash(seed + 2.0) * maxHeight;           
+    
+        p.position.xyz = spawnOrigin + vec3(offset, height, depth);
+    
+        // Random lifetime in [min, max]
+        p.position.w = minLifetime + hash(seed + 3.0) * (maxLifetime - minLifetime);
+    
+        // Randomized velocity, mostly upward with slight horizontal variation
+        float vx = (hash(seed + 4.0) - 0.5) * maxHorizontalSpeed;
+        float vy = baseUpwardSpeed + hash(seed + 5.0) * upwardVariance;
+        float vz = (hash(seed + 6.0) - 0.5) * maxHorizontalSpeed;
+    
+        p.velocity.xyz = vec3(vx, vy, vz * velocityZScale);
+    }
+
+    // Apply velocity
+    p.position.xyz += p.velocity.xyz * deltaTime;
+
+    // Add turbulence
+    p.position.x += sin(p.position.w * 15.0 + seed) * 0.02;
+    p.position.z += cos(p.position.w * 12.0 + seed) * 0.01;
+
+    particles[id] = p;
+}

@@ -6,7 +6,7 @@ namespace YinYang.Behaviors.Motion;
 /// A behavior that executes a list of IAutoMotion steps in sequence,
 /// one at a time. Each step runs until it signals completion via IsDone.
 /// </summary>
-public class SequentialBehavior : Behaviour
+public class SequentialBehavior : Behaviour, IResetMotion
 {
     // Ordered list of motion steps
     private readonly List<IAutoMotion> motions;
@@ -44,4 +44,16 @@ public class SequentialBehavior : Behaviour
             currentStepIndex++;
         }
     }
+    
+    public void Reset()
+    {
+        currentStepIndex = 0;
+
+        foreach (var motion in motions)
+        {
+            if (motion is IResetMotion resettable)
+                resettable.Reset();
+        }
+    }
+
 }

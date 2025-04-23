@@ -12,6 +12,10 @@ uniform sampler2D bloomBlur;
 uniform float exposure;
 uniform float bloomStrength;
 
+uniform int volumetricEnabled;
+uniform sampler2D volumetric;
+uniform vec3 shaftColor;
+
 void main()
 {
     // Sample scene color (HDR)
@@ -25,6 +29,13 @@ void main()
 
     // Add bloom after tone mapping
     vec3 color = toneMapped + (bloomEnabled ? bloom * bloomStrength : vec3(0.0));
+    
+    // godrays
+     vec3 fog = texture(volumetric, texCoord).rgb;
+        
+        fog *= shaftColor;
+        if (volumetricEnabled == 1)
+            color += fog;
 
     FragColor = vec4(color, 1.0);
 }

@@ -225,12 +225,12 @@ namespace YinYang.Rendering
                 case ReflectionManager.ReflectionType.Static:
                 {
                     if (!hasRenderedReflection)
-                        objects.Render(faceContext);
+                        objects.RenderReflection(faceContext);
                     break;
                 }
                 case ReflectionManager.ReflectionType.Dynamic:
                 {
-                    objects.Render(faceContext);
+                    objects.RenderReflection(faceContext);
                     break;
                 }
                 default: throw new ArgumentOutOfRangeException();

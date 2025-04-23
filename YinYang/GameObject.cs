@@ -115,6 +115,22 @@ namespace YinYang
             }
         }
         
+        public void RenderReflection(RenderContext context)
+        {
+            // if (Renderer != null ) //TODO: remove from render depth
+            
+            if (Renderer != null)
+            {
+                // Calculate the model matrix.
+                Matrix4 model = Transform.CalculateModel();
+                
+                // Calculate the model-view-projection matrix.
+                Matrix4 mvp = model * context.ViewProjection;
+                
+                Renderer.RenderReflection(context, mvp, model);
+            }
+        }
+        
         public void Dispose()
         {
             Renderer?.Mesh?.Dispose();

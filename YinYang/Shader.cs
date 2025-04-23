@@ -73,6 +73,26 @@ public class Shader : IDisposable
             GL.DeleteShader(geometryShader);
     }
     
+    public Shader(string computePath, ShaderType shaderType)
+    {
+        if (shaderType != ShaderType.ComputeShader)
+            throw new ArgumentException("This constructor only supports compute shaders.");
+
+        name = Path.GetFileNameWithoutExtension(computePath);
+
+        string computeSource = PreprocessShader(computePath);
+        int computeShader = GL.CreateShader(ShaderType.ComputeShader);
+        GL.ShaderSource(computeShader, computeSource);
+        CompileShader(computeShader);
+
+        Handle = GL.CreateProgram();
+        GL.AttachShader(Handle, computeShader);
+        LinkProgram(Handle);
+
+        GL.DetachShader(Handle, computeShader);
+        GL.DeleteShader(computeShader);
+    }
+    
     private void CompileShader(int shader)
     {
         GL.CompileShader(shader);
@@ -168,6 +188,13 @@ public class Shader : IDisposable
         int location = GL.GetUniformLocation(Handle, name);
         GL.UniformMatrix4(location, true, ref transform);
     }
+    
+    public void SetMatrix(string name, Matrix4 transform, bool transpose)
+    {
+        int loc = GL.GetUniformLocation(Handle, name);
+        GL.UniformMatrix4(loc, transpose, ref transform);
+    }
+
     
     /// <summary>
     /// Preprocesses a single shader file by resolving all <c>#include</c> directives recursively.

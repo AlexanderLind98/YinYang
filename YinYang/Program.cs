@@ -22,10 +22,11 @@ GameWindowSettings settings = new GameWindowSettings()
 NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
 {
     ClientSize = new Vector2i(1920, 1080),
+    //ClientSize = new Vector2i(800, 600),
     Title = "Yin Yang Engine | ",
     NumberOfSamples = 4,
     Icon = CreateIcon(),
-    // WindowState = WindowState.Fullscreen
+    //WindowState = WindowState.Fullscreen
 };
 
 [System.Runtime.InteropServices.DllImport("kernel32.dll")]

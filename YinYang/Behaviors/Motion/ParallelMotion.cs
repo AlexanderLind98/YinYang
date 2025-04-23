@@ -1,6 +1,6 @@
 namespace YinYang.Behaviors.Motion;
 
-public class ParallelMotion : IFiniteMotion
+public class ParallelMotion : IFiniteMotion, IResetMotion
 {
     private readonly List<IAutoMotion> motions;
     private bool isDone = false;
@@ -29,4 +29,15 @@ public class ParallelMotion : IFiniteMotion
     }
 
     public bool IsDone => isDone;
+    
+    public void Reset()
+    {
+        isDone = false;
+
+        foreach (var motion in motions)
+        {
+            if (motion is IResetMotion resettable)
+                resettable.Reset();
+        }
+    }
 }

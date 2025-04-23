@@ -4,6 +4,7 @@ using YinYang.Behaviors;
 using YinYang.Lights;
 using YinYang.Managers;
 using YinYang.Materials;
+using YinYang.Particles;
 
 namespace YinYang.Worlds;
 
@@ -370,6 +371,42 @@ public class CaveScene : World
         PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
         
         reflectionManager.AddProbe(mask.Transform.Position);
+        
+        PlaceParticles();
+    }
+    
+    private void PlaceParticles()
+    {
+        var magicParticlesRight = new GameObject(Game);
+        magicParticlesRight.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
+        magicParticlesRight.AddComponent<MagicParticleSystem>(10); 
+        GameObjects.Add(magicParticlesRight);
+        
+        var magicParticlesFront = new GameObject(Game);
+        magicParticlesFront.Transform.Position = new Vector3(0.4f, 0.7f, -6.5f);
+        magicParticlesFront.AddComponent<MagicParticleSystem>(10); 
+        GameObjects.Add(magicParticlesFront);
+        
+        var magicParticlesLeft = new GameObject(Game);
+        magicParticlesLeft.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
+        magicParticlesLeft.AddComponent<MagicParticleSystem>(10); 
+        GameObjects.Add(magicParticlesLeft);
+        
+        //
+        var WaterfallParticlesRight = new GameObject(Game);
+        WaterfallParticlesRight.Transform.Position = new Vector3(-52.3f, -6.8f, -65.7f);
+        WaterfallParticlesRight.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesRight);
+        
+        var WaterfallParticlesMid = new GameObject(Game);
+        WaterfallParticlesMid.Transform.Position = new Vector3(-48, -6.8f, -57.4f); 
+        WaterfallParticlesMid.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesMid);
+        
+        var WaterfallParticlesLeft = new GameObject(Game);
+        WaterfallParticlesLeft.Transform.Position = new Vector3(-52, -6.4f, -49.5f); 
+        WaterfallParticlesLeft.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesLeft);
     }
 
     public override void HandleInput(KeyboardState input)

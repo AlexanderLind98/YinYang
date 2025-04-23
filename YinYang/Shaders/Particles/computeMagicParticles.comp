@@ -1,0 +1,80 @@
+// computemagicparticle.comp
+// better magic fizzling made with help from chatgpt
+
+#version 460
+
+// Launch 256 threads per work group
+layout(local_size_x = 256) in;
+
+// A single particle has a position and a velocity
+struct Particle 
+{
+    vec4 position; // xyz = pos, w = lifetime
+    vec4 velocity; // xyz = direction, w = unused
+};
+
+// GPU buffer containing all particles (read/write from shader)
+layout(std430, binding = 0) buffer Particles 
+{
+    Particle particles[];
+};
+
+// Time since last frame (provided by CPU)
+uniform float deltaTime;
+// Spawn origin for particles (provided by CPU)
+uniform vec3 spawnOrigin;
+
+// Simple hash to create pseudo-random values
+float hash(float x) 
+{
+    return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+// Generates a random unit vector based on seed
+vec3 randomUnitVector(float seed) 
+{
+    float theta = hash(seed) * 6.2831;        // azimuth
+    float phi = acos(2.0 * hash(seed + 1.0) - 1.0); // polar
+    float x = sin(phi) * cos(theta);
+    float y = sin(phi) * sin(theta);
+    float z = cos(phi);
+    return vec3(x, y, z);
+}
+
+void main() 
+{
+    uint id = gl_GlobalInvocationID.x;
+    Particle p = particles[id];
+    float seed = float(id) + fract(p.position.w * 123.456);
+
+    // Update lifetime
+    p.position.w -= deltaTime;
+
+    // If the particle is dead (lifetime expired), respawn it
+    if (p.position.w < 0.0) 
+    {
+        // Generate random direction
+        vec3 dir = randomUnitVector(seed);
+
+        // Random radius from center (0–0.3)
+        float radius = hash(seed + 2.0) * 0.3;
+
+        // Spawn within a sphere around spawnOrigin
+        p.position.xyz = spawnOrigin + dir * radius;
+
+        // Lifetime between 1.0 and 3.0 seconds
+        p.position.w = 1.0 + hash(seed + 3.0) * 2.0;
+
+        // Assign outward velocity
+        float speed = 0.5 + hash(seed + 4.0) * 1.0;
+        p.velocity.xyz = dir * speed;
+    }
+
+    // Move particle
+    p.position.xyz += p.velocity.xyz * deltaTime;
+
+    // tiny noise to simulate swirl
+    p.position.xyz += 0.01 * sin(vec3(seed, seed + 1.0, seed + 2.0) + p.position.w * 6.0);
+
+    particles[id] = p;
+}

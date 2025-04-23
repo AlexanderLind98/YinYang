@@ -59,7 +59,7 @@ namespace YinYang.Lights
         /// </summary>
         /// <param name="rotationDegrees">Euler angles in degrees.</param>
         /// <returns>Normalized direction vector.</returns>
-        protected Vector3 GetDirectionFromDegrees(Vector3 rotationDegrees)
+        public Vector3 GetDirectionFromDegrees(Vector3 rotationDegrees)
         {
             Vector3 radians = new Vector3(
                 MathHelper.DegreesToRadians(rotationDegrees.X),

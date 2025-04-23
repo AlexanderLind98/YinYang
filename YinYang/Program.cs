@@ -26,7 +26,7 @@ NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
     Title = "Yin Yang Engine | ",
     NumberOfSamples = 4,
     Icon = CreateIcon(),
-    // WindowState = WindowState.Fullscreen
+    //WindowState = WindowState.Fullscreen
 };
 
 [System.Runtime.InteropServices.DllImport("kernel32.dll")]

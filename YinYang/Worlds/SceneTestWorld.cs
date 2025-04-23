@@ -81,7 +81,7 @@ public class SceneTestWorld : World
         PlaceParticles();
 
         // Cam Route
-        //MoveCam();
+        MoveCam();
     }
 
     private void PlaceParticles()
@@ -208,7 +208,7 @@ public class SceneTestWorld : World
             ),
 
             new LogMotion("Step 8: turn to face exit"),
-            new TurnXYZDegrees((0,200,0),2f),
+            new TurnXYZDegrees((0,-179,0),2f),
 
             new LogMotion("Step 8–11: moving to exit"),
             new ParallelMotion(

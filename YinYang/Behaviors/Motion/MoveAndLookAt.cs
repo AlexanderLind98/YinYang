@@ -1,58 +1,57 @@
 using OpenTK.Mathematics;
+using YinYang.Behaviors;
+using YinYang.Components;
 
-namespace YinYang.Behaviors.Motion;
-
-public class MoveAndLookAt : IFiniteMotion, IResetMotion
+namespace YinYang.Behaviors.Motion
 {
-    private readonly Vector3 endPos;
-    private readonly Vector3 lookAtPos;
-    private readonly float duration;
-
-    private Vector3 startPos;
-    private float elapsed;
-    private bool started = false;
-
-    public MoveAndLookAt(Vector3 endPos, Vector3 lookAtPos, float duration)
+    /// <summary>
+    /// Moves an object to a target position while rotating to always look at a fixed point.
+    /// </summary>
+    public class MoveAndLookAt : IFiniteMotion, IResetMotion
     {
-        this.endPos     = endPos;
-        this.lookAtPos  = lookAtPos;
-        this.duration   = duration;
-    }
+        private readonly Vector3 targetPosition;
+        private readonly Vector3 lookAtTarget;
+        private readonly float duration;
 
-    public void Apply(GameObject obj, float dt)
-    {
-        if (!started)
+        private float elapsed = 0f;
+        private Vector3 startPosition;
+        private bool started = false;
+
+        public MoveAndLookAt(Vector3 targetPosition, Vector3 lookAtTarget, float duration)
         {
-            started  = true;
-            elapsed  = 0f;
-            startPos = obj.Transform.Position;
+            this.targetPosition = targetPosition;
+            this.lookAtTarget = lookAtTarget;
+            this.duration = duration;
         }
 
-        // 1) Move
-        elapsed += dt;
-        float t = Math.Clamp(elapsed / duration, 0f, 1f);
-        obj.Transform.Position = Vector3.Lerp(startPos, endPos, t);
-
-        // 2) Always look at lookAtPos
-        Vector3 dir = lookAtPos - obj.Transform.Position;
-        if (dir.LengthSquared > 0.0001f)
+        public void Apply(GameObject obj, float deltaTime)
         {
-            dir.Normalize();
-            float yaw   = MathF.Atan2(dir.X, dir.Z);
-            float pitch = MathF.Asin(dir.Y);
-            obj.Transform.SetRotationInDegrees(
-                MathHelper.RadiansToDegrees(pitch),
-                MathHelper.RadiansToDegrees(yaw),
-                0f
-            );
+            if (!started)
+            {
+                startPosition = obj.Transform.Position;
+                started = true;
+            }
+
+            elapsed += deltaTime;
+            float t = Math.Clamp(elapsed / duration, 0f, 1f);
+            obj.Transform.Position = Vector3.Lerp(startPosition, targetPosition, t);
+
+            // Calculate direction to target
+            Vector3 direction = Vector3.Normalize(lookAtTarget - obj.Transform.Position);
+
+            // Convert direction vector to pitch and yaw angles
+            float pitch = MathHelper.RadiansToDegrees(MathF.Asin(direction.Y));
+            float yaw = MathHelper.RadiansToDegrees(MathF.Atan2(direction.Z, direction.X));
+
+            obj.SetRotationInDegrees(pitch, yaw, 0f);
         }
-    }
 
-    public bool IsDone => elapsed >= duration;
+        public bool IsDone => elapsed >= duration;
 
-    public void Reset()
-    {
-        started = false;
-        elapsed = 0f;
+        public void Reset()
+        {
+            elapsed = 0f;
+            started = false;
+        }
     }
 }

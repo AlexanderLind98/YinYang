@@ -78,20 +78,30 @@ public class SceneTestWorld : World
         SpotLights[0].ToggleLight();
         
         // particles
-        var magicParticles = new GameObject(Game);
-        magicParticles.Transform.Position = new Vector3(0,2,0); //debug position
-        magicParticles.AddComponent<MagicParticleSystem>(1000); 
-        GameObjects.Add(magicParticles);
-        
-        var mistObject = new GameObject(Game);
-        mistObject.Transform.Position = new Vector3(0,0,0); 
-        mistObject.AddComponent<WaterfallMistParticleSystem>(1000);
-        GameObjects.Add(mistObject);
+        PlaceParticles();
 
-
-        MoveCam();
+        // Cam Route
+        //MoveCam();
     }
-    
+
+    private void PlaceParticles()
+    {
+        var magicParticlesRight = new GameObject(Game);
+        magicParticlesRight.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
+        magicParticlesRight.AddComponent<MagicParticleSystem>(1000); 
+        GameObjects.Add(magicParticlesRight);
+        
+        var magicParticlesFront = new GameObject(Game);
+        magicParticlesFront.Transform.Position = new Vector3(0.4f, 0.7f, -6.5f);
+        magicParticlesFront.AddComponent<MagicParticleSystem>(1000); 
+        GameObjects.Add(magicParticlesFront);
+        
+        var WaterfallParticles = new GameObject(Game);
+        WaterfallParticles.Transform.Position = new Vector3(0,0,0); 
+        WaterfallParticles.AddComponent<WaterfallMistParticleSystem>(1000);
+        GameObjects.Add(WaterfallParticles);
+    }
+
     private void MoveCamTest()
     {
         var cameraObj = cameraManager.Camera.GameObject;
@@ -132,19 +142,19 @@ public class SceneTestWorld : World
         cameraObj.AddComponent<SequentialBehavior>
         (
             new LogMotion("Starting CamMove"),
-            new WaitXSeconds(0.5f),
+            new WaitXSeconds(1f),
 
             new LogMotion("Looking side to side"),
             new SequentialMotion
             (
-                new TurnXYZDegrees(new Vector3(0, -45, 0), 0.5f),
+                new TurnXYZDegrees(new Vector3(0, -60, 0), 1.5f),
                 new WaitXSeconds(0.5f),
-                new TurnXYZDegrees(new Vector3(0, 90, 0), 1.5f),
+                new TurnXYZDegrees(new Vector3(0, 120, 0), 1.5f),
                 new WaitXSeconds(1.0f)
             ),
             
             new LogMotion("Turning forward again"),
-            new TurnXYZDegrees(new Vector3(0, -45, 0), 1.0f),
+            new TurnXYZDegrees(new Vector3(0, -60, 0), 1.0f),
             new WaitXSeconds(0.2f),
 
             new LogMotion("Steps 1–3: move to mask while turning to look at it"),
@@ -153,13 +163,13 @@ public class SceneTestWorld : World
                 new MoveAndLookAt(
                     new Vector3(4.38f, 0.61f, -1.84f),
                     new Vector3(-2.08f, 0.436f, -29.80f),
-                    1f
+                    1.25f
                 ),
                 new LogMotion("Step 2"),
                 new MoveAndLookAt(
                     new Vector3(11.10f, 1.47f, -8.69f),
                     new Vector3(-2.08f, 0.436f, -29.80f),
-                    2f
+                    1.5f
                 ),
                 new LogMotion("Step 3"),
                 new MoveAndLookAt(
@@ -198,7 +208,6 @@ public class SceneTestWorld : World
             ),
 
             new LogMotion("Step 8: turn to face exit"),
-            //new TurnXYZDegrees((0,-170,0),2f),
             new TurnXYZDegrees((0,200,0),2f),
 
             new LogMotion("Step 8–11: moving to exit"),

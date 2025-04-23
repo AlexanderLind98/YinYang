@@ -1,21 +1,20 @@
 // computemagicparticle.comp
+// better magic fizzling made with help from chatgpt
+
 #version 460
 
 // Launch 256 threads per work group
 layout(local_size_x = 256) in;
 
 // A single particle has a position and a velocity
-struct Particle
+struct Particle 
 {
-    // xyz = position, w = lifetime
-    vec4 position;
-
-    // xyz = direction, w = unused
-    vec4 velocity;
+    vec4 position; // xyz = pos, w = lifetime
+    vec4 velocity; // xyz = direction, w = unused
 };
 
 // GPU buffer containing all particles (read/write from shader)
-layout(std430, binding = 0) buffer Particles
+layout(std430, binding = 0) buffer Particles 
 {
     Particle particles[];
 };
@@ -25,65 +24,57 @@ uniform float deltaTime;
 // Spawn origin for particles (provided by CPU)
 uniform vec3 spawnOrigin;
 
-
-// Simple hash function to generate pseudo-random values
-float hash(float x)
+// Simple hash to create pseudo-random values
+float hash(float x) 
 {
     return fract(sin(x * 12.9898) * 43758.5453);
 }
 
-void main()
+// Generates a random unit vector based on seed
+vec3 randomUnitVector(float seed) 
 {
-    // Unique ID for this thread (one thread per particle)
-    uint id = gl_GlobalInvocationID.x;
+    float theta = hash(seed) * 6.2831;        // azimuth
+    float phi = acos(2.0 * hash(seed + 1.0) - 1.0); // polar
+    float x = sin(phi) * cos(theta);
+    float y = sin(phi) * sin(theta);
+    float z = cos(phi);
+    return vec3(x, y, z);
+}
 
-    // Read the particle from the buffer
+void main() 
+{
+    uint id = gl_GlobalInvocationID.x;
     Particle p = particles[id];
-    
-    // Use the ID as a seed for randomness
     float seed = float(id) + fract(p.position.w * 123.456);
 
-    // Decrease the lifetime
+    // Update lifetime
     p.position.w -= deltaTime;
 
     // If the particle is dead (lifetime expired), respawn it
-    if (p.position.w < 0.0)
+    if (p.position.w < 0.0) 
     {
-        // Random angle (0 to 2PI)
-        float angle = hash(seed) * 6.2831;
+        // Generate random direction
+        vec3 dir = randomUnitVector(seed);
 
-        // Random radius from center (0 to 0.4)
-        float radius = hash(seed + 1.0) * 0.4;
+        // Random radius from center (0–0.3)
+        float radius = hash(seed + 2.0) * 0.3;
 
-        // Small vertical offset
-        float height = hash(seed + 2.0) * 0.1;
+        // Spawn within a sphere around spawnOrigin
+        p.position.xyz = spawnOrigin + dir * radius;
 
-        // Compute spawn position in a flat circle
-        float x = cos(angle) * radius;
-        float z = sin(angle) * radius;
-        float y = height;
-
-        // Set new position
-        p.position.xyz = spawnOrigin + vec3(x, y, z);
-
-        // Assign a new lifetime between 1.0 and 3.0 seconds
+        // Lifetime between 1.0 and 3.0 seconds
         p.position.w = 1.0 + hash(seed + 3.0) * 2.0;
 
-        // Random velocity (mostly upward, slight sideways motion)
-        float vx = (hash(seed + 4.0) - 0.5) * 1.0;
-        float vy = 0.7 + hash(seed + 5.0) * 0.5;
-        float vz = (hash(seed + 6.0) - 0.5) * 1.0;
-
-        // Apply the velocity
-        p.velocity.xyz = vec3(vx, vy, vz);
+        // Assign outward velocity
+        float speed = 0.5 + hash(seed + 4.0) * 1.0;
+        p.velocity.xyz = dir * speed;
     }
 
-    // Move the particle using its velocity and delta time
+    // Move particle
     p.position.xyz += p.velocity.xyz * deltaTime;
 
-    // Add a slight swirl to the motion using a sine wave
-    p.position.x += sin(p.position.w * 5.0 + seed) * 0.01;
+    // tiny noise to simulate swirl
+    p.position.xyz += 0.01 * sin(vec3(seed, seed + 1.0, seed + 2.0) + p.position.w * 6.0);
 
-    // Write the updated particle back into the buffer
     particles[id] = p;
 }

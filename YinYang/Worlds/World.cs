@@ -119,12 +119,10 @@ namespace YinYang.Worlds
             // Initialize modular render passes
             renderPipeline.AddPass(new ShadowRenderPass(lightingManager));
             renderPipeline.AddPass(new PointShadowRenderPass());
-            //renderPipeline.AddPass(new SceneRenderPass());
             scenePass = new SceneRenderPass();
             
             // screen space god rays
             _godRayPass = new GodRayPass();
-            //renderPipeline.AddPass(_godRayPass);
             
             cubeReflectionRenderPass = new CubeReflectionRenderPass();
             
@@ -140,6 +138,7 @@ namespace YinYang.Worlds
 
             // Add to pipeline
             renderPipeline.AddPass(scenePass);
+            //renderPipeline.AddPass(_godRayPass);
             renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);
             renderPipeline.AddPass(_bloomUpsamplePass);

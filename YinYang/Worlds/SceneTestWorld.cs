@@ -88,17 +88,17 @@ public class SceneTestWorld : World
     {
         var magicParticlesRight = new GameObject(Game);
         magicParticlesRight.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
-        magicParticlesRight.AddComponent<MagicParticleSystem>(1000); 
+        magicParticlesRight.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesRight);
         
         var magicParticlesFront = new GameObject(Game);
         magicParticlesFront.Transform.Position = new Vector3(0.4f, 0.7f, -6.5f);
-        magicParticlesFront.AddComponent<MagicParticleSystem>(1000); 
+        magicParticlesFront.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesFront);
         
         var magicParticlesLeft = new GameObject(Game);
         magicParticlesLeft.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
-        magicParticlesLeft.AddComponent<MagicParticleSystem>(1000); 
+        magicParticlesLeft.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesLeft);
         
         //

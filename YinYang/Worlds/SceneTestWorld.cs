@@ -81,7 +81,7 @@ public class SceneTestWorld : World
         PlaceParticles();
 
         // Cam Route
-        MoveCam();
+        //MoveCam();
     }
 
     private void PlaceParticles()
@@ -96,10 +96,26 @@ public class SceneTestWorld : World
         magicParticlesFront.AddComponent<MagicParticleSystem>(1000); 
         GameObjects.Add(magicParticlesFront);
         
-        var WaterfallParticles = new GameObject(Game);
-        WaterfallParticles.Transform.Position = new Vector3(0,0,0); 
-        WaterfallParticles.AddComponent<WaterfallMistParticleSystem>(1000);
-        GameObjects.Add(WaterfallParticles);
+        var magicParticlesLeft = new GameObject(Game);
+        magicParticlesLeft.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
+        magicParticlesLeft.AddComponent<MagicParticleSystem>(1000); 
+        GameObjects.Add(magicParticlesLeft);
+        
+        //
+        var WaterfallParticlesRight = new GameObject(Game);
+        WaterfallParticlesRight.Transform.Position = new Vector3(-52.3f, -6.8f, -65.7f);
+        WaterfallParticlesRight.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesRight);
+        
+        var WaterfallParticlesMid = new GameObject(Game);
+        WaterfallParticlesMid.Transform.Position = new Vector3(-48, -6.8f, -57.4f); 
+        WaterfallParticlesMid.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesMid);
+        
+        var WaterfallParticlesLeft = new GameObject(Game);
+        WaterfallParticlesLeft.Transform.Position = new Vector3(-52, -6.4f, -49.5f); 
+        WaterfallParticlesLeft.AddComponent<WaterfallMistParticleSystem>(10000);
+        GameObjects.Add(WaterfallParticlesLeft);
     }
 
     private void MoveCamTest()
@@ -221,7 +237,7 @@ public class SceneTestWorld : World
                     new LogMotion("Step 10"),
                     new MoveToPositionXYZ(new Vector3(-33.11f, 8.28f, -20.36f), 2f), // look at temple
                     new LogMotion("Step 11"),
-                    new MoveToPositionXYZ(new Vector3(-34.93f, 8.68f, -27.26f), 2f)
+                    new MoveToPositionXYZ(new Vector3(-35.93f, 7.68f, -38.26f), 2f)
                 )
             ),
 

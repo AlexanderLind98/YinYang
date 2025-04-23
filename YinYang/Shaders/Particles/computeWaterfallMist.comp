@@ -26,9 +26,11 @@ void main() {
     float seed = float(id) + fract(p.position.w * 321.123);
     p.position.w -= deltaTime;
 
-    if (p.position.w < 0.0) {
-        float offset = hash(seed) * 6.0 - 3.0; // spread left-right
-        float depth = hash(seed + 1.0) * 2.0 - 1.0;
+    if (p.position.w < 0.0) 
+    {
+        // 
+        float offset = hash(seed) * 3.0 - 3.0; // spread left-right
+        float depth = hash(seed + 1.0) * 12.0 - 1.0;
         float height = hash(seed + 2.0) * 0.2;
 
         p.position.xyz = spawnOrigin + vec3(offset, height, depth * 0.5);

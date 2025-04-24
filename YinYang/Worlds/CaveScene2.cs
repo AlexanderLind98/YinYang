@@ -54,7 +54,7 @@ public class CaveScene2 : World
         
         PlaceParticles();
         
-        // MoveCam();
+        MoveCam();
     }
 
     private void PlacePointLights()
@@ -833,6 +833,18 @@ public class CaveScene2 : World
                     new Vector3(-52.58f, 17.96f, -57.38f),
                     2f
                 )
+            ),
+            new SequentialMotion
+            (
+                new LogMotion("Move to lake"),
+                new MoveAndLookAt(
+                    new Vector3(-21.85f, -4.83f, -67.68f),
+                    new Vector3(-52.58f, 17.96f, -57.38f),
+                    2f
+                ),
+                new TurnXYZDegrees((-45, 0, 0), 1f),
+                new WaitXSeconds(1f),
+                new TurnXYZDegrees((45, 0, 0), 1f)
             ),
             new LogMotion("CamMove sequence finished")
         );

@@ -54,7 +54,7 @@ public class CaveScene2 : World
         
         PlaceParticles();
         
-        MoveCam();
+        // MoveCam();
     }
 
     private void PlacePointLights()
@@ -591,12 +591,12 @@ public class CaveScene2 : World
     {
         var magicParticlesRight = new GameObject(Game);
         magicParticlesRight.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
-        magicParticlesRight.AddComponent<MagicParticleSystem>(50); 
+        magicParticlesRight.AddComponent<MagicParticleSystem>(25); 
         GameObjects.Add(magicParticlesRight);
         
         var magicParticlesFront = new GameObject(Game);
         magicParticlesFront.Transform.Position = new Vector3(0.4f, 0.7f, -6.5f);
-        magicParticlesFront.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesFront.AddComponent<MagicParticleSystem>(25); 
         GameObjects.Add(magicParticlesFront);
         
         var magicParticlesLeft = new GameObject(Game);

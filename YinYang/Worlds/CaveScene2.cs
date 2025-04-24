@@ -65,7 +65,7 @@ public class CaveScene2 : World
         
         //PlaceParticles();
         
-        //MoveCam();
+        MoveCam();
     }
 
     private void PlacePointLights()

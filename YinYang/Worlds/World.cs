@@ -139,9 +139,9 @@ namespace YinYang.Worlds
             compositePass = new CompositePass();
 
             // Add to pipeline
-            renderPipeline.AddPass(scenePass);
             renderPipeline.AddPass(shadowPass);
             renderPipeline.AddPass(pointShadowPass);
+            renderPipeline.AddPass(scenePass);
             //renderPipeline.AddPass(_godRayPass);
             renderPipeline.AddPass(cubeReflectionRenderPass);
             renderPipeline.AddPass(_bloomDownsamplePass);

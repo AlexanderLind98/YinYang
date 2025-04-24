@@ -14,7 +14,7 @@ public class PointLight : Light
         Transform = new Transform();
         currentWorld.PointLights.Add(this);
         
-        CreateVisualizer(currentWorld);
+        // CreateVisualizer(currentWorld);
     }
 
     public PointLight(World currentWorld, Color4 color, float intensity = 1)
@@ -26,7 +26,7 @@ public class PointLight : Light
         LightColor = new Vector3(color.R * LightIntensity, color.G* LightIntensity, color.B* LightIntensity);
         DefaultColor = LightColor;
         
-        CreateVisualizer(currentWorld);
+        // CreateVisualizer(currentWorld);
     }
     
     public override Vector3 SetPosition(float x, float y, float z)

@@ -1,10 +1,8 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using YinYang.Behaviors;
-using YinYang.Behaviors.CollisionEvents;
 using YinYang.Behaviors.Motion;
 using YinYang.Lights;
-using YinYang.Managers;
 using YinYang.Materials;
 using YinYang.Particles;
 
@@ -39,18 +37,6 @@ public class CaveScene2 : World
         // DirectionalLight.UpdateVisualizer(this);
         Editor = new EditorTool(this);
     }
-
-    public override string DebugLabel
-    {
-        get
-        {
-            return Game.DebugMode switch
-            {
-                1 => "Shadowmap",
-                _ => "Combined"
-            };
-        }
-    }
     
     protected override void ConstructWorld()
     {
@@ -59,6 +45,39 @@ public class CaveScene2 : World
         DirectionalLight.Visualizer.Transform.Position = sunPos;
         DirectionalLight.Visualizer.Transform.Scale = new Vector3(2.5f);
         
+        BuildCave();
+
+        PlacePointLights();
+
+        Vector3 maskReflectionLoc = mask.Transform.Position + (Vector3.UnitZ * 2.0f);
+        reflectionManager.AddProbe(maskReflectionLoc);
+        
+        PlaceParticles();
+        
+        //MoveCam();
+    }
+
+    private void PlacePointLights()
+    {
+        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
+        SpotLights[0].ToggleLight();
+        
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[0].SetPosition(MainCamera.Position.X, MainCamera.Position.Y, MainCamera.Position.Z);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
+
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[1].SetPosition(-5.62f, -0.77f, 1.99f);
+
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[2].SetPosition(5.83f, 0.60f, 2.92f);
+        
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
+    }
+
+    private void BuildCave()
+    {
         cave = new GameObjectBuilder(Game)
             .ModelTBN("Cave/CaveNew")
             .Material(new  mat_cliffStone())
@@ -566,36 +585,13 @@ public class CaveScene2 : World
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);
         GameObjects.Add(collider);
-        
-        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
-        SpotLights[0].ToggleLight();
-        
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[0].SetPosition(MainCamera.Position.X, MainCamera.Position.Y, MainCamera.Position.Z);
-        PointLights[0].shadowType = Light.ShadowType.Dynamic;
-
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[1].SetPosition(-5.62f, -0.77f, 1.99f);
-
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[2].SetPosition(5.83f, 0.60f, 2.92f);
-        
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
-
-        Vector3 maskReflectionLoc = mask.Transform.Position + (Vector3.UnitZ * 2.0f);
-        reflectionManager.AddProbe(maskReflectionLoc);
-        
-        PlaceParticles();
-        
-        //MoveCam();
     }
-    
+
     private void PlaceParticles()
     {
         var magicParticlesRight = new GameObject(Game);
         magicParticlesRight.Transform.Position = new Vector3(5.75f, 0.7f, 3.0f);
-        magicParticlesRight.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesRight.AddComponent<MagicParticleSystem>(50); 
         GameObjects.Add(magicParticlesRight);
         
         var magicParticlesFront = new GameObject(Game);
@@ -605,23 +601,39 @@ public class CaveScene2 : World
         
         var magicParticlesLeft = new GameObject(Game);
         magicParticlesLeft.Transform.Position = new Vector3(-5.5f, -1.0f, 1.5f);
-        magicParticlesLeft.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesLeft.AddComponent<MagicParticleSystem>(25); 
         GameObjects.Add(magicParticlesLeft);
         
         var magicParticlesCenter = new GameObject(Game);
         magicParticlesCenter.Transform.Position = new Vector3(-0.7f, 1.25f, -18.2f);
-        magicParticlesCenter.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesCenter.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesCenter);
         
         var magicParticlesMask = new GameObject(Game);
         magicParticlesMask.Transform.Position = new Vector3(-5.1f, 1.2f, -30.0f);
-        magicParticlesMask.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesMask.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesMask);
         
         var magicParticlesCorner = new GameObject(Game);
         magicParticlesCorner.Transform.Position = new Vector3(11.13f, 6.5f, -27.0f);
-        magicParticlesCorner.AddComponent<MagicParticleSystem>(100); 
+        magicParticlesCorner.AddComponent<MagicParticleSystem>(10); 
         GameObjects.Add(magicParticlesCorner);
+        
+        var magicParticlesFrontRight = new GameObject(Game);
+        magicParticlesFrontRight.Transform.Position = new Vector3(-0.597f, 1.297f, -6.539f);
+        magicParticlesFrontRight.AddComponent<MagicParticleSystem>(10);
+        GameObjects.Add(magicParticlesFrontRight);
+
+        var magicParticlesLeftBack = new GameObject(Game);
+        magicParticlesLeftBack.Transform.Position = new Vector3(-5.75f, -0.82f, 2.41f);
+        magicParticlesLeftBack.AddComponent<MagicParticleSystem>(10);
+        GameObjects.Add(magicParticlesLeftBack);
+
+        var magicParticlesCorner2 = new GameObject(Game);
+        magicParticlesCorner2.Transform.Position = new Vector3(10.88f, 7.23f, -27.75f);
+        magicParticlesCorner2.AddComponent<MagicParticleSystem>(10);
+        GameObjects.Add(magicParticlesCorner2);
+
         
         //
         var WaterfallParticlesRight = new GameObject(Game);
@@ -680,7 +692,7 @@ public class CaveScene2 : World
         Editor?.Update();
     }
     
-     private void MoveCam()
+    private void MoveCam()
     {
         var maskPos = new Vector3(-2.08f, 0.436f, -29.80f);
         
@@ -731,8 +743,8 @@ public class CaveScene2 : World
             ),
 
            
-                new LogMotion("Step 4"),
-                new MoveToPositionXYZ(new Vector3(1.21f, 2.67f, -26.63f), 2f),
+            new LogMotion("Step 4"),
+            new MoveToPositionXYZ(new Vector3(1.21f, 2.67f, -26.63f), 2f),
            
             
             new LogMotion("step 5-7, Looking at mask"), // pos (-2.08f, 0.436f, -29.80f);

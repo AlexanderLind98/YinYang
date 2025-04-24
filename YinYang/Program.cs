@@ -16,7 +16,8 @@ static WindowIcon CreateIcon()
 
 GameWindowSettings settings = new GameWindowSettings()
 {
-    UpdateFrequency = 60.0
+    //UpdateFrequency = 60.0
+    UpdateFrequency = 30.0
 };
 
 NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()

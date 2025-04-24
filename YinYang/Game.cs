@@ -16,8 +16,6 @@ namespace YinYang
         public bool showSceneTexture = false;
         public bool showBloomTexture = false;
 
-        
-
         public Game(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {

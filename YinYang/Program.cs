@@ -17,11 +17,13 @@ static WindowIcon CreateIcon()
 GameWindowSettings settings = new GameWindowSettings()
 {
     UpdateFrequency = 60.0
+    //UpdateFrequency = 30.0
 };
 
 NativeWindowSettings nativeWindowSettings = new NativeWindowSettings()
 {
     ClientSize = new Vector2i(1920, 1080),
+    //ClientSize = new Vector2i(800, 600),
     Title = "Yin Yang Engine | ",
     NumberOfSamples = 4,
     Icon = CreateIcon(),

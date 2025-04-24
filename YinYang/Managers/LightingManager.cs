@@ -44,7 +44,7 @@ namespace YinYang.Managers
             Sun.Transform.Rotation = initialDirection;
 
             // Place the sun at an elevated position in the world.
-            Sun.Transform.Position = new Vector3(0, 0, 1);
+            Sun.Transform.Position = new Vector3(2, 5, -2);
 
             // Optionally attach a visual representation of the light.
             Sun.UpdateVisualizer(world);
@@ -63,7 +63,7 @@ namespace YinYang.Managers
             Sun = new DirectionalLight(world, new Color4(initialColor.X, initialColor.Y, initialColor.Z, 1.0f), 1.0f);
 
             Sun.Transform.SetRotationInDegrees(pitchDegrees, yawDegrees, rollDegrees);
-            Sun.Transform.Position = new Vector3(0, 0, 1);
+            Sun.Transform.Position = new Vector3(2, 5, -2);
             Sun.UpdateVisualizer(world);
         }
     }

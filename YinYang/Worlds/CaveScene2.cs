@@ -56,6 +56,39 @@ public class CaveScene2 : World
         DirectionalLight.Visualizer.Transform.Position = sunPos;
         DirectionalLight.Visualizer.Transform.Scale = new Vector3(2.5f);
         
+        BuildCave();
+
+        PlacePointLights();
+
+        Vector3 maskReflectionLoc = mask.Transform.Position + (Vector3.UnitZ * 2.0f);
+        reflectionManager.AddProbe(maskReflectionLoc);
+        
+        //PlaceParticles();
+        
+        MoveCam();
+    }
+
+    private void PlacePointLights()
+    {
+        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
+        SpotLights[0].ToggleLight();
+        
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[0].SetPosition(MainCamera.Position.X, MainCamera.Position.Y, MainCamera.Position.Z);
+        PointLights[0].shadowType = Light.ShadowType.Dynamic;
+
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[1].SetPosition(-5.62f, -0.77f, 1.99f);
+
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[2].SetPosition(5.83f, 0.60f, 2.92f);
+        
+        new PointLight(this, Color4.Goldenrod, 0.2f);
+        PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
+    }
+
+    private void BuildCave()
+    {
         cave = new GameObjectBuilder(Game)
             .ModelTBN("Cave/CaveNew")
             .Material(new  mat_cliffStone())
@@ -563,31 +596,8 @@ public class CaveScene2 : World
         GameObjects.Add(CavePillar);
         GameObjects.Add(lightStone);
         GameObjects.Add(collider);
-        
-        new SpotLight(this, Color4.White, 1f, 15.0f, 20.0f);
-        SpotLights[0].ToggleLight();
-        
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[0].SetPosition(MainCamera.Position.X, MainCamera.Position.Y, MainCamera.Position.Z);
-        PointLights[0].shadowType = Light.ShadowType.Dynamic;
-
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[1].SetPosition(-5.62f, -0.77f, 1.99f);
-
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[2].SetPosition(5.83f, 0.60f, 2.92f);
-        
-        new PointLight(this, Color4.Goldenrod, 0.2f);
-        PointLights[3].SetPosition(-0.50f, 1.55f, -6.28f);
-
-        Vector3 maskReflectionLoc = mask.Transform.Position + (Vector3.UnitZ * 2.0f);
-        reflectionManager.AddProbe(maskReflectionLoc);
-        
-        //PlaceParticles();
-        
-        //MoveCam();
     }
-    
+
     // private void PlaceParticles()
     // {
     //     var magicParticlesRight = new GameObject(Game);

@@ -8,7 +8,7 @@ in float distance;
 out vec4 FragColor;
 
 // Constants for mist rendering
-float fadeDistance = 30.0;
+float fadeDistance = 35.0;
 float maxLifetime = 1.5;
 float minAlpha = 0.1;
 vec3 mistColor = vec3(0.7, 0.85, 0.95);

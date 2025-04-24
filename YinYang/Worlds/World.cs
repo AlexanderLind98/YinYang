@@ -27,7 +27,7 @@ namespace YinYang.Worlds
         private SceneRenderPass scenePass;
         private ShadowRenderPass shadowPass;
         private PointShadowRenderPass pointShadowPass;
-        private GodRayPass _godRayPass;
+        //private GodRayPass _godRayPass;
         private BloomBlurPass blurPass;
         private BloomMipChain _bloomMipChain;
         private BloomDownsamplePass _bloomDownsamplePass;
@@ -124,7 +124,7 @@ namespace YinYang.Worlds
             scenePass = new SceneRenderPass();
             
             // screen space god rays
-            _godRayPass = new GodRayPass();
+            //_godRayPass = new GodRayPass();
             
             cubeReflectionRenderPass = new CubeReflectionRenderPass();
             
@@ -238,7 +238,7 @@ namespace YinYang.Worlds
         private void SetVolumetricEnabled(bool enabled)
         {
             volumetricEnabled = enabled;
-            _godRayPass.Enabled = enabled;
+            //_godRayPass.Enabled = enabled;
             compositePass.SetVolumetricEnabled(enabled); // We'll add this next
             Console.WriteLine(enabled ? "Volumetric Light ENABLED" : "Volumetric Light DISABLED");
         }
@@ -303,7 +303,7 @@ namespace YinYang.Worlds
             renderPipeline.RenderAll(context, objectManager);
             
             GL.Clear(ClearBufferMask.DepthBufferBit);
-
+            
             // render particles
             foreach (var obj in GameObjects)
                 if (obj.GetComponent<BaseParticleSystem>() is BaseParticleSystem ps)
@@ -315,7 +315,7 @@ namespace YinYang.Worlds
                 _bloomDownsamplePass.InputTexture = scenePass.BrightColorTexture;
 
                 compositePass.SceneTexture = scenePass.SceneColorTexture;
-                compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
+                //compositePass.VolumetricTexture = _godRayPass.LightShaftTexture;
                 compositePass.BloomTexture = _bloomMipChain.Mips[0].Texture;
 
                 bloomLinked = true;
@@ -352,11 +352,11 @@ namespace YinYang.Worlds
                 DrawDebugTexture(_bloomMipChain.Mips[^1].Texture, new Vector2(1.0f - scale, scale * 2), scale);
             }
             
-            if (Game.showLightShaftTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
-            {
-                DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
-                DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
-            }
+            // if (Game.showLightShaftTexture && _godRayPass != null && _godRayPass.LightShaftTexture != 0)
+            // {
+            //     DrawDebugTexture(_godRayPass.LightShaftTexture,      new Vector2(0.0f, scale * 2), scale); // blurred result
+            //     DrawDebugTexture(_godRayPass.LightShaftMaskTexture,  new Vector2(0.0f, scale * 1), scale); // raw mask
+            // }
         }
 
         /// <summary>

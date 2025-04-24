@@ -76,5 +76,19 @@ public class CamMoveBehavior(GameObject gameObject, Game window) : Behaviour(gam
         {
             window.currentWorld.SpotLights[0].ToggleLight();
         }
+        
+        // If camera is NOT being rotated by mouse, sync Front to Transform
+        if (window.CursorState != CursorState.Grabbed)
+        {
+            var rot = gameObject.Transform.GetRotationInDegrees();
+            float pitch = MathHelper.DegreesToRadians(rot.X);
+            float yaw = MathHelper.DegreesToRadians(rot.Y);
+
+            Vector3 dir;
+            dir.X = MathF.Cos(pitch) * MathF.Cos(yaw);
+            dir.Y = MathF.Sin(pitch);
+            dir.Z = MathF.Cos(pitch) * MathF.Sin(yaw);
+            cameraComponent.Front = Vector3.Normalize(dir);
+        }
     }
 }

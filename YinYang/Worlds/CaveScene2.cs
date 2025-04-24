@@ -54,7 +54,7 @@ public class CaveScene2 : World
         
         PlaceParticles();
         
-        //MoveCam();
+        MoveCam();
     }
 
     private void PlacePointLights()
@@ -704,6 +704,9 @@ public class CaveScene2 : World
         // move sequence
         cameraObj.AddComponent<SequentialBehavior>
         (
+            new LogMotion("Waiting for particles to clear"),
+            new WaitXSeconds(5f),
+            
             new LogMotion("Starting CamMove"),
             new WaitXSeconds(1f),
 
